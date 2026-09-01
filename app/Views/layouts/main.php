@@ -13,7 +13,7 @@
 <body>
   <header>
     <!-- Sidebar -->
-    <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white">
+    <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-body">
       <div class="position-sticky">
         <div class="list-group list-group-flush mx-3 mt-4">
           <a href="<?= url_to('DashboardController::index') ?>" class="list-group-item list-group-item-action py-2">
@@ -38,19 +38,43 @@
       </div>
     </nav>
     <!-- Navbar -->
-    <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
+    <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light fixed-top">
       <div class="container-fluid">
         <button class="navbar-toggler" type="button" data-mdb-collapse-init data-mdb-target="#sidebarMenu"
           aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
           <i class="fas fa-bars"></i>
         </button>
-        <a class="navbar-brand" href="<?= url_to('DashboardController::index') ?>">Oficina del Agua</a>
-        <ul class="navbar-nav ms-auto d-flex flex-row">
-          <li class="nav-item me-3">
-            <span class="nav-link"><?= esc(session()->get('usuario_nombre')) ?> (<?= esc(session()->get('usuario_rol')) ?>)</span>
-          </li>
+
+        <a class="navbar-brand d-flex align-items-center" href="<?= url_to('DashboardController::index') ?>">
+          <i class="fas fa-droplet me-2"></i>
+          <strong>Oficina del Agua</strong>
+        </a>
+
+        <ul class="navbar-nav ms-auto d-flex flex-row align-items-center">
           <li class="nav-item">
-            <a class="nav-link" href="<?= base_url('logout') ?>"><i class="fas fa-sign-out-alt"></i> Salir</a>
+            <button id="themeToggle" type="button" class="nav-link nav-icon-btn border-0 bg-transparent p-0" title="Cambiar tema">
+              <i class="fas fa-moon"></i>
+            </button>
+          </li>
+
+          <li class="nav-item mx-3 d-none d-sm-block">
+            <span class="navbar-divider"></span>
+          </li>
+
+          <li class="nav-item d-flex align-items-center">
+            <div class="user-avatar me-2">
+              <?= esc(strtoupper(substr(session()->get('usuario_nombre') ?? '?', 0, 1))) ?>
+            </div>
+            <div class="d-none d-md-flex flex-column lh-1">
+              <span class="user-name"><?= esc(session()->get('usuario_nombre')) ?></span>
+              <small class="user-role"><?= esc(session()->get('usuario_rol')) ?></small>
+            </div>
+          </li>
+
+          <li class="nav-item ms-3">
+            <a class="nav-link nav-icon-btn" href="<?= base_url('logout') ?>" title="Cerrar sesion">
+              <i class="fas fa-sign-out-alt"></i>
+            </a>
           </li>
         </ul>
       </div>
@@ -69,5 +93,29 @@
   </main>
 
   <script type="text/javascript" src="<?= base_url('assets/js/mdb.umd.min.js') ?>"></script>
+  <script>
+    (function () {
+      var boton = document.getElementById('themeToggle');
+      var icono = boton.querySelector('i');
+      var oscuro = localStorage.getItem('tema') === 'oscuro';
+
+      function aplicar(esOscuro) {
+        if (esOscuro) {
+          document.documentElement.setAttribute('data-mdb-theme', 'dark');
+        } else {
+          document.documentElement.removeAttribute('data-mdb-theme');
+        }
+        icono.className = esOscuro ? 'fas fa-sun' : 'fas fa-moon';
+      }
+
+      aplicar(oscuro);
+
+      boton.addEventListener('click', function () {
+        oscuro = !oscuro;
+        localStorage.setItem('tema', oscuro ? 'oscuro' : 'claro');
+        aplicar(oscuro);
+      });
+    })();
+  </script>
 </body>
 </html>

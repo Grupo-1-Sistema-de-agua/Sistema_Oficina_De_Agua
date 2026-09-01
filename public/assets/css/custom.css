@@ -1,4 +1,104 @@
 :root {
-    --mdb-primary: #35357c;
-    --mdb-primary-rgb: R, G, B;
+    /* Color principal */
+    --mdb-primary: #023e7d;
+    --mdb-primary-rgb: 2, 62, 125;
+
+    --mdb-secondary: #006494;
+    --mdb-secondary-rgb: 0, 100, 148;
+
+    --mdb-success: #00b74a;
+    --mdb-danger: #f93154;
+    --mdb-warning: #ffa900;
+    --mdb-info: #00A6FB;
+}
+
+.btn-primary {
+    --mdb-btn-bg: #023e7d;
+    --mdb-btn-border-color: #023e7d;
+    --mdb-btn-hover-bg: #012f60;
+    --mdb-btn-hover-border-color: #012f60;
+    --mdb-btn-focus-bg: #012f60;
+    --mdb-btn-focus-border-color: #012f60;
+    --mdb-btn-active-bg: #01254d;
+    --mdb-btn-active-border-color: #01254d;
+    --mdb-btn-disabled-bg: #023e7d;
+    --mdb-btn-disabled-border-color: #023e7d;
+    --mdb-btn-focus-shadow-rgb: 2, 62, 125;
+}
+
+/* Sidebar: íconos y estado activo/hover */
+#sidebarMenu .list-group-item i {
+    color: #0353A4;
+}
+
+#sidebarMenu .list-group-item:hover,
+#sidebarMenu .list-group-item.active {
+    background-color: #0353A4;
+    color: #fff;
+}
+
+#sidebarMenu .list-group-item.active i,
+#sidebarMenu .list-group-item:hover i {
+    color: #fff;
+}
+
+/* Navbar superior: color fijo (marca), no sigue el tema claro/oscuro */
+#main-navbar {
+    background-color: #023e7d;
+
+    /* Variables de MDB que controlan el color del texto e iconos
+       del navbar (nav-link, navbar-brand). Al redefinirlas aqui,
+       con el selector de ID, ganan sin necesitar !important. */
+    --mdb-navbar-color: #ffffff;
+    --mdb-navbar-hover-color: #ffffff;
+    --mdb-navbar-active-color: #ffffff;
+    --mdb-navbar-brand-color: #ffffff;
+    --mdb-navbar-brand-hover-color: #ffffff;
+}
+
+/* Esquina derecha del navbar: avatar, rol y botones de accion */
+#main-navbar .nav-icon-btn {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.15s ease-in-out;
+}
+
+#main-navbar .nav-icon-btn:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+#main-navbar .navbar-divider {
+    display: inline-block;
+    width: 1px;
+    height: 24px;
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+#main-navbar .user-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+#main-navbar .user-name {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+#main-navbar .user-role {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.72rem;
+    text-transform: capitalize;
 }
