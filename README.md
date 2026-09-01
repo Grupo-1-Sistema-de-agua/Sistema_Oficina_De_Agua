@@ -1,69 +1,189 @@
-# CodeIgniter 4 Application Starter
+# Sistema de Gestion — Oficina del Agua
 
-## What is CodeIgniter?
+Proyecto grupal del curso de Desarrollo Web. Construido con CodeIgniter 4,
+MariaDB y Material Design for Bootstrap (MDB), corriendo todo en Docker.
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+## Requisitos
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado y corriendo
+- Git
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+## Inicio Rapido
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+```bash
+# Clonar el repositorio
+git clone <url-del-repo>
+cd Sistema_de_Agua
 
-## Installation & updates
+# Cambiarse a la rama developer (ver seccion "Flujo de trabajo con Git")
+git checkout developer
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+# Copiar el archivo de variables de entorno
+cp .env.example .env
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+# Levantar los contenedores (la primera vez tarda unos minutos:
+# construye la imagen de PHP y corre `composer install` dentro)
+docker-compose up -d --build
+```
 
-## Setup
+Esto levanta:
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+| Servicio    | Puerto | URL                    |
+|-------------|--------|------------------------|
+| App (CI4)   | 8000   | http://localhost:8000  |
+| MariaDB     | 3306   | localhost:3306         |
+| phpMyAdmin  | 8080   | http://localhost:8080  |
 
-## Important Change with index.php
+Con los contenedores arriba, hay que crear las tablas y los datos base
+(roles, tipos de servicio, metodos de pago, usuario administrador):
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+```bash
+docker-compose exec app php spark migrate
+docker-compose exec app php spark db:seed DatabaseSeeder
+```
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+Con eso ya pueden entrar a http://localhost:8000/login con:
 
-**Please** read the user guide for a better explanation of how CI4 works!
+- Correo: `admin@oficinadelagua.local`
+- Contrasena: `admin123`
 
-## Repository Management
+**Cambien esa contrasena en cuanto tengan el modulo de usuarios listo.**
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+## Credenciales de la Base de Datos
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+| Campo            | Valor       |
+|------------------|-------------|
+| Host (desde host)| localhost   |
+| Host (desde app) | db          |
+| Puerto           | 3306        |
+| Usuario          | agua_user   |
+| Contrasena       | agua2026    |
+| Base de datos    | agua_db     |
+| Usuario root     | root        |
+| Contrasena root  | agua2026    |
 
-## Server Requirements
+## Estructura del proyecto (lo que ya esta listo)
 
-PHP version 8.2 or higher is required, with the following extensions installed:
+```
+app/
+  Config/Routes.php        -> rutas agrupadas por modulo
+  Config/Filters.php       -> filtros 'auth' y 'role' ya registrados
+  Constants/Roles.php      -> nombres de rol (administrador, secretaria, lector)
+  Filters/                 -> AuthFilter (exige sesion), RoleFilter (exige rol)
+  Controllers/Auth/        -> login / logout, ya funcional
+  Controllers/<Modulo>/    -> un controlador placeholder por modulo
+  Models/                  -> un Model por tabla, ya conectado al esquema
+  Database/Migrations/     -> el esquema completo (10 tablas), versionado
+  Database/Seeds/          -> catalogos base + usuario administrador
+  Views/layouts/main.php   -> layout compartido (navbar + sidebar), con
+                               paleta de color propia y boton de tema
+                               claro/oscuro (data-mdb-theme)
+  Views/<Modulo>/index.php -> vista placeholder por modulo
+public/assets/             -> css/js de MDB + custom.css con la paleta del equipo
+docker/app/                -> Dockerfile + config de Apache del contenedor app
+sql/schema.sql             -> referencia del esquema (ya NO es la fuente de verdad)
+```
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+### Que deben hacer en su modulo
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - The end of life date for PHP 8.1 was December 31, 2025.
-> - If you are still using below PHP 8.2, you should upgrade immediately.
-> - The end of life date for PHP 8.2 will be December 31, 2026.
+Cada modulo (Clientes, Contadores, Tarifas, Lecturas, Pagos) ya tiene:
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+1. Un controlador en `app/Controllers/<Modulo>/<Modulo>Controller.php` con un
+   `index()` de ejemplo.
+2. Una ruta protegida en `app/Config/Routes.php` (dentro del grupo `auth`).
+3. Un Model en `app/Models/` con los campos y validaciones ya definidas.
+4. Una vista placeholder en `app/Views/<Modulo>/index.php`.
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+Lo que agregan ustedes: los metodos `create`, `store`, `edit`, `update`,
+`delete` en su controlador, sus vistas, y las rutas correspondientes
+**dentro del bloque de su modulo** en `Routes.php` (asi evitamos que dos
+personas editen la misma linea y se generen conflictos de merge).
+
+Si necesitan restringir una ruta a un rol especifico, usen el filtro `role`
+despues de `auth`, por ejemplo:
+
+```php
+$routes->get('tarifas/nueva', 'Tarifas\TarifasController::create', [
+    'filter' => 'auth,role:' . \App\Constants\Roles::ADMINISTRADOR,
+]);
+```
+
+## Comandos Utiles
+
+```bash
+# Levantar los contenedores
+docker-compose up -d
+
+# Reconstruir la imagen de la app (si cambian el Dockerfile)
+docker-compose up -d --build
+
+# Detener los contenedores
+docker-compose down
+
+# Detener y borrar todos los datos (reiniciar la BD desde cero)
+docker-compose down -v
+
+# Ver logs de la app o de MariaDB
+docker-compose logs -f app
+docker-compose logs -f db
+
+# Entrar a la consola de MariaDB desde terminal
+docker-compose exec db mysql -u agua_user -p agua_db
+
+# Correr un comando de spark (CLI de CodeIgniter) dentro del contenedor
+docker-compose exec app php spark <comando>
+
+# Crear una migracion nueva
+docker-compose exec app php spark make:migration NombreDeLaMigracion
+
+# Aplicar migraciones pendientes / deshacer la ultima
+docker-compose exec app php spark migrate
+docker-compose exec app php spark migrate:rollback
+
+# Reiniciar todo desde cero
+docker-compose down -v && docker-compose up -d --build \
+  && docker-compose exec app php spark migrate \
+  && docker-compose exec app php spark db:seed DatabaseSeeder
+```
+
+## Flujo de trabajo con Git
+
+Usamos dos ramas permanentes:
+
+- **`main`** — solo codigo integrado y funcionando. Nadie hace push directo aqui.
+- **`developer`** — donde se integra el trabajo de todos antes de pasar a `main`.
+
+Y ramas temporales por persona/tarea, siempre creadas a partir de `developer`:
+
+```bash
+git checkout developer
+git pull
+git checkout -b feature/nombre-del-modulo
+```
+
+Al terminar su parte:
+
+```bash
+git add .
+git commit -m "Describe que hiciste"
+git push origin feature/nombre-del-modulo
+```
+
+Y abren un Pull Request de `feature/nombre-del-modulo` hacia `developer`
+(nunca directo a `main`). Cuando `developer` este estable (antes de un
+checkpoint o del Demo Day), se hace merge de `developer` a `main`.
+
+**Nunca** subir el archivo `.env` a git (ya esta en `.gitignore`). Si
+alguien agrega una migracion nueva, los demas corren:
+
+```bash
+git pull
+docker-compose exec app php spark migrate
+```
+
+## Notas
+
+- La BD se persiste en un volumen de Docker. Solo se destruye con `docker-compose down -v`.
+- Si `writable/` da errores de permisos en Linux, corran `chmod -R 777 writable`.
+- `vendor/` vive en un volumen aparte (no se sube a git); si Composer se
+  queda "atascado" por algun cambio raro, `docker-compose down -v` lo reinstala limpio.
