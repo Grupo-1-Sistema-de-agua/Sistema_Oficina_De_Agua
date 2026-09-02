@@ -59,7 +59,8 @@ class ContadoresController extends BaseController
         $data['clientes'] = model('ClienteModel')->findAll();
         $data['tipos']    = model('TipoServicioModel')->contratables();
         $data['sectores'] = model('SectorModel')->findAll();
-
+        
+        $data['errors'] = session()->getFlashdata('errors') ?? [];
         return view('Contadores/form', $data);
           }
 
@@ -90,6 +91,7 @@ class ContadoresController extends BaseController
         $data['tipos']     = model('TipoServicioModel')->contratables();
         $data['sectores']  = model('SectorModel')->findAll();
 
+        $data['errors'] = session()->getFlashdata('errors') ?? [];
         return view('Contadores/form', $data);
     }
 
