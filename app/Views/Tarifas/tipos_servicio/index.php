@@ -2,13 +2,18 @@
 
 <?= $this->section('contenido') ?>
 <div class="container-fluid px-4 py-4">
+  <div class="mb-2">
+    <a href="<?= base_url('tarifas') ?>" class="link-primary">
+      <i class="fas fa-arrow-left me-1"></i> Volver a Tarifas
+    </a>
+  </div>
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="mb-0">Tipos de Servicio</h2>
     <a href="<?= base_url('tipos-servicio/crear') ?>" class="btn btn-primary" data-mdb-ripple-init>
       <i class="fas fa-plus me-1"></i> Nuevo Tipo de Servicio
     </a>
   </div>
-
+  
   <div class="table-responsive">
     <table class="table table-striped align-middle">
       <thead>
