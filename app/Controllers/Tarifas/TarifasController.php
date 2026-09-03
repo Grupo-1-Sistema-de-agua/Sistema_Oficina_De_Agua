@@ -157,4 +157,47 @@ class TarifasController extends BaseController
         return redirect()->to(base_url('tarifas'))
             ->with('message', 'Tarifa registrada correctamente.');
     }
+
+    public function anular($id)
+    {
+        $tarifaModel = new TarifaModel();
+        $tarifa      = $tarifaModel->find($id);
+
+        if (! $tarifa) {
+            return redirect()->to(base_url('tarifas'))
+                ->with('error', 'Tarifa no encontrada.');
+        }
+
+        if ((int) $tarifa['anulada'] === 1) {
+            return redirect()->to(base_url('tarifas'))
+                ->with('error', 'Esta tarifa ya estaba anulada.');
+        }
+
+        // No se puede anular una tarifa que ya se uso en al menos una lectura,
+        // para no dejar recibos ya generados apuntando a una tarifa invalida.
+        $db = db_connect();
+
+        $enBase = $db->table('Tb_Lecturas')->where('tarifa_base_id', $id)->countAllResults();
+        $enExceso = $db->table('Tb_Lecturas')->where('tarifa_exceso_id', $id)->countAllResults();
+
+        if ($enBase > 0 || $enExceso > 0) {
+            return redirect()->to(base_url('tarifas'))
+                ->with('error', 'No se puede anular: esta tarifa ya fue usada en al menos una lectura.');
+        }
+
+        $db->transStart();
+
+        $tarifaModel->update($id, ['anulada' => 1]);
+        $tarifaModel->recalcularVigenciaHasta((int) $tarifa['tipo_servicio_id']);
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return redirect()->to(base_url('tarifas'))
+                ->with('error', 'Ocurrio un error al anular la tarifa. No se aplico ningun cambio.');
+        }
+
+        return redirect()->to(base_url('tarifas'))
+            ->with('message', 'Tarifa anulada correctamente.');
+    }
 }
