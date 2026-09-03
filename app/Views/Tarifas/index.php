@@ -31,8 +31,8 @@
 
   <?php
   $bloques = [
-      ['titulo' => 'Vigentes',    'datos' => $vigentes,    'badge' => 'bg-success',        'texto' => 'Vigente',    'color' => '#198754'],
-      ['titulo' => 'Programadas', 'datos' => $programadas, 'badge' => 'bg-info text-dark', 'texto' => 'Programada', 'color' => '#0dcaf0'],
+      ['titulo' => 'Vigentes',    'datos' => $vigentes,    'badge' => 'bg-success',           'texto' => 'Vigente',    'color' => '#198754'],
+      ['titulo' => 'Programadas', 'datos' => $programadas, 'badge' => 'bg-info text-dark',    'texto' => 'Programada', 'color' => '#0dcaf0'],
       ['titulo' => 'Historicas',  'datos' => $historicas,  'badge' => 'bg-warning text-dark', 'texto' => 'Historica',  'color' => '#d97706'],
   ];
   ?>
@@ -53,9 +53,12 @@
     <div class="table-responsive mb-4">
       <table class="table table-striped align-middle mb-0">
         <colgroup>
-          <col style="width: 40%;">
-          <col style="width: 20%;">
-          <col style="width: 25%;">
+          <col style="width: <?= $bloque['titulo'] === 'Historicas' ? '35' : '40' ?>%;">
+          <col style="width: <?= $bloque['titulo'] === 'Historicas' ? '15' : '20' ?>%;">
+          <col style="width: <?= $bloque['titulo'] === 'Historicas' ? '20' : '25' ?>%;">
+          <?php if ($bloque['titulo'] === 'Historicas') : ?>
+            <col style="width: 20%;">
+          <?php endif; ?>
           <col style="width: 15%;">
         </colgroup>
         <thead>
@@ -63,6 +66,9 @@
             <th>Tipo de servicio</th>
             <th>Precio</th>
             <th>Vigente desde</th>
+            <?php if ($bloque['titulo'] === 'Historicas') : ?>
+              <th>Vigente hasta</th>
+            <?php endif; ?>
             <th>Estado</th>
           </tr>
         </thead>
@@ -72,6 +78,9 @@
               <td><?= esc($tarifa['tipo_nombre']) ?> <span class="text-muted">(<?= esc($tarifa['tipo_codigo']) ?>)</span></td>
               <td>Q<?= number_format((float) $tarifa['precio'], 2) ?></td>
               <td><?= date('d/m/Y H:i', strtotime($tarifa['vigente_desde'])) ?></td>
+              <?php if ($bloque['titulo'] === 'Historicas') : ?>
+                <td><?= $tarifa['vigente_hasta'] ? date('d/m/Y H:i', strtotime($tarifa['vigente_hasta'])) : '—' ?></td>
+              <?php endif; ?>
               <td><span class="badge <?= $bloque['badge'] ?>"><?= esc($bloque['texto']) ?></span></td>
             </tr>
           <?php endforeach; ?>

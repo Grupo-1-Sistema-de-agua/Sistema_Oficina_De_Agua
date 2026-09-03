@@ -26,9 +26,7 @@ class TarifasController extends BaseController
 
         $tarifas = $builder->findAll();
 
-        // Determina, por cada tipo de servicio presente en el listado,
-        // cual tarifa es la vigente ahora mismo (usando la misma logica
-        // de vigentePara() del modelo, no un simple vigente_hasta null).
+        // Utiliza la logica de vigentePara() para determinar el estado de cada tarifa
         $vigentesPorTipo = [];
         foreach ($tarifas as $tarifa) {
             $tipoId = $tarifa['tipo_servicio_id'];
@@ -103,7 +101,7 @@ class TarifasController extends BaseController
         $hoy = new \DateTime('today');
         $esHoy = $fecha->format('Y-m-d') === $hoy->format('Y-m-d');
 
-        // Si se eligió el díaa de hoy, la tarifa aplica de inmediato con la hora actual.
+        // Si se eligió el día de hoy, la tarifa aplica de inmediato con la hora actual.
         // Caso contrario, si es una fecha futura, aplica desde el inicio de ese dia a las 00:00:00.
         $vigenteDesde = $esHoy
             ? date('Y-m-d H:i:s')
@@ -139,7 +137,22 @@ class TarifasController extends BaseController
             ]);
         }
 
+        $db = db_connect();
+        $db->transStart();
+
         $tarifaModel->insert($data);
+        $tarifaModel->recalcularVigenciaHasta($tipoServicioId);
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return view('Tarifas/create', [
+                'titulo' => 'Nueva Tarifa',
+                'tipos'  => $tipoModel->orderBy('nombre', 'ASC')->findAll(),
+                'errors' => ['general' => 'Ocurrio un error al guardar. No se aplico ningun cambio.'],
+                'old'    => $this->request->getPost(),
+            ]);
+        }
 
         return redirect()->to(base_url('tarifas'))
             ->with('message', 'Tarifa registrada correctamente.');
