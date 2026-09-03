@@ -29,41 +29,55 @@
     <?php endif; ?>
   </form>
 
-  <div class="table-responsive">
-    <table class="table table-striped align-middle">
-      <thead>
-        <tr>
-          <th>Tipo de servicio</th>
-          <th>Precio</th>
-          <th>Vigente desde</th>
-          <th>Estado</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php if (empty($tarifas)) : ?>
+  <?php
+  $bloques = [
+      ['titulo' => 'Vigentes',    'datos' => $vigentes,    'badge' => 'bg-success',        'texto' => 'Vigente',    'color' => '#198754'],
+      ['titulo' => 'Programadas', 'datos' => $programadas, 'badge' => 'bg-info text-dark', 'texto' => 'Programada', 'color' => '#0dcaf0'],
+      ['titulo' => 'Historicas',  'datos' => $historicas,  'badge' => 'bg-warning text-dark', 'texto' => 'Historica',  'color' => '#d97706'],
+  ];
+  ?>
+
+  <?php if (empty($vigentes) && empty($programadas) && empty($historicas)) : ?>
+    <p class="text-muted text-center py-4">Todavia no hay tarifas registradas.</p>
+  <?php endif; ?>
+
+  <?php foreach ($bloques as $bloque) : ?>
+    <?php if (empty($bloque['datos'])) continue; ?>
+
+    <div class="d-flex align-items-center px-3 py-2 mb-2 rounded-2"
+         style="background-color: <?= $bloque['color'] ?>26; border-left: 5px solid <?= $bloque['color'] ?>;">
+      <span class="fw-bold" style="color: <?= $bloque['color'] ?>;"><?= esc($bloque['titulo']) ?></span>
+      <span class="text-muted ms-2">(<?= count($bloque['datos']) ?>)</span>
+    </div>
+
+    <div class="table-responsive mb-4">
+      <table class="table table-striped align-middle mb-0">
+        <colgroup>
+          <col style="width: 40%;">
+          <col style="width: 20%;">
+          <col style="width: 25%;">
+          <col style="width: 15%;">
+        </colgroup>
+        <thead>
           <tr>
-            <td colspan="4" class="text-center text-muted py-4">Todavia no hay tarifas registradas.</td>
+            <th>Tipo de servicio</th>
+            <th>Precio</th>
+            <th>Vigente desde</th>
+            <th>Estado</th>
           </tr>
-        <?php else : ?>
-          <?php foreach ($tarifas as $tarifa) : ?>
+        </thead>
+        <tbody>
+          <?php foreach ($bloque['datos'] as $tarifa) : ?>
             <tr>
               <td><?= esc($tarifa['tipo_nombre']) ?> <span class="text-muted">(<?= esc($tarifa['tipo_codigo']) ?>)</span></td>
               <td>Q<?= number_format((float) $tarifa['precio'], 2) ?></td>
               <td><?= date('d/m/Y H:i', strtotime($tarifa['vigente_desde'])) ?></td>
-              <td>
-                <?php if ($tarifa['estado'] === 'vigente') : ?>
-                  <span class="badge bg-success">Vigente</span>
-                <?php elseif ($tarifa['estado'] === 'programada') : ?>
-                  <span class="badge bg-info text-dark">Programada</span>
-                <?php else : ?>
-                  <span class="badge bg-secondary">Historica</span>
-                <?php endif; ?>
-              </td>
+              <td><span class="badge <?= $bloque['badge'] ?>"><?= esc($bloque['texto']) ?></span></td>
             </tr>
           <?php endforeach; ?>
-        <?php endif; ?>
-      </tbody>
-    </table>
-  </div>
+        </tbody>
+      </table>
+    </div>
+  <?php endforeach; ?>
 </div>
 <?= $this->endSection() ?>

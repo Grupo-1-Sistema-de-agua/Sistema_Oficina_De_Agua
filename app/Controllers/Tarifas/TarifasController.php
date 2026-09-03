@@ -26,7 +26,9 @@ class TarifasController extends BaseController
 
         $tarifas = $builder->findAll();
 
-        // Utiliza la lógica de vigentePara() para determinar la tarifa vigente para cada tipo de servicio
+        // Determina, por cada tipo de servicio presente en el listado,
+        // cual tarifa es la vigente ahora mismo (usando la misma logica
+        // de vigentePara() del modelo, no un simple vigente_hasta null).
         $vigentesPorTipo = [];
         foreach ($tarifas as $tarifa) {
             $tipoId = $tarifa['tipo_servicio_id'];
@@ -48,9 +50,19 @@ class TarifasController extends BaseController
         }
         unset($tarifa);
 
+        // Agrupa en tres bloques, en el orden en que se muestran en la vista
+        $vigentes    = array_values(array_filter($tarifas, fn ($t) => $t['estado'] === 'vigente'));
+        $programadas = array_values(array_filter($tarifas, fn ($t) => $t['estado'] === 'programada'));
+        $historicas  = array_values(array_filter($tarifas, fn ($t) => $t['estado'] === 'historica'));
+
+        // Las programadas se muestran con la mas proxima primero
+        usort($programadas, fn ($a, $b) => $a['vigente_desde'] <=> $b['vigente_desde']);
+
         return view('Tarifas/index', [
             'titulo'           => 'Tarifas',
-            'tarifas'          => $tarifas,
+            'vigentes'         => $vigentes,
+            'programadas'      => $programadas,
+            'historicas'       => $historicas,
             'tipos'            => $tipoModel->orderBy('nombre', 'ASC')->findAll(),
             'tipoSeleccionado' => $tipoServicioId,
         ]);
