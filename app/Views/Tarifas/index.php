@@ -2,10 +2,10 @@
 
 <?= $this->section('contenido') ?>
 <div class="container-fluid px-4 py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
     <h2 class="mb-0">Tarifas</h2>
-    <div>
-      <a href="<?= base_url('tipos-servicio') ?>" class="btn btn-outline-primary me-2" data-mdb-ripple-init>
+    <div class="d-flex flex-wrap gap-2">
+      <a href="<?= base_url('tipos-servicio') ?>" class="btn btn-outline-primary" data-mdb-ripple-init>
         <i class="fas fa-list me-1"></i> Tipos de Servicio
       </a>
       <a href="<?= base_url('tarifas/crear') ?>" class="btn btn-primary" data-mdb-ripple-init>
