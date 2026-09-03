@@ -14,10 +14,6 @@
     </div>
   <?php endif; ?>
 
-  <div class="alert alert-info">
-    El codigo actual es <code><?= esc($tipo['codigo']) ?></code>. Si cambias el nombre, se regenera automaticamente.
-  </div>
-
   <form action="<?= base_url('tipos-servicio/' . $tipo['id']) ?>" method="post" class="col-lg-6">
     <?= csrf_field() ?>
     <input type="hidden" name="_method" value="PUT">

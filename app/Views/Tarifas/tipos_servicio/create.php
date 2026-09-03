@@ -14,10 +14,6 @@
     </div>
   <?php endif; ?>
 
-  <div class="alert alert-info">
-    No hace falta que ingreses un codigo, el sistema lo genera automaticamente a partir del nombre.
-  </div>
-
   <form action="<?= base_url('tipos-servicio') ?>" method="post" class="col-lg-6">
     <?= csrf_field() ?>
 
@@ -32,7 +28,11 @@
              value="<?= esc($old['volumen_incluido_litros'] ?? '') ?>">
       <label class="form-label" for="volumen_incluido_litros">Volumen incluido (litros)</label>
     </div>
-    <div class="form-text mb-4">Dejalo vacio si este tipo es "exceso" y no aplica volumen incluido.</div>
+    <div class="form-text mb-4">
+      Para un servicio normal, es el volumen incluido antes de cobrar excedente.
+      Para el tipo "exceso", indica cada cuantos litros se aplica el cargo
+      (ej. si pones 1000, el precio se cobra por cada 1000 litros de excedente).
+    </div>
 
     <div class="mb-4">
       <label class="form-label d-block">Es un servicio contratable directamente</label>
