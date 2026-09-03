@@ -48,7 +48,11 @@ class TarifasController extends BaseController
         }
         unset($tarifa);
 
-        // Agrupa en tres bloques, en el orden en que se muestran en la vista
+        // Las anuladas se separan antes de calcular estado, para que no se mezclen con las demás
+        $anuladas = array_values(array_filter($tarifas, fn ($t) => (int) $t['anulada'] === 1));
+        $tarifas  = array_values(array_filter($tarifas, fn ($t) => (int) $t['anulada'] === 0));
+
+        // Agrupa en bloques, en el orden en que se muestran en la vista
         $vigentes    = array_values(array_filter($tarifas, fn ($t) => $t['estado'] === 'vigente'));
         $programadas = array_values(array_filter($tarifas, fn ($t) => $t['estado'] === 'programada'));
         $historicas  = array_values(array_filter($tarifas, fn ($t) => $t['estado'] === 'historica'));
@@ -61,6 +65,7 @@ class TarifasController extends BaseController
             'vigentes'         => $vigentes,
             'programadas'      => $programadas,
             'historicas'       => $historicas,
+            'anuladas'         => $anuladas,
             'tipos'            => $tipoModel->orderBy('nombre', 'ASC')->findAll(),
             'tipoSeleccionado' => $tipoServicioId,
         ]);
@@ -185,9 +190,18 @@ class TarifasController extends BaseController
                 ->with('error', 'No se puede anular: esta tarifa ya fue usada en al menos una lectura.');
         }
 
+        // Si la tarifa ya tenia un vigente_hasta (porque algo vino despues de
+        // ella antes de anularla), se conserva. Si estaba abierta (NULL, era
+        // la mas reciente), se cierra con el momento exacto de la anulacion,
+        // para dejar registrado hasta cuando estuvo activa por error.
+        $vigenteHastaFinal = $tarifa['vigente_hasta'] ?? date('Y-m-d H:i:s');
+
         $db->transStart();
 
-        $tarifaModel->update($id, ['anulada' => 1]);
+        $tarifaModel->update($id, [
+            'anulada'       => 1,
+            'vigente_hasta' => $vigenteHastaFinal,
+        ]);
         $tarifaModel->recalcularVigenciaHasta((int) $tarifa['tipo_servicio_id']);
 
         $db->transComplete();

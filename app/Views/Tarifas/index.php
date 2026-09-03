@@ -31,18 +31,21 @@
 
   <?php
   $bloques = [
-      ['titulo' => 'Vigentes',    'datos' => $vigentes,    'badge' => 'bg-success',           'texto' => 'Vigente',    'color' => '#198754'],
-      ['titulo' => 'Programadas', 'datos' => $programadas, 'badge' => 'bg-info text-dark',    'texto' => 'Programada', 'color' => '#0dcaf0'],
-      ['titulo' => 'Historicas',  'datos' => $historicas,  'badge' => 'bg-warning text-dark', 'texto' => 'Historica',  'color' => '#d97706'],
+      ['clave' => 'vigentes',    'titulo' => 'Vigentes',    'datos' => $vigentes,    'badge' => 'bg-success',           'texto' => 'Vigente',    'color' => '#198754'],
+      ['clave' => 'programadas', 'titulo' => 'Programadas', 'datos' => $programadas, 'badge' => 'bg-info text-dark',    'texto' => 'Programada', 'color' => '#0dcaf0'],
+      ['clave' => 'historicas',  'titulo' => 'Historicas',  'datos' => $historicas,  'badge' => 'bg-warning text-dark', 'texto' => 'Historica',  'color' => '#d97706'],
+      ['clave' => 'anuladas',    'titulo' => 'Anuladas',    'datos' => $anuladas,    'badge' => 'bg-danger',            'texto' => 'Anulada',    'color' => '#dc3545'],
   ];
   ?>
 
-  <?php if (empty($vigentes) && empty($programadas) && empty($historicas)) : ?>
+  <?php if (empty($vigentes) && empty($programadas) && empty($historicas) && empty($anuladas)) : ?>
     <p class="text-muted text-center py-4">Todavia no hay tarifas registradas.</p>
   <?php endif; ?>
 
   <?php foreach ($bloques as $bloque) : ?>
     <?php if (empty($bloque['datos'])) continue; ?>
+
+    <?php $muestraVencimiento = in_array($bloque['clave'], ['historicas', 'anuladas'], true); ?>
 
     <div class="d-flex align-items-center px-3 py-2 mb-2 rounded-2"
          style="background-color: <?= $bloque['color'] ?>26; border-left: 5px solid <?= $bloque['color'] ?>;">
@@ -53,23 +56,29 @@
     <div class="table-responsive mb-4">
       <table class="table table-striped align-middle mb-0">
         <colgroup>
-          <col style="width: <?= $bloque['titulo'] === 'Historicas' ? '35' : '40' ?>%;">
-          <col style="width: <?= $bloque['titulo'] === 'Historicas' ? '15' : '20' ?>%;">
-          <col style="width: <?= $bloque['titulo'] === 'Historicas' ? '20' : '25' ?>%;">
-          <?php if ($bloque['titulo'] === 'Historicas') : ?>
-            <col style="width: 20%;">
+          <col style="width: <?= $muestraVencimiento ? '30' : '35' ?>%;">
+          <col style="width: <?= $muestraVencimiento ? '15' : '20' ?>%;">
+          <col style="width: <?= $muestraVencimiento ? '18' : '22' ?>%;">
+          <?php if ($muestraVencimiento) : ?>
+            <col style="width: 18%;">
           <?php endif; ?>
-          <col style="width: 15%;">
+          <col style="width: 13%;">
+          <?php if ($bloque['clave'] !== 'anuladas' && $bloque['clave'] !== 'historicas') : ?>
+            <col style="width: 12%;">
+          <?php endif; ?>
         </colgroup>
         <thead>
           <tr>
             <th>Tipo de servicio</th>
             <th>Precio</th>
             <th>Vigente desde</th>
-            <?php if ($bloque['titulo'] === 'Historicas') : ?>
+            <?php if ($muestraVencimiento) : ?>
               <th>Vigente hasta</th>
             <?php endif; ?>
             <th>Estado</th>
+            <?php if ($bloque['clave'] !== 'anuladas' && $bloque['clave'] !== 'historicas') : ?>
+              <th></th>
+            <?php endif; ?>
           </tr>
         </thead>
         <tbody>
@@ -78,10 +87,19 @@
               <td><?= esc($tarifa['tipo_nombre']) ?> <span class="text-muted">(<?= esc($tarifa['tipo_codigo']) ?>)</span></td>
               <td>Q<?= number_format((float) $tarifa['precio'], 2) ?></td>
               <td><?= date('d/m/Y H:i', strtotime($tarifa['vigente_desde'])) ?></td>
-              <?php if ($bloque['titulo'] === 'Historicas') : ?>
+              <?php if ($muestraVencimiento) : ?>
                 <td><?= $tarifa['vigente_hasta'] ? date('d/m/Y H:i', strtotime($tarifa['vigente_hasta'])) : '—' ?></td>
               <?php endif; ?>
               <td><span class="badge <?= $bloque['badge'] ?>"><?= esc($bloque['texto']) ?></span></td>
+              <?php if ($bloque['clave'] !== 'anuladas' && $bloque['clave'] !== 'historicas') : ?>
+                <td class="text-end">
+                  <form action="<?= base_url('tarifas/' . $tarifa['id'] . '/anular') ?>" method="post"
+                        onsubmit="return confirm('¿Anular esta tarifa? Esta accion no se puede deshacer.');">
+                    <?= csrf_field() ?>
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Anular</button>
+                  </form>
+                </td>
+              <?php endif; ?>
             </tr>
           <?php endforeach; ?>
         </tbody>

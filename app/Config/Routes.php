@@ -33,6 +33,7 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('tarifas', 'Tarifas\TarifasController::index');
     $routes->get('tarifas/crear', 'Tarifas\TarifasController::create');
     $routes->post('tarifas', 'Tarifas\TarifasController::store');
+    $routes->post('tarifas/(:num)/anular', 'Tarifas\TarifasController::anular/$1');
     $routes->group('tipos-servicio', ['filter' => 'role:' . \App\Constants\Roles::ADMINISTRADOR], function ($routes) {
         $routes->get('/', 'Tarifas\TiposServicioController::index');
         $routes->get('crear', 'Tarifas\TiposServicioController::create');
