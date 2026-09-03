@@ -10,7 +10,50 @@ class TarifasController extends BaseController
 {
     public function index()
     {
-        return view('Tarifas/index');
+        $tarifaModel = new TarifaModel();
+        $tipoModel   = new TipoServicioModel();
+
+        $tipoServicioId = $this->request->getGet('tipo_servicio_id');
+
+        $builder = $tarifaModel
+            ->select('Tb_Tarifas.*, Tb_Tipos_Servicios.nombre AS tipo_nombre, Tb_Tipos_Servicios.codigo AS tipo_codigo')
+            ->join('Tb_Tipos_Servicios', 'Tb_Tipos_Servicios.id = Tb_Tarifas.tipo_servicio_id')
+            ->orderBy('Tb_Tarifas.vigente_desde', 'DESC');
+
+        if (! empty($tipoServicioId)) {
+            $builder->where('Tb_Tarifas.tipo_servicio_id', $tipoServicioId);
+        }
+
+        $tarifas = $builder->findAll();
+
+        // Utiliza la lógica de vigentePara() para determinar la tarifa vigente para cada tipo de servicio
+        $vigentesPorTipo = [];
+        foreach ($tarifas as $tarifa) {
+            $tipoId = $tarifa['tipo_servicio_id'];
+            if (! array_key_exists($tipoId, $vigentesPorTipo)) {
+                $vigente = $tarifaModel->vigentePara((int) $tipoId);
+                $vigentesPorTipo[$tipoId] = $vigente['id'] ?? null;
+            }
+        }
+
+        $ahora = date('Y-m-d H:i:s');
+        foreach ($tarifas as &$tarifa) {
+            if ((int) $tarifa['id'] === (int) ($vigentesPorTipo[$tarifa['tipo_servicio_id']] ?? 0)) {
+                $tarifa['estado'] = 'vigente';
+            } elseif ($tarifa['vigente_desde'] > $ahora) {
+                $tarifa['estado'] = 'programada';
+            } else {
+                $tarifa['estado'] = 'historica';
+            }
+        }
+        unset($tarifa);
+
+        return view('Tarifas/index', [
+            'titulo'           => 'Tarifas',
+            'tarifas'          => $tarifas,
+            'tipos'            => $tipoModel->orderBy('nombre', 'ASC')->findAll(),
+            'tipoSeleccionado' => $tipoServicioId,
+        ]);
     }
 
     public function create()
