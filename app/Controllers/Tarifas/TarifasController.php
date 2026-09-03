@@ -43,10 +43,14 @@ class TarifasController extends BaseController
             ]);
         }
 
+        // Normaliza para poder comparar solo la parte de la fecha.
+        $fecha->setTime(0, 0, 0);
+        $hoy = new \DateTime('today');
+        $esHoy = $fecha->format('Y-m-d') === $hoy->format('Y-m-d');
+
         // Si se eligió el díaa de hoy, la tarifa aplica de inmediato con la hora actual.
         // Caso contrario, si es una fecha futura, aplica desde el inicio de ese dia a las 00:00:00.
-        $hoy = new \DateTime('today');
-        $vigenteDesde = ($fecha == $hoy)
+        $vigenteDesde = $esHoy
             ? date('Y-m-d H:i:s')
             : $fecha->format('Y-m-d') . ' 00:00:00';
 
