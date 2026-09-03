@@ -82,11 +82,15 @@
   </header>
 
   <main style="margin-top: 58px;">
-    <?php if (session()->getFlashdata('error')) : ?>
-      <div class="alert alert-danger m-3"><?= esc(session()->getFlashdata('error')) ?></div>
-    <?php endif; ?>
-    <?php if (session()->getFlashdata('message')) : ?>
-      <div class="alert alert-success m-3"><?= esc(session()->getFlashdata('message')) ?></div>
+    <?php if (session()->getFlashdata('error') || session()->getFlashdata('message')) : ?>
+      <div class="pt-4 px-3">
+        <?php if (session()->getFlashdata('error')) : ?>
+          <div class="alert alert-danger"><?= esc(session()->getFlashdata('error')) ?></div>
+        <?php endif; ?>
+        <?php if (session()->getFlashdata('message')) : ?>
+          <div class="alert alert-success"><?= esc(session()->getFlashdata('message')) ?></div>
+        <?php endif; ?>
+      </div>
     <?php endif; ?>
 
     <?= $this->renderSection('contenido') ?>
