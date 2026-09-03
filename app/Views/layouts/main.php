@@ -81,7 +81,7 @@
     </nav>
   </header>
 
-  <main style="margin-top: 58px;">
+  <main id="main-content">
     <?php if (session()->getFlashdata('error') || session()->getFlashdata('message')) : ?>
       <div class="pt-4 px-3">
         <?php if (session()->getFlashdata('error')) : ?>
@@ -97,6 +97,21 @@
   </main>
 
   <script type="text/javascript" src="<?= base_url('assets/js/mdb.umd.min.js') ?>"></script>
+  <script>
+    (function () {
+      var nav = document.getElementById('main-navbar');
+      var main = document.getElementById('main-content');
+
+      function ajustarMargenSuperior() {
+        var altura = nav.offsetHeight;
+        main.style.marginTop = altura + 'px';
+        document.documentElement.style.setProperty('--navbar-height', altura + 'px');
+      }
+
+      ajustarMargenSuperior();
+      window.addEventListener('resize', ajustarMargenSuperior);
+    })();
+  </script>
   <script>
     (function () {
       var boton = document.getElementById('themeToggle');
