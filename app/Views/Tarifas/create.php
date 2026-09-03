@@ -17,8 +17,9 @@
   <form action="<?= base_url('tarifas') ?>" method="post" class="col-lg-6">
     <?= csrf_field() ?>
 
-    <div class="form-outline mb-4" data-mdb-input-init>
-      <select class="select" id="tipo_servicio_id" name="tipo_servicio_id" required>
+    <div class="mb-4">
+      <label class="form-label" for="tipo_servicio_id">Tipo de servicio</label>
+      <select class="form-select" id="tipo_servicio_id" name="tipo_servicio_id" required>
         <option value="" disabled selected>Selecciona un tipo de servicio</option>
         <?php foreach ($tipos as $tipo) : ?>
           <option value="<?= esc((string) $tipo['id']) ?>">
@@ -26,7 +27,6 @@
           </option>
         <?php endforeach; ?>
       </select>
-      <label class="form-label select-label" for="tipo_servicio_id">Tipo de servicio</label>
     </div>
 
     <div class="form-outline mb-4" data-mdb-input-init>
@@ -35,10 +35,13 @@
       <label class="form-label" for="precio">Precio (Q)</label>
     </div>
 
-    <div class="form-outline datepicker mb-2" data-mdb-inline="false" data-mdb-input-init>
-      <input type="text" class="form-control" id="vigente_desde" name="vigente_desde"
-             value="<?= esc($old['vigente_desde'] ?? '') ?>" autocomplete="off" required>
+    <div class="mb-2">
       <label class="form-label" for="vigente_desde">Fecha de vigencia</label>
+      <div class="input-group">
+        <input type="date" class="form-control" id="vigente_desde" name="vigente_desde"
+               value="<?= esc($old['vigente_desde'] ?? '') ?>" required>
+        <button type="button" class="btn btn-outline-secondary" id="btnHoy">Hoy</button>
+      </div>
     </div>
     <div class="form-text mb-4">
       Selecciona una fecha en el calendario. Si eliges el dia de hoy, la tarifa
@@ -52,14 +55,12 @@
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    var campo = document.querySelector('#vigente_desde');
-    var datepicker = new mdb.Datepicker(campo.closest('.datepicker'), {
-      format: 'dd/mm/yyyy',
-      todayButton: true,
-      clearButton: true,
-      todayHighlight: true,
-    });
+  document.getElementById('btnHoy').addEventListener('click', function () {
+    var hoy = new Date();
+    var iso = hoy.getFullYear() + '-'
+      + String(hoy.getMonth() + 1).padStart(2, '0') + '-'
+      + String(hoy.getDate()).padStart(2, '0');
+    document.getElementById('vigente_desde').value = iso;
   });
 </script>
 <?= $this->endSection() ?>
