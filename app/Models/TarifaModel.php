@@ -16,9 +16,9 @@ class TarifaModel extends Model
     protected $useTimestamps = false;
 
     protected $validationRules = [
-        'precio'           => 'required|decimal',
+        'precio'           => 'required|decimal|greater_than[0]',
         'vigente_desde'    => 'required|valid_date',
-        'tipo_servicio_id' => 'required|integer',
+        'tipo_servicio_id' => 'required|integer|is_not_unique[Tb_Tipos_Servicios.id]',
     ];
 
     /**
@@ -37,5 +37,29 @@ class TarifaModel extends Model
             ->groupEnd()
             ->orderBy('vigente_desde', 'DESC')
             ->first();
+    }
+
+    /**
+    * Recalcula y guarda vigente_hasta para todas las tarifas de un
+    * tipo de servicio, en orden cronologico. Cada tarifa "termina"
+    * exactamente cuando comienza la siguiente; la mas reciente queda
+    * con vigente_hasta = NULL (todavia abierta / vigente).
+    */
+
+    public function recalcularVigenciaHasta(int $tipoServicioId): void
+    {
+        $tarifas = $this->where('tipo_servicio_id', $tipoServicioId)
+            ->orderBy('vigente_desde', 'ASC')
+            ->findAll();
+
+        $total = count($tarifas);
+
+        foreach ($tarifas as $i => $tarifa) {
+            $nuevoVigenteHasta = ($i < $total - 1) ? $tarifas[$i + 1]['vigente_desde'] : null;
+
+            if ($tarifa['vigente_hasta'] !== $nuevoVigenteHasta) {
+                $this->update($tarifa['id'], ['vigente_hasta' => $nuevoVigenteHasta]);
+            }
+        }
     }
 }
