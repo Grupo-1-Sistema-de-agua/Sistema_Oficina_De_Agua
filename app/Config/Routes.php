@@ -31,6 +31,8 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
 
     // Modulo: Tarifas
     $routes->get('tarifas', 'Tarifas\TarifasController::index');
+    $routes->get('tarifas/crear', 'Tarifas\TarifasController::create');
+    $routes->post('tarifas', 'Tarifas\TarifasController::store');
     $routes->group('tipos-servicio', ['filter' => 'role:' . \App\Constants\Roles::ADMINISTRADOR], function ($routes) {
         $routes->get('/', 'Tarifas\TiposServicioController::index');
         $routes->get('crear', 'Tarifas\TiposServicioController::create');
