@@ -32,7 +32,7 @@ class TarifasController extends BaseController
         $precio         = $this->request->getPost('precio');
         $fechaInput     = trim((string) $this->request->getPost('vigente_desde'));
 
-        $fecha = \DateTime::createFromFormat('d/m/Y', $fechaInput);
+        $fecha = \DateTime::createFromFormat('Y-m-d', $fechaInput);
 
         if (! $fecha) {
             return view('Tarifas/create', [
