@@ -11,7 +11,7 @@ class TarifaModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
-    protected $allowedFields    = ['precio', 'vigente_desde', 'vigente_hasta', 'tipo_servicio_id'];
+    protected $allowedFields    = ['precio', 'vigente_desde', 'vigente_hasta', 'tipo_servicio_id', 'anulada'];
 
     protected $useTimestamps = false;
 
@@ -30,6 +30,7 @@ class TarifaModel extends Model
         $fecha ??= date('Y-m-d H:i:s');
 
         return $this->where('tipo_servicio_id', $tipoServicioId)
+            ->where('anulada', 0)
             ->where('vigente_desde <=', $fecha)
             ->groupStart()
                 ->where('vigente_hasta >=', $fecha)
@@ -45,10 +46,10 @@ class TarifaModel extends Model
     * exactamente cuando comienza la siguiente; la mas reciente queda
     * con vigente_hasta = NULL (todavia abierta / vigente).
     */
-
     public function recalcularVigenciaHasta(int $tipoServicioId): void
     {
         $tarifas = $this->where('tipo_servicio_id', $tipoServicioId)
+            ->where('anulada', 0)
             ->orderBy('vigente_desde', 'ASC')
             ->findAll();
 
