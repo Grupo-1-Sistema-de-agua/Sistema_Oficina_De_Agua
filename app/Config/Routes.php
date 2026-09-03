@@ -31,7 +31,14 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
 
     // Modulo: Tarifas
     $routes->get('tarifas', 'Tarifas\TarifasController::index');
-    // TODO (encargado del modulo): agregar create/store/edit/update/delete
+    $routes->group('tipos-servicio', ['filter' => 'role:' . \App\Constants\Roles::ADMINISTRADOR], function ($routes) {
+        $routes->get('/', 'Tarifas\TiposServicioController::index');
+        $routes->get('crear', 'Tarifas\TiposServicioController::create');
+        $routes->post('/', 'Tarifas\TiposServicioController::store');
+        $routes->get('(:num)/editar', 'Tarifas\TiposServicioController::edit/$1');
+        $routes->put('(:num)', 'Tarifas\TiposServicioController::update/$1');
+        $routes->get('(:num)/eliminar', 'Tarifas\TiposServicioController::delete/$1');
+    });
 
     // Modulo: Lecturas
     $routes->get('lecturas', 'Lecturas\LecturasController::index');
