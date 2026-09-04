@@ -27,7 +27,12 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
 
     // Modulo: Contadores
     $routes->get('contadores', 'Contadores\ContadoresController::index');
-    // TODO (encargado del modulo): agregar create/store/edit/update/delete
+   // Modulo: Contadores (Secretaria y Administrador)
+    $routes->get('contadores/nuevo', 'Contadores\ContadoresController::nuevo');
+    $routes->post('contadores', 'Contadores\ContadoresController::crear');
+    $routes->get('contadores/editar/(:num)', 'Contadores\ContadoresController::editar/$1');
+    $routes->post('contadores/actualizar/(:num)', 'Contadores\ContadoresController::actualizar/$1');
+    $routes->post('contadores/eliminar/(:num)', 'Contadores\ContadoresController::eliminar/$1');
 
     // Modulo: Tarifas
     $routes->get('tarifas', 'Tarifas\TarifasController::index');
