@@ -4,31 +4,41 @@ namespace App\Controllers\Recibos;
 
 use App\Controllers\BaseController;
 use App\Models\ReciboModel;
-use App\Models\ClienteModel; // Lo necesitamos para el formulario
+use App\Models\ClienteModel;
+use App\Models\ContadorModel; // Importante
 
 class RecibosController extends BaseController
 {
     protected $reciboModel;
     protected $clienteModel;
+    protected $contadorModel; // <--- ¡Esta era la línea que faltaba declarar!
 
     public function __construct()
     {
         $this->reciboModel = new ReciboModel();
         $this->clienteModel = new ClienteModel();
+        $this->contadorModel = new ContadorModel();
     }
 
-    // READ: Cargar la vista con los datos
     public function index()
     {
-        // Obtenemos todos los recibos
         $data['recibos'] = $this->reciboModel->findAll();
-        // Obtenemos clientes para llenar el <select> en el modal de nuevo recibo
         $data['clientes'] = $this->clienteModel->findAll();
+        $data['contadores'] = $this->contadorModel->findAll();
         
-        return view('Recibos/index', $data);
+        // Generación Automática del Número de Recibo
+        $ultimoRecibo = $this->reciboModel->orderBy('id', 'DESC')->first();
+        if ($ultimoRecibo && isset($ultimoRecibo['numero_recibo'])) {
+            $partes = explode('-', $ultimoRecibo['numero_recibo']);
+            $siguienteNumero = isset($partes[1]) ? intval($partes[1]) + 1 : intval($ultimoRecibo['numero_recibo']) + 1;
+            $data['siguiente_recibo'] = 'REC-' . str_pad($siguienteNumero, 3, '0', STR_PAD_LEFT);
+        } else {
+            $data['siguiente_recibo'] = 'REC-001';
+        }
+        
+        return view('recibos/index', $data);
     }
 
-    // CREATE: Guardar un nuevo recibo
     public function store()
     {
         $datos = [
@@ -41,7 +51,6 @@ class RecibosController extends BaseController
             'fecha_emision'   => $this->request->getPost('fecha_emision')
         ];
 
-        // Validamos y guardamos usando las reglas del modelo
         if (!$this->reciboModel->save($datos)) {
             return redirect()->back()->withInput()->with('errores', $this->reciboModel->errors());
         }
@@ -49,7 +58,6 @@ class RecibosController extends BaseController
         return redirect()->to('/recibos')->with('mensaje', 'Recibo generado exitosamente.');
     }
 
-    // UPDATE: Editar un recibo
     public function update($id = null)
     {
         $datos = [
@@ -69,7 +77,6 @@ class RecibosController extends BaseController
         return redirect()->to('/recibos')->with('mensaje', 'Recibo actualizado exitosamente.');
     }
 
-    // DELETE: Anular recibo (Soft Delete automático gracias al Modelo)
     public function delete($id = null)
     {
         if ($id) {

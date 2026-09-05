@@ -23,10 +23,10 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
 
     // Modulo: Clientes
     $routes->group('clientes', ['namespace' => 'App\Controllers\Clientes'], function($routes) {
-    $routes->get('/', 'ClientesController::index');
-    $routes->post('store', 'ClientesController::store');
-    $routes->post('update/(:num)', 'ClientesController::update/$1');
-    $routes->get('delete/(:num)', 'ClientesController::delete/$1');
+        $routes->get('/', 'ClientesController::index');
+        $routes->post('store', 'ClientesController::store');
+        $routes->post('update/(:num)', 'ClientesController::update/$1');
+        $routes->get('delete/(:num)', 'ClientesController::delete/$1');
     });
 
     // Modulo: Contadores
@@ -44,4 +44,12 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     // Modulo: Pagos
     $routes->get('pagos', 'Pagos\PagosController::index');
     // TODO (encargado del modulo): agregar create/store/edit/update/delete
+
+    // Modulo: Recibos
+    $routes->group('recibos', ['namespace' => 'App\Controllers\Recibos'], function($routes) {
+        $routes->get('/', 'RecibosController::index');
+        $routes->post('store', 'RecibosController::store');
+        $routes->post('update/(:num)', 'RecibosController::update/$1');
+        $routes->get('delete/(:num)', 'RecibosController::delete/$1');
+});
 });
