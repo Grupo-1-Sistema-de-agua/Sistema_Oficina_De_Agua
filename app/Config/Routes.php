@@ -22,8 +22,12 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('dashboard', 'DashboardController::index');
 
     // Modulo: Clientes
-    $routes->get('clientes', 'Clientes\ClientesController::index');
-    // TODO (encargado del modulo): agregar create/store/edit/update/delete
+    $routes->group('clientes', ['namespace' => 'App\Controllers\Clientes'], function($routes) {
+    $routes->get('/', 'ClientesController::index');
+    $routes->post('store', 'ClientesController::store');
+    $routes->post('update/(:num)', 'ClientesController::update/$1');
+    $routes->get('delete/(:num)', 'ClientesController::delete/$1');
+    });
 
     // Modulo: Contadores
     $routes->get('contadores', 'Contadores\ContadoresController::index');
