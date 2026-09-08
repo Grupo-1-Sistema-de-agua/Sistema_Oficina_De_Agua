@@ -9,8 +9,7 @@
                     <h2 class="h5 mb-0"><?= esc($titulo) ?></h2>
                 </div>
                 <div class="card-body">
-                    <form method="post"
-                         action="<?= ! empty($contador) ? base_url('contadores/actualizar/' . $contador['id']) : base_url('contadores') ?>"
+                    <form method="post" action="<?= ! empty($contador) ? base_url('contadores/actualizar/' . $contador['id']) : base_url('contadores') ?>">
                         <?= csrf_field() ?>
 
                         <div class="mb-3">
@@ -20,7 +19,7 @@
                                 <?php foreach ($clientes as $c): ?>
                                     <option value="<?= esc($c['id']) ?>"
                                         <?= (string) old('cliente_id', $contador['cliente_id'] ?? '') === (string) $c['id'] ? 'selected' : '' ?>>
-                                        <?= esc($c['nombre']) ?>
+                                        <?= esc($c['nombre']) ?><?= ! empty($c['dpi']) ? ' (' . esc($c['dpi']) . ')' : '' ?> | <?= esc($c['direccion_principal']) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -68,6 +67,16 @@
                                    class="form-control" maxlength="30">
                             <?php if (isset($errors['codigo_fisico'])): ?>
                                 <small class="text-danger"><?= esc($errors['codigo_fisico']) ?></small>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="fecha_asignacion" class="form-label">Fecha de asignacion</label>
+                            <input type="date" name="fecha_asignacion" id="fecha_asignacion"
+                                   value="<?= esc(old('fecha_asignacion', $contador['fecha_asignacion'] ?? date('Y-m-d'))) ?>"
+                                   class="form-control">
+                            <?php if (isset($errors['fecha_asignacion'])): ?>
+                                <small class="text-danger"><?= esc($errors['fecha_asignacion']) ?></small>
                             <?php endif; ?>
                         </div>
 
