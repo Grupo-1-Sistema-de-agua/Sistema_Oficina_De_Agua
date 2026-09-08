@@ -33,6 +33,7 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('contadores/editar/(:num)', 'Contadores\ContadoresController::editar/$1');
     $routes->post('contadores/actualizar/(:num)', 'Contadores\ContadoresController::actualizar/$1');
     $routes->post('contadores/eliminar/(:num)', 'Contadores\ContadoresController::eliminar/$1');
+    $routes->get('contadores/ver/(:num)', 'Contadores\ContadoresController::ver/$1');
 
     // Modulo: Tarifas
     $routes->get('tarifas', 'Tarifas\TarifasController::index');
@@ -41,7 +42,14 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     // Modulo: Lecturas
     $routes->get('lecturas', 'Lecturas\LecturasController::index');
     // TODO (encargado del modulo): agregar create/store/edit/update/delete + recibo imprimible
-
+    // Modulo: Lecturas
+    $routes->get('lecturas/nueva/(:num)', 'Lecturas\LecturasController::nueva/$1');
+    $routes->post('lecturas/guardar', 'Lecturas\LecturasController::guardar');
+    // NUEVO: edicion de la lectura vigente del mes (editar recibe el id de la
+    // lectura; actualizar guarda los cambios y recalcula consumo y montos)
+    $routes->get('lecturas/editar/(:num)', 'Lecturas\LecturasController::editar/$1');
+    $routes->post('lecturas/actualizar', 'Lecturas\LecturasController::actualizar');
+    
     // Modulo: Pagos
     $routes->get('pagos', 'Pagos\PagosController::index');
     // TODO (encargado del modulo): agregar create/store/edit/update/delete
