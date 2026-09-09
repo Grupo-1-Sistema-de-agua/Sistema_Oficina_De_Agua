@@ -51,5 +51,9 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->post('store', 'RecibosController::store');
         $routes->post('update/(:num)', 'RecibosController::update/$1');
         $routes->get('delete/(:num)', 'RecibosController::delete/$1');
-});
+        
+        // Rutas corregidas (sin repetir "recibos/" ni el namespace)
+        $routes->get('imprimir/(:num)', 'RecibosController::imprimir/$1');
+        $routes->get('anular/(:num)', 'RecibosController::anular/$1');  
+    });
 });

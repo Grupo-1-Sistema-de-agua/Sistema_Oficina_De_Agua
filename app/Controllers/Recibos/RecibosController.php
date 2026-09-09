@@ -41,21 +41,34 @@ class RecibosController extends BaseController
 
     public function store()
     {
-        $datos = [
-            'numero_recibo'   => $this->request->getPost('numero_recibo'),
-            'id_cliente'      => $this->request->getPost('id_cliente'),
+        // Validación de los datos del formulario
+        $validationRules = [
+            'nombre_cliente'  => 'required|max_length[150]',
+            'direccion'       => 'required|max_length[255]',
+            'numero_contador' => 'permit_empty|max_length[50]',
+            'monto_total'     => 'required|numeric'
+        ];
+
+        if (!$this->validate($validationRules)) {
+            return redirect()->back()->withInput()->with('errores', $this->validator->getErrors());
+        }
+        // Generar un número de recibo automático (Ej: REC-A1B2C)
+        $numeroRecibo = 'REC-' . strtoupper(substr(uniqid(), -5));
+
+        // Capturar los datos del formulario (incluyendo los temporales)
+        $data = [
+            'numero_recibo'   => $numeroRecibo,
             'nombre_cliente'  => $this->request->getPost('nombre_cliente'),
             'direccion'       => $this->request->getPost('direccion'),
             'numero_contador' => $this->request->getPost('numero_contador'),
             'monto_total'     => $this->request->getPost('monto_total'),
-            'fecha_emision'   => $this->request->getPost('fecha_emision')
+            'fecha_emision'   => date('Y-m-d')
         ];
 
-        if (!$this->reciboModel->save($datos)) {
-            return redirect()->back()->withInput()->with('errores', $this->reciboModel->errors());
-        }
+        // Insertar en la base de datos
+        $this->reciboModel->insert($data);
 
-        return redirect()->to('/recibos')->with('mensaje', 'Recibo generado exitosamente.');
+    return redirect()->to('/recibos')->with('message', 'Recibo generado con éxito (Modo Prueba).');
     }
 
     public function update($id = null)

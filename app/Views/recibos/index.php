@@ -93,25 +93,25 @@
       </div>
       
       <form action="<?= base_url('recibos/store') ?>" method="POST">
-          <div class="modal-body">
+            <div class="modal-body">
               
-              <div class="row mb-4">
-                  <div class="col-md-6">
-                      <div class="form-outline" data-mdb-input-init>
+                <div class="row mb-4">
+                     <div class="col-md-6">
+                        <div class="form-outline" data-mdb-input-init>
                           <input type="text" id="numero_recibo" name="numero_recibo" class="form-control active" readonly value="<?= esc($siguiente_recibo ?? 'REC-001') ?>" />
                           <label class="form-label" for="numero_recibo">Número de Recibo (Automático)</label>
-                      </div>
-                  </div>
-                  <div class="col-md-6">
-                      <div class="form-outline" data-mdb-input-init>
-                          <input type="date" id="fecha_emision" name="fecha_emision" class="form-control active" required value="<?= date('Y-m-d') ?>" />
-                          <label class="form-label" for="fecha_emision">Fecha de Emisión</label>
-                      </div>
-                  </div>
-              </div>
+                        </div>
+                    </div>
+                <div class="col-md-6">
+                         <div class="form-outline" data-mdb-input-init>
+                            <input type="date" id="fecha_emision" name="fecha_emision" class="form-control active" required value="<?= date('Y-m-d') ?>" />
+                            <label class="form-label" for="fecha_emision">Fecha de Emisión</label>
+                        </div>
+                    </div>
+                </div>
 
-              <!-- Selector de Cliente unificado -->
-              <div class="mb-4">
+                <!-- Selector de Cliente unificado -->
+                <div class="mb-4">
                   <label class="form-label select-label">Cliente</label>
                   <select class="form-select" name="id_cliente" id="selector_cliente" required>
                       <option value="" selected disabled>Seleccione un cliente...</option>
@@ -125,39 +125,32 @@
                           <?php endforeach; ?>
                       <?php endif; ?>
                   </select>
-              </div>
+                </div>
 
               <!-- Input oculto para el snapshot del nombre -->
-              <input type="hidden" id="nombre_cliente" name="nombre_cliente" required />
+            <input type="hidden" id="nombre_cliente" name="nombre_cliente" required />
 
               <!-- Dirección -->
-              <div class="form-outline mb-4" data-mdb-input-init>
-                  <input type="text" id="direccion" name="direccion" class="form-control" required maxlength="255" readonly />
-                  <label class="form-label" for="direccion">Dirección</label>
-              </div>
+            <div class="form-outline mb-4" data-mdb-input-init>
+                <input type="text" id="direccion" name="direccion" class="form-control" required maxlength="255" readonly />
+                <label class="form-label" for="direccion">Dirección</label>
+            </div>
               
-              <div class="row mb-4">
-                  <div class="col-md-6">
-                      <label class="form-label select-label">N° de Contador</label>
-                      <!-- Nace deshabilitado hasta que se elija un cliente -->
-                      <select class="form-select" name="numero_contador" id="selector_contador" required disabled>
-                          <option value="" selected disabled>Elija un contador...</option>
-                          <?php if(!empty($contadores)): ?>
-                              <?php foreach($contadores as $contador): ?>
-                                  <option value="<?= esc($contador['codigo_fisico']) ?>" data-cliente-id="<?= esc($contador['cliente_id']) ?>">
-                                      <?= esc($contador['codigo_fisico']) ?> (<?= esc($contador['direccion_servicio']) ?>)
-                                  </option>
-                              <?php endforeach; ?>
-                          <?php endif; ?>
-                      </select>
-                  </div>
-                  <div class="col-md-6">
-                      <div class="form-outline" data-mdb-input-init>
-                          <input type="number" step="0.01" id="monto_total" name="monto_total" class="form-control" required />
-                          <label class="form-label" for="monto_total">Monto Total (Q.)</label>
-                      </div>
-                  </div>
-              </div>
+              <!-- INICIO DE CAMPOS TEMPORALES DE PRUEBA -->
+            <div class="mb-3">
+                <label for="numero_contador" class="form-label fw-bold text-primary">
+                    <i class="fas fa-tachometer-alt"></i> N° de Contador (Modo Manual)
+                </label>
+                <input type="text" name="numero_contador" id="numero_contador" class="form-control" placeholder="Ej: CONT-999" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="monto_total" class="form-label fw-bold text-success">
+                    <i class="fas fa-money-bill-wave"></i> Monto Total a Pagar Q. (Modo Manual)
+                </label>
+                <input type="number" step="0.01" name="monto_total" id="monto_total" class="form-control" placeholder="Ej: 150.00" required>
+            </div>
+            <!-- FIN DE CAMPOS TEMPORALES -->
 
           </div>
           <div class="modal-footer">

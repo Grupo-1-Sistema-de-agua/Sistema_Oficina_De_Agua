@@ -72,9 +72,9 @@
     </div>
 
     <div class="text-center">
-        <span class="fw-bold" style="font-size: 14px;">SERVICIOS GL</span><br>
-        MUNICIPALIDAD DE EL PROGRESO, JUTIAPA<br>[cite: 1]
-        OFICINA DEL AGUA POTABLE
+        <span class="fw-bold" style="font-size: 15px;">OFICINA DEL AGUA</span><br>
+        SISTEMA DE GESTIÓN DE AGUA (VERSIÓN BETA)<br>
+        DEPARTAMENTO DE COBROS
     </div>
 
     <div class="divider"></div>
