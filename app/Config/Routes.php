@@ -56,6 +56,7 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     
     // Modulo: Pagos
     $routes->get('pagos', 'Pagos\PagosController::index');
+<<<<<<< HEAD
     // TODO (encargado del modulo): agregar create/store/edit/update/delete
 
     // Modulo: Recibos
@@ -69,4 +70,11 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->get('imprimir/(:num)', 'RecibosController::imprimir/$1');
         $routes->get('anular/(:num)', 'RecibosController::anular/$1');  
     });
+=======
+    $routes->get('pagos/nuevo', 'Pagos\PagosController::create', ['filter' => 'role:secretaria,admin,administrador']);
+    $routes->post('pagos', 'Pagos\PagosController::store', ['filter' => 'role:secretaria,admin,administrador']);
+    $routes->get('pagos/editar/(:num)', 'Pagos\PagosController::edit/$1', ['filter' => 'role:secretaria,admin,administrador']);
+    $routes->post('pagos/actualizar/(:num)', 'Pagos\PagosController::update/$1', ['filter' => 'role:secretaria,admin,administrador']);
+    $routes->post('pagos/eliminar', 'Pagos\PagosController::delete', ['filter' => 'role:secretaria,admin,administrador']);
+>>>>>>> origin/feature_M_Pagos
 });
