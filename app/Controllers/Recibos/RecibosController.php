@@ -77,12 +77,24 @@ class RecibosController extends BaseController
         return redirect()->to('/recibos')->with('mensaje', 'Recibo actualizado exitosamente.');
     }
 
-    public function delete($id = null)
+    public function anular($id = null)
     {
-        if ($id) {
-            $this->reciboModel->delete($id);
-            return redirect()->to('/recibos')->with('mensaje', 'Recibo anulado exitosamente.');
+        if ($this->reciboModel->delete($id)) {
+            return redirect()->to('/recibos')->with('message', 'El recibo ha sido anulado correctamente.');
         }
-        return redirect()->to('/recibos');
+
+        return redirect()->to('/recibos')->with('error', 'No se pudo anular el recibo.');
+    }
+    
+    public function imprimir($id = null)
+    {
+        $recibo = $this->reciboModel->find($id);
+
+        if (!$recibo) {
+            return redirect()->to('/recibos')->with('errores', ['El recibo solicitado no existe.']);
+        }
+
+        $data['recibo'] = $recibo;
+        return view('recibos/ticket', $data);
     }
 }

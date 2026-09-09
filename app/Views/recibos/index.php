@@ -27,39 +27,54 @@
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <!-- app/Views/recibos/index.php -->
+                <table class="table align-middle mb-0 bg-white">
                     <thead class="bg-light">
                         <tr>
-                            <th>N° Recibo</th>
-                            <th>Cliente</th>
-                            <th>Dirección</th>
-                            <th>N° Contador</th>
-                            <th>Fecha Emisión</th>
-                            <th>Monto Total</th>
-                            <th>Acciones</th>
+                        <th>N° Recibo</th>
+                        <th>Cliente</th>
+                        <th>Dirección</th>
+                        <th>N° Contador</th>
+                        <th>Fecha Emisión</th>
+                        <th>Monto Total</th>
+                        <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if(!empty($recibos) && is_array($recibos)): ?>
-                            <?php foreach($recibos as $recibo): ?>
-                                <tr>
-                                    <td><span class="badge badge-primary"><?= esc($recibo['numero_recibo']) ?></span></td>
-                                    <td><?= esc($recibo['nombre_cliente']) ?></td>
-                                    <td><?= esc($recibo['direccion']) ?></td>
-                                    <td><?= esc($recibo['numero_contador'] ?? 'N/A') ?></td>
-                                    <td><?= date('d/m/Y', strtotime($recibo['fecha_emision'])) ?></td>
-                                    <td>Q. <?= number_format($recibo['monto_total'], 2) ?></td>
-                                    <td>
-                                        <a href="<?= base_url('recibos/delete/' . $recibo['id']) ?>" class="btn btn-danger btn-sm btn-floating" onclick="return confirm('¿Confirmas la anulación de este recibo?');" title="Anular Recibo">
-                                            <i class="fas fa-ban"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
+                        <?php if (!empty($recibos) && is_array($recibos)) : ?>
+                        <?php foreach ($recibos as $recibo) : ?>
                             <tr>
-                                <td colspan="7" class="text-center">No hay recibos generados en el sistema.</td>
+                            <td><strong><?= esc($recibo['numero_recibo']) ?></strong></td>
+                            <td><?= esc($recibo['nombre_cliente']) ?></td>
+                            <td><?= esc($recibo['direccion']) ?></td>
+                            <td><?= esc($recibo['numero_contador'] ?? 'N/A') ?></td>
+                            <td><?= date('d/m/Y', strtotime($recibo['fecha_emision'])) ?></td>
+                            <td>Q. <?= number_format($recibo['monto_total'], 2) ?></td>
+                            
+                            <!-- AQUÍ SE COLOCAN LOS BOTONES -->
+                            <td>
+                                <!-- 1. Botón de Imprimir (Abre el ticket térmico) -->
+                                <a href="<?= base_url('recibos/imprimir/' . $recibo['id']) ?>" 
+                                target="_blank" 
+                                class="btn btn-primary btn-sm btn-floating me-1" 
+                                title="Imprimir Recibo">
+                                <i class="fas fa-print"></i>
+                                </a>
+
+                                <!-- 2. Botón de Anular (Baja lógica, no eliminación definitiva) -->
+                                <a href="<?= base_url('recibos/anular/' . $recibo['id']) ?>" 
+                                class="btn btn-danger btn-sm btn-floating" 
+                                onclick="return confirm('¿Estás seguro de anular este recibo? No se eliminará del historial contable.');" 
+                                title="Anular Recibo">
+                                <i class="fas fa-ban"></i>
+                                </a>
+                            </td>
                             </tr>
+                        <?php endforeach; ?>
+                        <?php else : ?>
+                        <tr>
+                            <td colspan="7" class="text-center py-4">No hay recibos generados en el sistema.</td>
+                        </tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
