@@ -131,7 +131,7 @@ docker-compose logs -f db
 docker-compose exec db mysql -u agua_user -p agua_db
 
 # Correr un comando de spark (CLI de CodeIgniter) dentro del contenedor
-docker-compose exec app php spark <comando>
+docker-compose exec app php spark <comando>.
 
 # Crear una migracion nueva
 docker-compose exec app php spark make:migration NombreDeLaMigracion
