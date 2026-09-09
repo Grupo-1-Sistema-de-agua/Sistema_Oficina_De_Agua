@@ -33,8 +33,12 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->post('admin/usuarios/eliminar', 'Admin\UsuariosController::delete');
 
     // Modulo: Clientes
-    $routes->get('clientes', 'Clientes\ClientesController::index');
-    // TODO (encargado del modulo): agregar create/store/edit/update/delete
+    $routes->group('clientes', ['namespace' => 'App\Controllers\Clientes'], function($routes) {
+        $routes->get('/', 'ClientesController::index');
+        $routes->post('store', 'ClientesController::store');
+        $routes->post('update/(:num)', 'ClientesController::update/$1');
+        $routes->get('delete/(:num)', 'ClientesController::delete/$1');
+    });
 
     // Modulo: Contadores
     $routes->get('contadores', 'Contadores\ContadoresController::index');
@@ -63,9 +67,32 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     
     // Modulo: Pagos
     $routes->get('pagos', 'Pagos\PagosController::index');
+
+    // TODO (encargado del modulo): agregar create/store/edit/update/delete
+
+    // Modulo: Recibos
+    $routes->group('recibos', ['namespace' => 'App\Controllers\Recibos'], function($routes) {
+        $routes->get('/', 'RecibosController::index');
+        $routes->post('store', 'RecibosController::store');
+        $routes->post('update/(:num)', 'RecibosController::update/$1');
+        $routes->get('delete/(:num)', 'RecibosController::delete/$1');
+        
+        // Rutas corregidas (sin repetir "recibos/" ni el namespace)
+        $routes->get('imprimir/(:num)', 'RecibosController::imprimir/$1');
+        $routes->get('anular/(:num)', 'RecibosController::anular/$1');  
+    });
+
+        $routes->get('pagos/nuevo', 'Pagos\PagosController::create', ['filter' => 'role:secretaria,admin,administrador']);
+        $routes->post('pagos', 'Pagos\PagosController::store', ['filter' => 'role:secretaria,admin,administrador']);
+        $routes->get('pagos/editar/(:num)', 'Pagos\PagosController::edit/$1', ['filter' => 'role:secretaria,admin,administrador']);
+        $routes->post('pagos/actualizar/(:num)', 'Pagos\PagosController::update/$1', ['filter' => 'role:secretaria,admin,administrador']);
+        $routes->post('pagos/eliminar', 'Pagos\PagosController::delete', ['filter' => 'role:secretaria,admin,administrador']);
+
+
     $routes->get('pagos/nuevo', 'Pagos\PagosController::create', ['filter' => 'role:secretaria,admin,administrador']);
     $routes->post('pagos', 'Pagos\PagosController::store', ['filter' => 'role:secretaria,admin,administrador']);
     $routes->get('pagos/editar/(:num)', 'Pagos\PagosController::edit/$1', ['filter' => 'role:secretaria,admin,administrador']);
     $routes->post('pagos/actualizar/(:num)', 'Pagos\PagosController::update/$1', ['filter' => 'role:secretaria,admin,administrador']);
     $routes->post('pagos/eliminar', 'Pagos\PagosController::delete', ['filter' => 'role:secretaria,admin,administrador']);
+
 });
