@@ -14,12 +14,23 @@ $routes->get('logout', 'Auth\AuthController::logout');
 
 // -----------------------------------------------------------------
 // Protegidas (exigen sesion iniciada -> filtro 'auth')
-// Para restringir ademas por rol, agreguen ',role:administrador'
-// (o los roles que corresponda) usando las constantes de
-// App\Constants\Roles.
 // -----------------------------------------------------------------
 $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('dashboard', 'DashboardController::index');
+
+    // Modulo de administracion de usuarios y permisos
+    $routes->group('admin', ['filter' => 'role:admin,administrador'], function ($routes) {
+        $routes->get('usuarios', 'Admin\UsuariosController::index');
+        $routes->post('usuarios', 'Admin\UsuariosController::store');
+        $routes->post('usuarios/toggle', 'Admin\UsuariosController::toggle');
+        $routes->post('usuarios/eliminar', 'Admin\UsuariosController::delete');
+        $routes->get('password', 'Admin\PasswordController::index');
+        $routes->post('password', 'Admin\PasswordController::update');
+    });
+
+    // Compatibilidad con formularios que usan una ruta distinta
+    $routes->post('admin/usuarios/toggle', 'Admin\UsuariosController::toggle');
+    $routes->post('admin/usuarios/eliminar', 'Admin\UsuariosController::delete');
 
     // Modulo: Clientes
     $routes->group('clientes', ['namespace' => 'App\Controllers\Clientes'], function($routes) {
@@ -76,5 +87,12 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->get('pagos/editar/(:num)', 'Pagos\PagosController::edit/$1', ['filter' => 'role:secretaria,admin,administrador']);
         $routes->post('pagos/actualizar/(:num)', 'Pagos\PagosController::update/$1', ['filter' => 'role:secretaria,admin,administrador']);
         $routes->post('pagos/eliminar', 'Pagos\PagosController::delete', ['filter' => 'role:secretaria,admin,administrador']);
+
+
+    $routes->get('pagos/nuevo', 'Pagos\PagosController::create', ['filter' => 'role:secretaria,admin,administrador']);
+    $routes->post('pagos', 'Pagos\PagosController::store', ['filter' => 'role:secretaria,admin,administrador']);
+    $routes->get('pagos/editar/(:num)', 'Pagos\PagosController::edit/$1', ['filter' => 'role:secretaria,admin,administrador']);
+    $routes->post('pagos/actualizar/(:num)', 'Pagos\PagosController::update/$1', ['filter' => 'role:secretaria,admin,administrador']);
+    $routes->post('pagos/eliminar', 'Pagos\PagosController::delete', ['filter' => 'role:secretaria,admin,administrador']);
 
 });

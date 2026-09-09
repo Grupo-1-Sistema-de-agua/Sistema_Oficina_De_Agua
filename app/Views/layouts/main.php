@@ -34,9 +34,19 @@
           <a href="<?= base_url('pagos') ?>" class="list-group-item list-group-item-action py-2">
             <i class="fas fa-money-bill fa-fw me-3"></i><span>Pagos</span>
           </a>
+
           <a href="<?= base_url('recibos') ?>" class="list-group-item list-group-item-action py-2">
             <i class="fas fa-file-invoice-dollar fa-fw me-3"></i><span>Recibos</span>
           </a>
+
+          <?php if (session()->get('usuario_rol') === 'administrador' || session()->get('usuario_rol') === 'admin'): ?>
+            <a href="<?= base_url('admin/usuarios') ?>" class="list-group-item list-group-item-action py-2">
+              <i class="fas fa-user-shield fa-fw me-3"></i><span>Usuarios</span>
+            </a>
+            <a href="<?= base_url('admin/password') ?>" class="list-group-item list-group-item-action py-2">
+              <i class="fas fa-key fa-fw me-3"></i><span>Cambiar contrasena</span>
+            </a>
+          <?php endif; ?>
         </div>
       </div>
     </nav>
