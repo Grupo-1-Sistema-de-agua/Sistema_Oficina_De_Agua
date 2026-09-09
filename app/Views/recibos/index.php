@@ -136,21 +136,35 @@
                 <label class="form-label" for="direccion">Dirección</label>
             </div>
               
-              <!-- INICIO DE CAMPOS TEMPORALES DE PRUEBA -->
+            <!-- INICIO DE CAMPOS CONECTADOS A LA BD -->
             <div class="mb-3">
                 <label for="numero_contador" class="form-label fw-bold text-primary">
-                    <i class="fas fa-tachometer-alt"></i> N° de Contador (Modo Manual)
+                    <i class="fas fa-tachometer-alt"></i> N° de Contador (Físico)
                 </label>
-                <input type="text" name="numero_contador" id="numero_contador" class="form-control" placeholder="Ej: CONT-999" required>
+                <select name="numero_contador" id="numero_contador" class="form-control" required>
+                    <option value="">-- Seleccione un contador --</option>
+                    <?php foreach ($contadores as $contador) : ?>
+                        <option value="<?= esc($contador['codigo_fisico']) ?>">
+                            <?= esc($contador['codigo_fisico']) ?> - Dir: <?= esc($contador['direccion_servicio']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
             </div>
 
             <div class="mb-3">
                 <label for="monto_total" class="form-label fw-bold text-success">
-                    <i class="fas fa-money-bill-wave"></i> Monto Total a Pagar Q. (Modo Manual)
+                    <i class="fas fa-money-bill-wave"></i> Monto a Pagar (De tabla Pagos)
                 </label>
-                <input type="number" step="0.01" name="monto_total" id="monto_total" class="form-control" placeholder="Ej: 150.00" required>
+                <select name="monto_total" id="monto_total" class="form-control" required>
+                    <option value="">-- Seleccione el pago --</option>
+                    <?php foreach ($pagos as $pago) : ?>
+                        <option value="<?= esc($pago['monto']) ?>">
+                            Q. <?= number_format($pago['monto'], 2) ?> (Fecha: <?= date('d/m/Y', strtotime($pago['fecha_pago'])) ?>)
+                        </option>
+                    <?php endforeach; ?>
+                </select>
             </div>
-            <!-- FIN DE CAMPOS TEMPORALES -->
+            <!-- FIN DE CAMPOS CONECTADOS -->
 
           </div>
           <div class="modal-footer">

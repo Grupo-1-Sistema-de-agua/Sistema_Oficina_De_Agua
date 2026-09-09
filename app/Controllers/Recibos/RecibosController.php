@@ -22,20 +22,18 @@ class RecibosController extends BaseController
 
     public function index()
     {
+        $clienteModel  = new \App\Models\ClienteModel(); // Asumiendo que ya lo tenías
+        $contadorModel = new \App\Models\ContadorModel();
+        $pagoModel     = new \App\Models\PagoModel();
+
+        // Traer todos los recibos para la tabla principal
         $data['recibos'] = $this->reciboModel->findAll();
-        $data['clientes'] = $this->clienteModel->findAll();
-        $data['contadores'] = $this->contadorModel->findAll();
-        
-        // Generación Automática del Número de Recibo
-        $ultimoRecibo = $this->reciboModel->orderBy('id', 'DESC')->first();
-        if ($ultimoRecibo && isset($ultimoRecibo['numero_recibo'])) {
-            $partes = explode('-', $ultimoRecibo['numero_recibo']);
-            $siguienteNumero = isset($partes[1]) ? intval($partes[1]) + 1 : intval($ultimoRecibo['numero_recibo']) + 1;
-            $data['siguiente_recibo'] = 'REC-' . str_pad($siguienteNumero, 3, '0', STR_PAD_LEFT);
-        } else {
-            $data['siguiente_recibo'] = 'REC-001';
-        }
-        
+
+        // Traer datos para llenar los <select> del modal de creación
+        $data['clientes']   = $clienteModel->findAll(); 
+        $data['contadores'] = $contadorModel->where('activo', 1)->findAll(); // Solo contadores activos
+        $data['pagos']      = $pagoModel->findAll();
+
         return view('recibos/index', $data);
     }
 
