@@ -70,6 +70,16 @@ $routes->group('tipos-servicio', ['namespace' => 'App\Controllers\Tarifas'], fun
     $routes->post('(:num)/eliminar', 'TiposServicioController::delete/$1');
 });
 
+// Modulo: Sectores (catalogo)
+$routes->group('sectores', ['namespace' => 'App\Controllers'], function ($routes) {
+    $routes->get('/', 'SectoresController::index');
+    $routes->get('crear', 'SectoresController::create');
+    $routes->post('/', 'SectoresController::store');
+    $routes->get('(:num)/editar', 'SectoresController::edit/$1');
+    $routes->post('(:num)', 'SectoresController::update/$1');
+    $routes->post('(:num)/eliminar', 'SectoresController::delete/$1');
+});
+
 // Modulo: Lecturas
 $routes->group('lecturas', ['namespace' => 'App\Controllers\Lecturas'], function ($routes) {
     $routes->get('/', 'LecturasController::index');
