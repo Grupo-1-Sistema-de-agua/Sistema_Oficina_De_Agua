@@ -4,6 +4,9 @@ namespace App\Controllers\Clientes;
 
 use App\Controllers\BaseController;
 use App\Models\ClienteModel; // Importamos el modelo que ya creaste
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Modulo: Clientes
@@ -16,6 +19,12 @@ use App\Models\ClienteModel; // Importamos el modelo que ya creaste
 class ClientesController extends BaseController
 {
     protected $clienteModel;
+
+    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
+    {
+        parent::initController($request, $response, $logger);
+        $this->requiereRol(['secretaria', 'administrador']);
+    }
 
     public function __construct()
     {
@@ -44,10 +53,12 @@ class ClientesController extends BaseController
 
         // Intentamos guardar. Si falla por las reglas de validación del Modelo, regresamos los errores.
         if (!$this->clienteModel->save($datos)) {
-            return redirect()->back()->withInput()->with('errores', $this->clienteModel->errors());
+            flash_set('errores', $this->clienteModel->errors());
+            return redirect()->back()->withInput();
         }
 
-        return redirect()->to('/clientes')->with('mensaje', 'Cliente creado exitosamente.');
+        flash_set('mensaje', 'Cliente creado exitosamente.');
+        return redirect()->to('/clientes');
     }
 
     // UPDATE: Actualizar un cliente existente
@@ -61,10 +72,12 @@ class ClientesController extends BaseController
 
         // Intentamos actualizar. Aplica las mismas validaciones de tu modelo.
         if (!$this->clienteModel->update($id, $datos)) {
-            return redirect()->back()->withInput()->with('errores', $this->clienteModel->errors());
+            flash_set('errores', $this->clienteModel->errors());
+            return redirect()->back()->withInput();
         }
 
-        return redirect()->to('/clientes')->with('mensaje', 'Cliente actualizado exitosamente.');
+        flash_set('mensaje', 'Cliente actualizado exitosamente.');
+        return redirect()->to('/clientes');
     }
 
     // DELETE: Eliminar un cliente
@@ -72,7 +85,8 @@ class ClientesController extends BaseController
     {
         if ($id) {
             $this->clienteModel->delete($id);
-            return redirect()->to('/clientes')->with('mensaje', 'Cliente eliminado exitosamente.');
+            flash_set('mensaje', 'Cliente eliminado exitosamente.');
+            return redirect()->to('/clientes');
         }
         return redirect()->to('/clientes');
     }
