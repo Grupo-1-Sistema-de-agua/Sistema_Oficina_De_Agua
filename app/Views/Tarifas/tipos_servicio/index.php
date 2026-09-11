@@ -8,7 +8,7 @@
     </a>
   </div>
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <h2 class="h4 mb-0">Tipos de Servicio</h2>
+    <h2 class="mb-0">Tipos de Servicio</h2>
     <a href="<?= base_url('tipos-servicio/crear') ?>" class="btn btn-primary">
       <i class="fas fa-plus me-1"></i>Nuevo Tipo de Servicio
     </a>
