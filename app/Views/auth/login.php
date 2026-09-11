@@ -57,12 +57,6 @@
                   <label class="form-label" for="form1Example2">Contrasena</label>
                 </div>
 
-                <div class="row mb-4">
-                  <div class="col text-center">
-                    <a href="#!">Olvide mi contrasena</a>
-                  </div>
-                </div>
-
                 <button type="submit" class="btn btn-primary btn-block w-100" data-mdb-ripple-init>Ingresar</button>
               </form>
             </div>
