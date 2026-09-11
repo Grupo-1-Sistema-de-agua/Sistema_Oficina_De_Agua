@@ -2,7 +2,7 @@
 
 <?= $this->section('contenido') ?>
 <div class="container-fluid px-4 py-4">
-    <h2 class="h4 mb-3">Contadores pendientes de lectura</h2>
+    <h2 class="mb-3">Lecturas</h2>
 
     <!--
       CAMBIOS:

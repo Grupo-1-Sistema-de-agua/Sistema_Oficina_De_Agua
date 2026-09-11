@@ -3,7 +3,7 @@
 <?= $this->section('contenido') ?>
 <div class="container-fluid px-4 py-4">
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <h2 class="h4 mb-0">Contadores</h2>
+        <h2 class="mb-0">Contadores</h2>
         <a href="<?= base_url('contadores/nuevo') ?>" class="btn btn-primary">
             <i class="fas fa-plus me-1"></i>Nuevo contador
         </a>
