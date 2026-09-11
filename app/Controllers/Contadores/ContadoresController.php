@@ -8,10 +8,19 @@ use App\Models\ClienteModel;
 use App\Models\TipoServicioModel;
 use App\Models\SectorModel;
 use App\Models\LecturaModel;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class ContadoresController extends BaseController
 {
     private ContadorModel $contadores;
+
+    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
+    {
+        parent::initController($request, $response, $logger);
+        $this->requiereRol(['secretaria', 'administrador']);
+    }
 
     public function __construct()
     {
@@ -43,7 +52,7 @@ class ContadoresController extends BaseController
         $data['sectores'] = model('SectorModel')->findAll();
         $data['contador'] = null;
 
-        $data['errors'] = session()->getFlashdata('errors') ?? [];
+        $data['errors'] = flash_get('errors') ?? [];
         return view('Contadores/form', $data);
     }
 
@@ -51,19 +60,21 @@ class ContadoresController extends BaseController
     public function crear()
     {
         if (! $this->contadores->validate($this->request->getPost())) {
-            return redirect()->back()->withInput()->with('errors', $this->contadores->errors());
+            flash_set('errors', $this->contadores->errors());
+            return redirect()->back()->withInput();
         }
 
         $datos = $this->request->getPost();
         if ($this->contadores->activoEnMismaDireccion($datos['cliente_id'], $datos['direccion_servicio'])) {
-            return redirect()->back()->withInput()
-                ->with('errors', ['direccion_servicio' => 'El cliente ya tiene un contador ACTIVO en esa direccion.']);
+            flash_set('errors', ['direccion_servicio' => 'El cliente ya tiene un contador ACTIVO en esa direccion.']);
+            return redirect()->back()->withInput();
         }
 
         $datos['fecha_asignacion'] = date('Y-m-d');
         $this->contadores->save($datos);
 
-        return redirect()->to('/contadores')->with('message', 'Contador registrado correctamente.');
+        flash_set('message', 'Contador registrado correctamente.');
+        return redirect()->to('/contadores');
     }
 
     // Formulario de edicion
@@ -71,7 +82,8 @@ class ContadoresController extends BaseController
     {
         $contador = $this->contadores->find($id);
         if (! $contador) {
-            return redirect()->to('/contadores')->with('error', 'Contador no encontrado.');
+            flash_set('error', 'Contador no encontrado.');
+            return redirect()->to('/contadores');
         }
 
         $data['titulo']    = 'Editar Contador';
@@ -80,7 +92,7 @@ class ContadoresController extends BaseController
         $data['tipos']     = model('TipoServicioModel')->contratables();
         $data['sectores']  = model('SectorModel')->findAll();
 
-        $data['errors'] = session()->getFlashdata('errors') ?? [];
+        $data['errors'] = flash_get('errors') ?? [];
         return view('Contadores/form', $data);
     }
 
@@ -89,22 +101,25 @@ class ContadoresController extends BaseController
     {
         $contador = $this->contadores->find($id);
         if (! $contador) {
-            return redirect()->to('/contadores')->with('error', 'Contador no encontrado.');
+            flash_set('error', 'Contador no encontrado.');
+            return redirect()->to('/contadores');
         }
 
         if (! $this->contadores->validate($this->request->getPost())) {
-            return redirect()->back()->withInput()->with('errors', $this->contadores->errors());
+            flash_set('errors', $this->contadores->errors());
+            return redirect()->back()->withInput();
         }
 
         $datos = $this->request->getPost();
         if ($this->contadores->activoEnMismaDireccion($datos['cliente_id'], $datos['direccion_servicio'], (int) $id)) {
-            return redirect()->back()->withInput()
-                ->with('errors', ['direccion_servicio' => 'El cliente ya tiene un contador ACTIVO en esa direccion.']);
+            flash_set('errors', ['direccion_servicio' => 'El cliente ya tiene un contador ACTIVO en esa direccion.']);
+            return redirect()->back()->withInput();
         }
 
         $this->contadores->update($id, $datos);
 
-        return redirect()->to('/contadores')->with('message', 'Contador actualizado correctamente.');
+        flash_set('message', 'Contador actualizado correctamente.');
+        return redirect()->to('/contadores');
     }
 
     // Desactivar/activar logico, registrando la fecha
@@ -112,13 +127,15 @@ class ContadoresController extends BaseController
     {
         $contador = $this->contadores->find($id);
         if (! $contador) {
-            return redirect()->to('/contadores')->with('error', 'Contador no encontrado.');
+            flash_set('error', 'Contador no encontrado.');
+            return redirect()->to('/contadores');
         }
 
         $nuevo = ['activo' => $contador['activo'] ? 0 : 1];
         if ($nuevo['activo']) {
             if ($this->contadores->activoEnMismaDireccion($contador['cliente_id'], $contador['direccion_servicio'], (int) $id)) {
-                return redirect()->to('/contadores')->with('error', 'No se puede reactivar: el cliente ya tiene un contador activo en esa direccion.');
+                flash_set('error', 'No se puede reactivar: el cliente ya tiene un contador activo en esa direccion.');
+                return redirect()->to('/contadores');
             }
             $nuevo['fecha_desactivacion'] = null;
         } else {
@@ -127,7 +144,8 @@ class ContadoresController extends BaseController
 
         $this->contadores->update($id, $nuevo);
 
-        return redirect()->to('/contadores')->with('message', $nuevo['activo'] ? 'Contador activado correctamente.' : 'Contador desactivado correctamente.');
+        flash_set('message', $nuevo['activo'] ? 'Contador activado correctamente.' : 'Contador desactivado correctamente.');
+        return redirect()->to('/contadores');
     }
 
     // Detalle: ficha del contador + cliente + historial + otros contadores
@@ -135,7 +153,8 @@ class ContadoresController extends BaseController
     {
         $contador = $this->contadores->find($id);
         if (! $contador) {
-            return redirect()->to('/contadores')->with('error', 'Contador no encontrado.');
+            flash_set('error', 'Contador no encontrado.');
+            return redirect()->to('/contadores');
         }
 
         $data['titulo']    = 'Detalle del Contador';
