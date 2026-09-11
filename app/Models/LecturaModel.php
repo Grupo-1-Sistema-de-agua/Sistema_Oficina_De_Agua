@@ -156,4 +156,14 @@ class LecturaModel extends Model
         return $map;
     }
 
+    /**
+     * Cuenta cuantas lecturas existen dentro de un anio calendario, para
+     * generar el consecutivo del numero de recibo (R-<anio>-<consecutivo>).
+     */
+    public function contarDelAnio(int $anio): int
+    {
+        return $this->where('fecha >=', $anio . '-01-01 00:00:00')
+                    ->where('fecha <', ($anio + 1) . '-01-01 00:00:00')
+                    ->countAllResults();
+    }
 }
