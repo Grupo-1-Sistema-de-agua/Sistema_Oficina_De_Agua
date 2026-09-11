@@ -51,6 +51,7 @@
                             <th>Cliente</th>
                             <th>Sector</th>
                             <th>Tipo servicio</th>
+                            <th>No. Recibo</th>
                             <th>Estado mes actual</th>
                             <th class="text-end">Acciones</th>
                         </tr>
@@ -58,7 +59,7 @@
                     <tbody>
                         <?php if (empty($pendientes)): ?>
                             <tr>
-                                <td colspan="6" class="text-center text-muted py-4">No hay contadores pendientes.</td>
+                                <td colspan="7" class="text-center text-muted py-4">No hay contadores pendientes.</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($pendientes as $c): ?>
@@ -70,6 +71,13 @@
                                     <td><?= esc_nativo($c['tipo_nombre']) ?></td>
                                     <td>
                                         <?php if ($tieneLecturaMes): ?>
+                                            <code><?= esc_nativo($lecturasMes[$c['id']]['numero_recibo']) ?></code>
+                                        <?php else: ?>
+                                            <span class="text-muted">—</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php if ($tieneLecturaMes): ?>
                                             <span class="badge bg-success">Lectura registrada este mes</span>
                                         <?php else: ?>
                                             <span class="badge bg-warning text-dark">Pendiente de lectura</span>
@@ -77,7 +85,7 @@
                                     </td>
                                     <td class="text-end">
                                         <?php if ($tieneLecturaMes): ?>
-                                            <a href="<?= base_url('lecturas/editar/' . $lecturasMes[$c['id']]) ?>" class="btn btn-sm btn-outline-secondary">
+                                            <a href="<?= base_url('lecturas/editar/' . $lecturasMes[$c['id']]['id']) ?>" class="btn btn-sm btn-outline-secondary">
                                                 <i class="fas fa-pen me-1"></i>Editar lectura
                                             </a>
                                         <?php else: ?>

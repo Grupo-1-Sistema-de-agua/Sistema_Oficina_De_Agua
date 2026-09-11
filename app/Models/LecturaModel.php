@@ -93,16 +93,21 @@ class LecturaModel extends Model
         $inicioMes = date('Y-m-01 00:00:00');
         $inicioProximoMes = date('Y-m-01 00:00:00', strtotime('+1 month'));
 
-        $rows = $this->select('contador_id, id')
+        $rows = $this->select('contador_id, id, numero_recibo')
             ->whereIn('contador_id', $contadorIds)
             ->where('fecha >=', $inicioMes)
             ->where('fecha <', $inicioProximoMes)
             ->findAll();
 
         $mapa = [];
+
         foreach ($rows as $fila) {
-            $mapa[(int) $fila['contador_id']] = (int) $fila['id'];
+            $mapa[(int) $fila['contador_id']] = [
+                'id'            => (int) $fila['id'],
+                'numero_recibo' => $fila['numero_recibo'],
+            ];
         }
+        
         return $mapa;
     }
 
