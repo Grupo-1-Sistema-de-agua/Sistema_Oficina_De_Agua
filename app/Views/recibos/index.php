@@ -77,6 +77,7 @@
       </div>
       
       <form action="<?= base_url('recibos/store') ?>" method="POST">
+      <?= csrf_field_nativo() ?>
             <div class="modal-body">
               
                 <div class="row mb-4">
