@@ -6,8 +6,6 @@
     <div><h2 class="mb-1">Pagos</h2><p class="text-muted mb-0">Registra y consulta los pagos asociados a cada lectura.</p></div>
     <?php if ($pagoEditar): ?><a href="<?= base_url('pagos') ?>" class="btn btn-outline-secondary">Cancelar edicion</a><?php endif; ?>
   </div>
-  <?php if (session()->getFlashdata('error')): ?><div class="alert alert-danger"><?= esc(session()->getFlashdata('error')) ?></div><?php endif; ?>
-  <?php if (session()->getFlashdata('message')): ?><div class="alert alert-success"><?= esc(session()->getFlashdata('message')) ?></div><?php endif; ?>
 
   <div class="card shadow-sm border-0 mb-4"><div class="card-body">
     <h5 class="card-title mb-3"><?= $pagoEditar ? 'Editar pago' : 'Registrar pago' ?></h5>
