@@ -15,7 +15,7 @@
   <?php endif; ?>
 
   <form action="<?= base_url('tipos-servicio/' . $tipo['id']) ?>" method="post" class="col-lg-6">
-    <?= csrf_field() ?>
+    <?= csrf_field_nativo() ?>
     <input type="hidden" name="_method" value="PUT">
 
     <div class="form-outline mb-4" data-mdb-input-init>
