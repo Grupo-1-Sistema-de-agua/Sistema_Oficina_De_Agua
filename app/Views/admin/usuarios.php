@@ -47,7 +47,7 @@
                     <?= csrf_field_nativo() ?>
                     <input type="hidden" name="usuario_id" value="<?= esc_nativo($usuario['id']) ?>">
                     <?php if ((int) $usuario['activo'] === 1): ?>
-                      <button type="submit" class="btn btn-sm btn-outline-danger">
+                      <button type="submit" class="btn btn-sm btn-outline-primary">
                         <i class="fas fa-xmark me-1"></i> Desactivar
                       </button>
                     <?php else: ?>
@@ -57,13 +57,15 @@
                     <?php endif; ?>
                   </form>
 
-                  <?php if ((int) ($_SESSION['id_usuario'] ?? 0) !== (int) $usuario['id']): ?>
-                    <form action="<?= base_url('admin/usuarios/eliminar') ?>" method="post" class="d-inline ms-2" onsubmit="return confirm('Seguro que quieres eliminar este usuario?');">
-                      <?= csrf_field_nativo() ?>
-                      <input type="hidden" name="usuario_id" value="<?= esc_nativo($usuario['id']) ?>">
-                      <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
-                    </form>
-                  <?php endif; ?>
+                  <?php $esUsuarioActual = (int) ($_SESSION['id_usuario'] ?? 0) === (int) $usuario['id']; ?>
+                  <form action="<?= base_url('admin/usuarios/eliminar') ?>" method="post" class="d-inline ms-2" onsubmit="return confirm('Seguro que quieres eliminar este usuario?');">
+                    <?= csrf_field_nativo() ?>
+                    <input type="hidden" name="usuario_id" value="<?= esc_nativo($usuario['id']) ?>">
+                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                      <?= $esUsuarioActual ? 'disabled title="No puedes eliminar tu propia cuenta"' : '' ?>>
+                      Eliminar
+                    </button>
+                  </form>
                 </td>
               </tr>
             <?php endforeach; ?>
