@@ -64,8 +64,8 @@ $routes->group('tipos-servicio', ['namespace' => 'App\Controllers\Tarifas'], fun
     $routes->get('crear', 'TiposServicioController::create');
     $routes->post('/', 'TiposServicioController::store');
     $routes->get('(:num)/editar', 'TiposServicioController::edit/$1');
-    $routes->put('(:num)', 'TiposServicioController::update/$1');
-    $routes->get('(:num)/eliminar', 'TiposServicioController::delete/$1');
+    $routes->post('(:num)', 'TiposServicioController::update/$1');
+    $routes->post('(:num)/eliminar', 'TiposServicioController::delete/$1');
 });
 
 // Modulo: Lecturas
