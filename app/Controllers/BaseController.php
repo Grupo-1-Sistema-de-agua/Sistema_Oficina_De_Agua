@@ -34,6 +34,7 @@ abstract class BaseController extends Controller
         parent::initController($request, $response, $logger);
 
         $this->iniciarSesionNativa();
+        $this->validarCsrf();
     }
 
     /**
@@ -129,5 +130,28 @@ abstract class BaseController extends Controller
         flash_set('error', $mensaje);
         header('Location: ' . site_url('login'));
         exit;
+    }
+
+    /**
+     * Valida el token CSRF en cualquier peticion POST. Se ejecuta
+     * automaticamente en cada peticion, asi que ningun controlador necesita llamarlo a mano.
+     */
+    protected function validarCsrf(): void
+    {
+        $metodo = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+        if ($metodo !== 'POST') {
+            return;
+        }
+
+        $tokenEnviado = $_POST['csrf_token_nativo'] ?? '';
+        $tokenSesion  = $_SESSION['csrf_token'] ?? '';
+
+        if ($tokenSesion === '' || ! hash_equals($tokenSesion, (string) $tokenEnviado)) {
+            flash_set('error', 'Tu sesion expiro o la solicitud no es valida. Intenta de nuevo.');
+            $regreso = $_SERVER['HTTP_REFERER'] ?? site_url('dashboard');
+            header('Location: ' . $regreso);
+            exit;
+        }
     }
 }
