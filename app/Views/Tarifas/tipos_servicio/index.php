@@ -45,6 +45,11 @@
               </td>
               <td class="text-end">
                 <a href="<?= base_url('tipos-servicio/' . $tipo['id'] . '/editar') ?>" class="btn btn-sm btn-outline-primary">Editar</a>
+                <form action="<?= base_url('tipos-servicio/' . $tipo['id'] . '/eliminar') ?>" method="post" class="d-inline"
+                      onsubmit="return confirm('¿Eliminar este tipo de servicio? Esta accion no se puede deshacer.');">
+                  <?= csrf_field_nativo() ?>
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                </form>
               </td>
             </tr>
           <?php endforeach; ?>
