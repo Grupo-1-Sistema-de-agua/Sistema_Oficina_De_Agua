@@ -16,6 +16,7 @@ class SectorModel extends Model
     protected $useTimestamps = false;
 
     protected $validationRules = [
+        'id'     => 'permit_empty|is_natural_no_zero',
         'nombre' => 'required|max_length[50]|is_unique[Tb_Sectores.nombre,id,{id}]',
     ];
 }
