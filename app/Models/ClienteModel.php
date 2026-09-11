@@ -17,7 +17,7 @@ class ClienteModel extends Model
 
    protected $validationRules = [
     'nombre'              => 'required|max_length[150]',
-    'dpi'                 => 'permit_empty|exact_length[13]|is_unique[Tb_Clientes.dpi,id,{id}]',
+    'dpi'                 => 'required|exact_length[13]|is_unique[Tb_Clientes.dpi,id,{id}]',
     'direccion_principal' => 'required|max_length[255]',
             ];
 }
