@@ -13,7 +13,7 @@
         <div class="card-body">
             <h5 class="card-title mb-3">Crear usuario</h5>
             <form action="<?= base_url('admin/usuarios') ?>" method="post">
-                <?= csrf_field() ?>
+                <?= csrf_field_nativo() ?>
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label">Nombre</label>
@@ -77,7 +77,7 @@
                                 </td>
                                 <td class="text-end">
                                     <form action="<?= base_url('admin/usuarios/toggle') ?>" method="post" class="d-inline">
-                                        <?= csrf_field() ?>
+                                        <?= csrf_field_nativo() ?>
                                         <input type="hidden" name="usuario_id" value="<?= esc($usuario['id']) ?>">
                                         <button type="submit" class="btn btn-sm btn-outline-primary">
                                             <?= (int) $usuario['activo'] === 1 ? 'Desactivar' : 'Activar' ?>
@@ -86,7 +86,7 @@
 
                                     <?php if ((int) ($_SESSION['id_usuario'] ?? 0) !== (int) $usuario['id']): ?>
                                         <form action="<?= base_url('admin/usuarios/eliminar') ?>" method="post" class="d-inline ms-2" onsubmit="return confirm('Seguro que quieres eliminar este usuario?');">
-                                            <?= csrf_field() ?>
+                                            <?= csrf_field_nativo() ?>
                                             <input type="hidden" name="usuario_id" value="<?= esc($usuario['id']) ?>">
                                             <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
                                         </form>
