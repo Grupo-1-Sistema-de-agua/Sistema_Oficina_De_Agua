@@ -82,11 +82,9 @@ $routes->group('lecturas', ['namespace' => 'App\Controllers\Lecturas'], function
 // Modulo: Pagos
 $routes->group('pagos', ['namespace' => 'App\Controllers\Pagos'], function ($routes) {
     $routes->get('/', 'PagosController::index');
-    $routes->get('nuevo', 'PagosController::create');
-    $routes->post('/', 'PagosController::store');
-    $routes->get('editar/(:num)', 'PagosController::edit/$1');
-    $routes->post('actualizar/(:num)', 'PagosController::update/$1');
-    $routes->post('eliminar', 'PagosController::delete');
+    $routes->get('nuevo/(:num)', 'PagosController::nuevo/$1');
+    $routes->post('store', 'PagosController::store');
+    $routes->post('(:num)/anular', 'PagosController::anular/$1');
 });
 
 // Modulo: Recibos
