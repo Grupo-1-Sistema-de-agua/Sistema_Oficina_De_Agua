@@ -53,11 +53,11 @@ class ClientesController extends BaseController
 
         // Intentamos guardar. Si falla por las reglas de validación del Modelo, regresamos los errores.
         if (!$this->clienteModel->save($datos)) {
-            flash_set('errores', $this->clienteModel->errors());
+            flash_set('error', $this->clienteModel->errors());
             return redirect()->back()->withInput();
         }
 
-        flash_set('mensaje', 'Cliente creado exitosamente.');
+        flash_set('message', 'Cliente creado exitosamente.');
         return redirect()->to('/clientes');
     }
 
@@ -72,11 +72,11 @@ class ClientesController extends BaseController
 
         // Intentamos actualizar. Aplica las mismas validaciones de tu modelo.
         if (!$this->clienteModel->update($id, $datos)) {
-            flash_set('errores', $this->clienteModel->errors());
+            flash_set('error', $this->clienteModel->errors());
             return redirect()->back()->withInput();
         }
 
-        flash_set('mensaje', 'Cliente actualizado exitosamente.');
+        flash_set('message', 'Cliente actualizado exitosamente.');
         return redirect()->to('/clientes');
     }
 
@@ -85,7 +85,7 @@ class ClientesController extends BaseController
     {
         if ($id) {
             $this->clienteModel->delete($id);
-            flash_set('mensaje', 'Cliente eliminado exitosamente.');
+            flash_set('message', 'Cliente eliminado exitosamente.');
             return redirect()->to('/clientes');
         }
         return redirect()->to('/clientes');
