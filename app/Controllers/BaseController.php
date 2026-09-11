@@ -24,7 +24,7 @@ abstract class BaseController extends Controller
 {
 
     protected $session;
-    protected $helpers = ['flash'];
+    protected $helpers = ['flash', 'csrf'];
 
     /**
      * @return void
