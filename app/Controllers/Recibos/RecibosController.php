@@ -25,40 +25,61 @@ class RecibosController extends BaseController
      */
     public function index()
     {
-        $q      = trim((string) $this->request->getGet('q'));
-        $estado = $this->request->getGet('estado') ?: 'pendientes';
+        $qPendientes = trim((string) $this->request->getGet('q_pendientes'));
+        $qPagadas    = trim((string) $this->request->getGet('q_pagadas'));
 
-        $query = db_connect()->table('Tb_Contadores')
-            ->select('
+        // Agrupado por contador. GROUP_CONCAT junta los numeros de recibo
+        // de las lecturas pendientes de ese contador en un solo texto
+        // separado por comas, en orden de fecha -- la vista se encarga
+        // de mostrar solo los primeros y un "+N" si hay muchos.
+        $pendientesQuery = db_connect()->table('Tb_Contadores')
+            ->select("
                 Tb_Contadores.id AS contador_id,
                 Tb_Contadores.codigo_fisico,
                 Tb_Clientes.nombre AS cliente_nombre,
-                COUNT(Tb_Lecturas.id) AS total_lecturas,
-                SUM(CASE WHEN Tb_Pagos.id IS NULL THEN 1 ELSE 0 END) AS lecturas_pendientes,
-                SUM(CASE WHEN Tb_Pagos.id IS NULL THEN Tb_Lecturas.monto_base + Tb_Lecturas.monto_exceso ELSE 0 END) AS monto_pendiente
-            ', false)
+                COUNT(Tb_Lecturas.id) AS lecturas_pendientes,
+                SUM(Tb_Lecturas.monto_base + Tb_Lecturas.monto_exceso) AS monto_pendiente,
+                GROUP_CONCAT(Tb_Lecturas.numero_recibo ORDER BY Tb_Lecturas.fecha ASC SEPARATOR ',') AS recibos_pendientes
+            ", false)
             ->join('Tb_Clientes', 'Tb_Clientes.id = Tb_Contadores.cliente_id')
             ->join('Tb_Lecturas', 'Tb_Lecturas.contador_id = Tb_Contadores.id')
             ->join('Tb_Pagos', 'Tb_Pagos.lectura_id_activa = Tb_Lecturas.id', 'left')
+            ->where('Tb_Pagos.id', null)
             ->groupBy('Tb_Contadores.id');
 
-        if ($q !== '') {
-            $query->groupStart()
-                ->like('Tb_Clientes.nombre', $q)
-                ->orLike('Tb_Contadores.codigo_fisico', $q)
+        if ($qPendientes !== '') {
+            $pendientesQuery->groupStart()
+                ->like('Tb_Clientes.nombre', $qPendientes)
+                ->orLike('Tb_Lecturas.numero_recibo', $qPendientes)
             ->groupEnd();
         }
 
-        if ($estado === 'pendientes') {
-            $query->having('lecturas_pendientes >', 0);
+        $contadoresPendientes = $pendientesQuery->orderBy('Tb_Clientes.nombre', 'ASC')->get()->getResultArray();
+
+        // Pagadas SI queda individual, una fila por lectura -- cada una
+        // tiene su propio comprobante que ver aparte.
+        $pagadasQuery = (new LecturaModel())
+            ->select('Tb_Lecturas.id, Tb_Lecturas.numero_recibo, Tb_Lecturas.fecha, Tb_Lecturas.monto_base, Tb_Lecturas.monto_exceso, Tb_Contadores.codigo_fisico, Tb_Clientes.nombre AS cliente_nombre, Tb_Pagos.fecha_pago, Tb_Metodos_Pago.nombre AS metodo_nombre')
+            ->join('Tb_Pagos', 'Tb_Pagos.lectura_id_activa = Tb_Lecturas.id')
+            ->join('Tb_Metodos_Pago', 'Tb_Metodos_Pago.id = Tb_Pagos.metodo_id')
+            ->join('Tb_Contadores', 'Tb_Contadores.id = Tb_Lecturas.contador_id')
+            ->join('Tb_Clientes', 'Tb_Clientes.id = Tb_Contadores.cliente_id')
+            ->orderBy('Tb_Pagos.fecha_pago', 'DESC');
+
+        if ($qPagadas !== '') {
+            $pagadasQuery->groupStart()
+                ->like('Tb_Clientes.nombre', $qPagadas)
+                ->orLike('Tb_Lecturas.numero_recibo', $qPagadas)
+            ->groupEnd();
         }
 
-        $contadores = $query->orderBy('Tb_Clientes.nombre', 'ASC')->get()->getResultArray();
+        $lecturasPagadas = $pagadasQuery->findAll();
 
         return view('recibos/index', [
-            'contadores' => $contadores,
-            'q'          => $q,
-            'estado'     => $estado,
+            'contadoresPendientes' => $contadoresPendientes,
+            'lecturasPagadas'      => $lecturasPagadas,
+            'qPendientes'          => $qPendientes,
+            'qPagadas'             => $qPagadas,
         ]);
     }
 
@@ -84,20 +105,25 @@ class RecibosController extends BaseController
             return redirect()->to('/recibos');
         }
 
+        // El recibo solo incluye lo que todavia se debe, no el historial
+        // completo -- por eso solo se traen lecturas sin pago activo.
         $lecturas = (new LecturaModel())
-            ->select('Tb_Lecturas.*, Tb_Pagos.id AS pago_id, Tb_Pagos.fecha_pago, Tb_Pagos.metodo_id, Tb_Metodos_Pago.nombre AS metodo_nombre, Tb_Tarifas.precio AS tarifa_precio')
+            ->select('Tb_Lecturas.*, Tb_Tarifas.precio AS tarifa_precio')
             ->join('Tb_Pagos', 'Tb_Pagos.lectura_id_activa = Tb_Lecturas.id', 'left')
-            ->join('Tb_Metodos_Pago', 'Tb_Metodos_Pago.id = Tb_Pagos.metodo_id', 'left')
             ->join('Tb_Tarifas', 'Tb_Tarifas.id = Tb_Lecturas.tarifa_base_id')
             ->where('Tb_Lecturas.contador_id', $contadorId)
+            ->where('Tb_Pagos.id', null)
             ->orderBy('Tb_Lecturas.fecha', 'ASC')
             ->findAll();
 
+        if (empty($lecturas)) {
+            flash_set('error', 'Este contador esta al dia, no hay nada pendiente que imprimir.');
+            return redirect()->to('/recibos');
+        }
+
         $totalPendiente = 0.0;
         foreach ($lecturas as $lectura) {
-            if (! $lectura['pago_id']) {
-                $totalPendiente += (float) $lectura['monto_base'] + (float) $lectura['monto_exceso'];
-            }
+            $totalPendiente += (float) $lectura['monto_base'] + (float) $lectura['monto_exceso'];
         }
 
         return view('recibos/ticket', [
