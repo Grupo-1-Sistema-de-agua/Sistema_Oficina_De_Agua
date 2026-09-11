@@ -313,8 +313,8 @@ class LecturasController extends BaseController
                 }
             }
         }
-
-        $this->lecturas->update($lecturaId, [
+        
+        $actualizado = $this->lecturas->update($lecturaId, [
             'lectura_actual'   => $lecturaActual,
             'consumo_litros'   => $consumo,
             'tarifa_base_id'   => (int) $tarifaBase['id'],
@@ -322,6 +322,11 @@ class LecturasController extends BaseController
             'monto_base'       => $montoBase,
             'monto_exceso'     => $montoExceso,
         ]);
+
+        if (! $actualizado) {
+            flash_set('error', 'No se pudo actualizar la lectura. Intenta de nuevo.');
+            return redirect()->back()->withInput();
+        }
 
         flash_set('message', 'Lectura actualizada. Consumo: ' . $consumo . ' L. Total: Q' . number_format($montoBase + $montoExceso, 2));
         return redirect()->to('/lecturas');
