@@ -57,7 +57,7 @@
                     </dl>
 
                     <form method="post" action="<?= base_url('lecturas/guardar') ?>">
-                        <?= csrf_field() ?>
+                        <?= csrf_field_nativo() ?>
                         <input type="hidden" name="contador_id" value="<?= esc($contador['id']) ?>">
 
                         <div class="mb-3">
