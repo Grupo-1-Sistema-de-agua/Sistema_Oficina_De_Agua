@@ -11,7 +11,7 @@ class PagoModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
-    protected $allowedFields    = ['monto', 'fecha_pago', 'lectura_id', 'metodo_id', 'usuario_registro_id'];
+    protected $allowedFields    = ['monto', 'fecha_pago', 'lectura_id', 'metodo_id', 'usuario_registro_id', 'anulado'];
 
     protected $useTimestamps = false;
 
