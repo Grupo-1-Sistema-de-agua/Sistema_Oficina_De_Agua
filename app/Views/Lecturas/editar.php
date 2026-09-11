@@ -57,7 +57,7 @@
                     </dl>
 
                     <form method="post" action="<?= base_url('lecturas/actualizar') ?>">
-                        <?= csrf_field() ?>
+                        <?= csrf_field_nativo() ?>
                         <input type="hidden" name="lectura_id" value="<?= esc($lectura['id']) ?>">
 
                         <div class="mb-3">
