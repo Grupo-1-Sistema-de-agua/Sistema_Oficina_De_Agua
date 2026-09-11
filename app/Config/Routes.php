@@ -23,11 +23,12 @@ $routes->get('dashboard', 'DashboardController::index');
 // Modulo de administracion de usuarios y permisos
 $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function ($routes) {
     $routes->get('usuarios', 'UsuariosController::index');
+    $routes->get('usuarios/nuevo', 'UsuariosController::nuevo');
     $routes->post('usuarios', 'UsuariosController::store');
     $routes->post('usuarios/toggle', 'UsuariosController::toggle');
     $routes->post('usuarios/eliminar', 'UsuariosController::delete');
-    $routes->get('password', 'PasswordController::index');
-    $routes->post('password', 'PasswordController::update');
+    $routes->get('usuarios/(:num)/password', 'PasswordController::edit/$1');
+    $routes->post('usuarios/(:num)/password', 'PasswordController::update/$1');
 });
 
 // Modulo: Clientes
