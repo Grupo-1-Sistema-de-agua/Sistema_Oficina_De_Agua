@@ -100,7 +100,7 @@
                 <td class="text-end">
                   <form action="<?= base_url('tarifas/' . $tarifa['id'] . '/anular') ?>" method="post"
                         onsubmit="return confirm('¿Anular esta tarifa? Esta accion no se puede deshacer.');">
-                    <?= csrf_field() ?>
+                    <?= csrf_field_nativo() ?>
                     <button type="submit" class="btn btn-sm btn-outline-danger">Anular</button>
                   </form>
                 </td>
