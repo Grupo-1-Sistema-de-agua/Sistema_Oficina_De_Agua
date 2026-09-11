@@ -39,7 +39,7 @@
             <i class="fas fa-file-invoice-dollar fa-fw me-3"></i><span>Recibos</span>
           </a>
 
-          <?php if (session()->get('usuario_rol') === 'administrador' || session()->get('usuario_rol') === 'admin'): ?>
+          <?php if (($_SESSION['rol'] ?? null) === 'administrador'): ?>
             <a href="<?= base_url('admin/usuarios') ?>" class="list-group-item list-group-item-action py-2">
               <i class="fas fa-user-shield fa-fw me-3"></i><span>Usuarios</span>
             </a>
@@ -76,11 +76,11 @@
 
           <li class="nav-item d-flex align-items-center">
             <div class="user-avatar me-2">
-              <?= esc(strtoupper(substr(session()->get('usuario_nombre') ?? '?', 0, 1))) ?>
+              <?= esc(strtoupper(substr($_SESSION['nombre'] ?? '?', 0, 1))) ?>
             </div>
             <div class="d-none d-md-flex flex-column lh-1">
-              <span class="user-name"><?= esc(session()->get('usuario_nombre')) ?></span>
-              <small class="user-role"><?= esc(session()->get('usuario_rol')) ?></small>
+              <span class="user-name"><?= esc($_SESSION['nombre'] ?? '') ?></span>
+              <small class="user-role"><?= esc($_SESSION['rol'] ?? '') ?></small>
             </div>
           </li>
 
@@ -95,13 +95,14 @@
   </header>
 
   <main id="main-content">
-    <?php if (session()->getFlashdata('error') || session()->getFlashdata('message')) : ?>
+    <?php $errorFlash = flash_get('error'); $messageFlash = flash_get('message'); ?>
+    <?php if ($errorFlash || $messageFlash) : ?>
       <div class="pt-4 px-3">
-        <?php if (session()->getFlashdata('error')) : ?>
-          <div class="alert alert-danger"><?= esc(session()->getFlashdata('error')) ?></div>
+        <?php if ($errorFlash) : ?>
+          <div class="alert alert-danger"><?= esc($errorFlash) ?></div>
         <?php endif; ?>
-        <?php if (session()->getFlashdata('message')) : ?>
-          <div class="alert alert-success"><?= esc(session()->getFlashdata('message')) ?></div>
+        <?php if ($messageFlash) : ?>
+          <div class="alert alert-success"><?= esc($messageFlash) ?></div>
         <?php endif; ?>
       </div>
     <?php endif; ?>
