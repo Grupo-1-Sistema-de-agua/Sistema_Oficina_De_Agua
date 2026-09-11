@@ -107,7 +107,7 @@
                                         <form method="post" action="<?= base_url('contadores/eliminar/' . $cont['id']) ?>"
                                               class="d-inline"
                                               onsubmit="return confirm('<?= $cont['activo'] ? 'Desactivar' : 'Activar' ?> este contador?');">
-                                            <?= csrf_field() ?>
+                                            <?= csrf_field_nativo() ?>
                                             <button type="submit" class="btn btn-sm <?= $cont['activo'] ? 'btn-outline-danger' : 'btn-outline-success' ?>">
                                                 <i class="fas <?= $cont['activo'] ? 'fa-times' : 'fa-check' ?> me-1"></i>
                                                 <?= $cont['activo'] ? 'Desactivar' : 'Activar' ?>
