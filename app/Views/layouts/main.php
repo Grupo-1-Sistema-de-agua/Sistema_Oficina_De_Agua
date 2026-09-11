@@ -16,30 +16,51 @@
     <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-body">
       <div class="position-sticky">
         <div class="list-group list-group-flush mx-3 mt-4">
+          <?php $rolActual = $_SESSION['rol'] ?? null; ?>
+
           <a href="<?= url_to('DashboardController::index') ?>" class="list-group-item list-group-item-action py-2">
             <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
           </a>
-          <a href="<?= base_url('clientes') ?>" class="list-group-item list-group-item-action py-2">
-            <i class="fas fa-users fa-fw me-3"></i><span>Clientes</span>
-          </a>
-          <a href="<?= base_url('contadores') ?>" class="list-group-item list-group-item-action py-2">
-            <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Contadores</span>
-          </a>
-          <a href="<?= base_url('tarifas') ?>" class="list-group-item list-group-item-action py-2">
-            <i class="fas fa-tags fa-fw me-3"></i><span>Tarifas</span>
-          </a>
-          <a href="<?= base_url('lecturas') ?>" class="list-group-item list-group-item-action py-2">
-            <i class="fas fa-tint fa-fw me-3"></i><span>Lecturas</span>
-          </a>
-          <a href="<?= base_url('pagos') ?>" class="list-group-item list-group-item-action py-2">
-            <i class="fas fa-money-bill fa-fw me-3"></i><span>Pagos</span>
-          </a>
 
-          <a href="<?= base_url('recibos') ?>" class="list-group-item list-group-item-action py-2">
-            <i class="fas fa-file-invoice-dollar fa-fw me-3"></i><span>Recibos</span>
-          </a>
+          <?php if ($rolActual === 'administrador'): ?>
+            <div class="px-2 pt-3 pb-1 small text-muted">Catálogos</div>
+            <a href="<?= base_url('tarifas') ?>" class="list-group-item list-group-item-action py-2">
+              <i class="fas fa-tags fa-fw me-3"></i><span>Tarifas</span>
+            </a>
+            <a href="<?= base_url('sectores') ?>" class="list-group-item list-group-item-action py-2">
+              <i class="fas fa-map-marker-alt fa-fw me-3"></i><span>Sectores</span>
+            </a>
+          <?php endif; ?>
 
-          <?php if (($_SESSION['rol'] ?? null) === 'administrador'): ?>
+          <?php if (in_array($rolActual, ['secretaria', 'administrador'], true)): ?>
+            <div class="px-2 pt-3 pb-1 small text-muted">Clientes y servicio</div>
+            <a href="<?= base_url('clientes') ?>" class="list-group-item list-group-item-action py-2">
+              <i class="fas fa-users fa-fw me-3"></i><span>Clientes</span>
+            </a>
+            <a href="<?= base_url('contadores') ?>" class="list-group-item list-group-item-action py-2">
+              <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Contadores</span>
+            </a>
+          <?php endif; ?>
+
+          <?php if (in_array($rolActual, ['lector', 'secretaria', 'administrador'], true)): ?>
+            <div class="px-2 pt-3 pb-1 small text-muted">Operación</div>
+          <?php endif; ?>
+          <?php if (in_array($rolActual, ['lector', 'administrador'], true)): ?>
+            <a href="<?= base_url('lecturas') ?>" class="list-group-item list-group-item-action py-2">
+              <i class="fas fa-tint fa-fw me-3"></i><span>Lecturas</span>
+            </a>
+          <?php endif; ?>
+          <?php if (in_array($rolActual, ['secretaria', 'administrador'], true)): ?>
+            <a href="<?= base_url('pagos') ?>" class="list-group-item list-group-item-action py-2">
+              <i class="fas fa-money-bill fa-fw me-3"></i><span>Pagos</span>
+            </a>
+            <a href="<?= base_url('recibos') ?>" class="list-group-item list-group-item-action py-2">
+              <i class="fas fa-file-invoice-dollar fa-fw me-3"></i><span>Recibos</span>
+            </a>
+          <?php endif; ?>
+
+          <?php if ($rolActual === 'administrador'): ?>
+            <div class="px-2 pt-3 pb-1 small text-muted">Administración</div>
             <a href="<?= base_url('admin/usuarios') ?>" class="list-group-item list-group-item-action py-2">
               <i class="fas fa-user-shield fa-fw me-3"></i><span>Usuarios</span>
             </a>
