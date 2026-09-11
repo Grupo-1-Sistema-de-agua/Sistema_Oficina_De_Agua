@@ -19,15 +19,15 @@
                     */ ?>
                     <dl class="row mb-3">
                         <dt class="col-sm-4 text-muted">Contador</dt>
-                        <dd class="col-sm-8"><a href="<?= base_url('contadores/ver/' . $contador['id']) ?>"><?= esc($contador['codigo_fisico']) ?></a> — <?= esc($contador['cliente_nombre']) ?></dd>
+                        <dd class="col-sm-8"><a href="<?= base_url('contadores/ver/' . $contador['id']) ?>"><?= esc_nativo($contador['codigo_fisico']) ?></a> — <?= esc_nativo($contador['cliente_nombre']) ?></dd>
                         <dt class="col-sm-4 text-muted">Sector</dt>
-                        <dd class="col-sm-8"><?= esc($contador['sector_nombre']) ?></dd>
+                        <dd class="col-sm-8"><?= esc_nativo($contador['sector_nombre']) ?></dd>
                         <dt class="col-sm-4 text-muted">Tipo de servicio</dt>
-                        <dd class="col-sm-8"><?= esc($contador['tipo_nombre']) ?></dd>
+                        <dd class="col-sm-8"><?= esc_nativo($contador['tipo_nombre']) ?></dd>
                         <dt class="col-sm-4 text-muted">Volumen incluido</dt>
-                        <dd class="col-sm-8"><?= esc(number_format((int) $contador['volumen_incluido_litros'])) ?> litros</dd>
+                        <dd class="col-sm-8"><?= esc_nativo(number_format((int) $contador['volumen_incluido_litros'])) ?> litros</dd>
                         <dt class="col-sm-4 text-muted">Tarifa base vigente</dt>
-                        <dd class="col-sm-8"><?= $tarifaBase ? 'Q' . esc(number_format((float) $tarifaBase['precio'], 2)) . ' / litro' : '<span class="text-danger">Sin tarifa vigente</span>' ?></dd>
+                        <dd class="col-sm-8"><?= $tarifaBase ? 'Q' . esc_nativo(number_format((float) $tarifaBase['precio'], 2)) . ' / litro' : '<span class="text-danger">Sin tarifa vigente</span>' ?></dd>
                     </dl>
 
                     <?php if ($cliente): ?>
@@ -36,13 +36,13 @@
                                 <h6 class="mb-2">Informacion del usuario</h6>
                                 <dl class="row mb-0">
                                     <dt class="col-sm-4 text-muted">Nombre</dt>
-                                    <dd class="col-sm-8"><?= esc($cliente['nombre']) ?></dd>
+                                    <dd class="col-sm-8"><?= esc_nativo($cliente['nombre']) ?></dd>
                                     <dt class="col-sm-4 text-muted">DPI</dt>
-                                    <dd class="col-sm-8"><?= esc($cliente['dpi'] ?? '') ?></dd>
+                                    <dd class="col-sm-8"><?= esc_nativo($cliente['dpi'] ?? '') ?></dd>
                                     <dt class="col-sm-4 text-muted">Telefono</dt>
-                                    <dd class="col-sm-8"><?= esc($cliente['telefono'] ?? '') ?></dd>
+                                    <dd class="col-sm-8"><?= esc_nativo($cliente['telefono'] ?? '') ?></dd>
                                     <dt class="col-sm-4 text-muted">Direccion</dt>
-                                    <dd class="col-sm-8"><?= esc($cliente['direccion_principal']) ?></dd>
+                                    <dd class="col-sm-8"><?= esc_nativo($cliente['direccion_principal']) ?></dd>
                                 </dl>
                             </div>
                         </div>
@@ -51,21 +51,21 @@
                     <dl class="row mb-4">
                         <dt class="col-sm-4 text-muted">Lectura anterior</dt>
                         <dd class="col-sm-8 fw-semibold">
-                            <?= esc($lectura_anterior) ?>
-                            <?php if ($ultima_fecha): ?> <small class="text-muted">(<?= esc($ultima_fecha) ?>)</small><?php endif; ?>
+                            <?= esc_nativo($lectura_anterior) ?>
+                            <?php if ($ultima_fecha): ?> <small class="text-muted">(<?= esc_nativo($ultima_fecha) ?>)</small><?php endif; ?>
                         </dd>
                     </dl>
 
                     <form method="post" action="<?= base_url('lecturas/guardar') ?>">
                         <?= csrf_field_nativo() ?>
-                        <input type="hidden" name="contador_id" value="<?= esc($contador['id']) ?>">
+                        <input type="hidden" name="contador_id" value="<?= esc_nativo($contador['id']) ?>">
 
                         <div class="mb-3">
                             <label for="lectura_actual" class="form-label">Lectura actual</label>
                             <input type="number" name="lectura_actual" id="lectura_actual" class="form-control"
-                                   min="<?= esc($lectura_anterior) ?>" required>
+                                   min="<?= esc_nativo($lectura_anterior) ?>" required>
                             <div class="form-text">
-                                Se registrara con la fecha automatica: <strong><?= esc($fecha) ?></strong>
+                                Se registrara con la fecha automatica: <strong><?= esc_nativo($fecha) ?></strong>
                                 (una lectura por contador por mes de calendario).
                             </div>
                         </div>

@@ -16,15 +16,15 @@
         <div class="col-md-4">
             <label for="q" class="form-label small mb-1">Buscar por numero de contador o cliente</label>
             <input type="text" name="q" id="q" class="form-control"
-                   placeholder="Numero, nombre..." value="<?= esc($q ?? '') ?>">
+                   placeholder="Numero, nombre..." value="<?= esc_nativo($q ?? '') ?>">
         </div>
         <div class="col-md-3">
             <label for="sector" class="form-label small mb-1">Zona / Sector</label>
             <select name="sector" class="form-select">
                 <option value="">-- Todos los sectores --</option>
                 <?php foreach ($sectores as $s): ?>
-                    <option value="<?= esc($s['id']) ?>" <?= (string) ($sectorSeleccionado ?? '') === (string) $s['id'] ? 'selected' : '' ?>>
-                        <?= esc($s['nombre']) ?>
+                    <option value="<?= esc_nativo($s['id']) ?>" <?= (string) ($sectorSeleccionado ?? '') === (string) $s['id'] ? 'selected' : '' ?>>
+                        <?= esc_nativo($s['nombre']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -64,10 +64,10 @@
                             <?php foreach ($pendientes as $c): ?>
                                 <?php $tieneLecturaMes = isset($lecturasMes[$c['id']]); ?>
                                 <tr>
-                                    <td class="fw-semibold"><?= esc($c['codigo_fisico']) ?></td>
-                                    <td><?= esc($c['cliente_nombre']) ?></td>
-                                    <td><?= esc($c['sector_nombre']) ?></td>
-                                    <td><?= esc($c['tipo_nombre']) ?></td>
+                                    <td class="fw-semibold"><?= esc_nativo($c['codigo_fisico']) ?></td>
+                                    <td><?= esc_nativo($c['cliente_nombre']) ?></td>
+                                    <td><?= esc_nativo($c['sector_nombre']) ?></td>
+                                    <td><?= esc_nativo($c['tipo_nombre']) ?></td>
                                     <td>
                                         <?php if ($tieneLecturaMes): ?>
                                             <span class="badge bg-success">Lectura registrada este mes</span>

@@ -8,7 +8,7 @@
     <div class="alert alert-danger">
       <ul class="mb-0">
         <?php foreach ($errors as $error) : ?>
-          <li><?= esc($error) ?></li>
+          <li><?= esc_nativo($error) ?></li>
         <?php endforeach; ?>
       </ul>
     </div>
@@ -19,13 +19,13 @@
 
     <div class="form-outline mb-4" data-mdb-input-init>
       <input type="text" class="form-control" id="nombre" name="nombre"
-             value="<?= esc($old['nombre'] ?? '') ?>" maxlength="50" required>
+             value="<?= esc_nativo($old['nombre'] ?? '') ?>" maxlength="50" required>
       <label class="form-label" for="nombre">Nombre (ej. 1/4 de paja)</label>
     </div>
 
     <div class="form-outline mb-4" data-mdb-input-init>
       <input type="number" class="form-control" id="volumen_incluido_litros" name="volumen_incluido_litros"
-             value="<?= esc($old['volumen_incluido_litros'] ?? '') ?>">
+             value="<?= esc_nativo($old['volumen_incluido_litros'] ?? '') ?>">
       <label class="form-label" for="volumen_incluido_litros">Volumen incluido (litros)</label>
     </div>
     <div class="form-text mb-4">

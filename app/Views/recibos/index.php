@@ -29,10 +29,10 @@
                         <?php if (!empty($recibos) && is_array($recibos)) : ?>
                         <?php foreach ($recibos as $recibo) : ?>
                             <tr>
-                            <td><strong><?= esc($recibo['numero_recibo']) ?></strong></td>
-                            <td><?= esc($recibo['nombre_cliente']) ?></td>
-                            <td><?= esc($recibo['direccion']) ?></td>
-                            <td><?= esc($recibo['numero_contador'] ?? 'N/A') ?></td>
+                            <td><strong><?= esc_nativo($recibo['numero_recibo']) ?></strong></td>
+                            <td><?= esc_nativo($recibo['nombre_cliente']) ?></td>
+                            <td><?= esc_nativo($recibo['direccion']) ?></td>
+                            <td><?= esc_nativo($recibo['numero_contador'] ?? 'N/A') ?></td>
                             <td><?= date('d/m/Y', strtotime($recibo['fecha_emision'])) ?></td>
                             <td>Q. <?= number_format($recibo['monto_total'], 2) ?></td>
                             
@@ -83,7 +83,7 @@
                 <div class="row mb-4">
                      <div class="col-md-6">
                         <div class="form-outline" data-mdb-input-init>
-                          <input type="text" id="numero_recibo" name="numero_recibo" class="form-control active" readonly value="<?= esc($siguiente_recibo ?? 'REC-001') ?>" />
+                          <input type="text" id="numero_recibo" name="numero_recibo" class="form-control active" readonly value="<?= esc_nativo($siguiente_recibo ?? 'REC-001') ?>" />
                           <label class="form-label" for="numero_recibo">Número de Recibo (Automático)</label>
                         </div>
                     </div>
@@ -101,10 +101,10 @@
                       <option value="" selected disabled>Seleccione un cliente...</option>
                       <?php if(!empty($clientes)): ?>
                           <?php foreach($clientes as $cliente): ?>
-                              <option value="<?= esc($cliente['id']) ?>" 
-                                      data-nombre="<?= esc($cliente['nombre']) ?>" 
-                                      data-direccion="<?= esc($cliente['direccion_principal']) ?>">
-                                  <?= esc($cliente['nombre']) ?>
+                              <option value="<?= esc_nativo($cliente['id']) ?>" 
+                                      data-nombre="<?= esc_nativo($cliente['nombre']) ?>" 
+                                      data-direccion="<?= esc_nativo($cliente['direccion_principal']) ?>">
+                                  <?= esc_nativo($cliente['nombre']) ?>
                               </option>
                           <?php endforeach; ?>
                       <?php endif; ?>
@@ -131,11 +131,11 @@
                             $consumo = isset($mapaLecturas[$cId]) ? $mapaLecturas[$cId]['consumo'] : 0;
                             $monto = isset($mapaLecturas[$cId]) ? $mapaLecturas[$cId]['monto'] : 0;
                         ?>
-                        <option value="<?= esc($contador['codigo_fisico']) ?>" 
-                                data-cliente-id="<?= esc($contador['cliente_id']) ?>"
-                                data-consumo="<?= esc($consumo) ?>"
-                                data-monto="<?= esc($monto) ?>">
-                            <?= esc($contador['codigo_fisico']) ?> - Dir: <?= esc($contador['direccion_servicio']) ?>
+                        <option value="<?= esc_nativo($contador['codigo_fisico']) ?>" 
+                                data-cliente-id="<?= esc_nativo($contador['cliente_id']) ?>"
+                                data-consumo="<?= esc_nativo($consumo) ?>"
+                                data-monto="<?= esc_nativo($monto) ?>">
+                            <?= esc_nativo($contador['codigo_fisico']) ?> - Dir: <?= esc_nativo($contador['direccion_servicio']) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

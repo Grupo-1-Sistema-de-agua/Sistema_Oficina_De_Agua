@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recibo No. <?= esc($recibo['numero_recibo']) ?></title>
+    <title>Recibo No. <?= esc_nativo($recibo['numero_recibo']) ?></title>
     <style>
         /* Optimizado para impresora térmica de 80mm (ancho efectivo de impresión 72mm) */
         @page {
@@ -80,18 +80,18 @@
     <div class="divider"></div>
 
     <div>
-        <strong>Recibo No:</strong> <?= esc($recibo['numero_recibo']) ?><br>
+        <strong>Recibo No:</strong> <?= esc_nativo($recibo['numero_recibo']) ?><br>
         <strong>Fecha Emisión:</strong> <?= date('d/m/Y', strtotime($recibo['fecha_emision'])) ?><br>
-        <strong>N° Contador:</strong> <?= esc($recibo['numero_contador'] ?? 'SIN CONTADOR') ?>
+        <strong>N° Contador:</strong> <?= esc_nativo($recibo['numero_contador'] ?? 'SIN CONTADOR') ?>
     </div>
 
     <div class="divider"></div>
 
     <div>
         <strong>Contribuyente:</strong><br>
-        <?= esc($recibo['nombre_cliente']) ?><br>
+        <?= esc_nativo($recibo['nombre_cliente']) ?><br>
         <strong>Dirección:</strong><br>
-        <?= esc($recibo['direccion']) ?>
+        <?= esc_nativo($recibo['direccion']) ?>
     </div>
 
     <div class="divider"></div>

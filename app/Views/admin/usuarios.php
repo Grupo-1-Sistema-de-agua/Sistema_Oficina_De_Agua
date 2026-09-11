@@ -28,7 +28,7 @@
                         <select name="rol_id" class="form-select" required>
                             <option value="">Selecciona...</option>
                             <?php foreach ($roles as $rol): ?>
-                                <option value="<?= esc($rol['id']) ?>"><?= esc($rol['nombre']) ?></option>
+                                <option value="<?= esc_nativo($rol['id']) ?>"><?= esc_nativo($rol['nombre']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -65,9 +65,9 @@
                     <tbody>
                         <?php foreach ($usuarios as $usuario): ?>
                             <tr>
-                                <td><?= esc($usuario['nombre']) ?></td>
-                                <td><?= esc($usuario['email']) ?></td>
-                                <td><?= esc($usuario['rol_nombre']) ?></td>
+                                <td><?= esc_nativo($usuario['nombre']) ?></td>
+                                <td><?= esc_nativo($usuario['email']) ?></td>
+                                <td><?= esc_nativo($usuario['rol_nombre']) ?></td>
                                 <td>
                                     <?php if ((int) $usuario['activo'] === 1): ?>
                                         <span class="badge bg-success">Activo</span>
@@ -78,7 +78,7 @@
                                 <td class="text-end">
                                     <form action="<?= base_url('admin/usuarios/toggle') ?>" method="post" class="d-inline">
                                         <?= csrf_field_nativo() ?>
-                                        <input type="hidden" name="usuario_id" value="<?= esc($usuario['id']) ?>">
+                                        <input type="hidden" name="usuario_id" value="<?= esc_nativo($usuario['id']) ?>">
                                         <button type="submit" class="btn btn-sm btn-outline-primary">
                                             <?= (int) $usuario['activo'] === 1 ? 'Desactivar' : 'Activar' ?>
                                         </button>
@@ -87,7 +87,7 @@
                                     <?php if ((int) ($_SESSION['id_usuario'] ?? 0) !== (int) $usuario['id']): ?>
                                         <form action="<?= base_url('admin/usuarios/eliminar') ?>" method="post" class="d-inline ms-2" onsubmit="return confirm('Seguro que quieres eliminar este usuario?');">
                                             <?= csrf_field_nativo() ?>
-                                            <input type="hidden" name="usuario_id" value="<?= esc($usuario['id']) ?>">
+                                            <input type="hidden" name="usuario_id" value="<?= esc_nativo($usuario['id']) ?>">
                                             <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
                                         </form>
                                     <?php endif; ?>

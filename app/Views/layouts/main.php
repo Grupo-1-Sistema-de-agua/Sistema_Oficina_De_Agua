@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <title><?= esc($titulo ?? 'Oficina del Agua') ?></title>
+  <title><?= esc_nativo($titulo ?? 'Oficina del Agua') ?></title>
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" />
   <link rel="stylesheet" href="<?= base_url('assets/css/mdb.min.css') ?>" />
@@ -76,11 +76,11 @@
 
           <li class="nav-item d-flex align-items-center">
             <div class="user-avatar me-2">
-              <?= esc(strtoupper(substr($_SESSION['nombre'] ?? '?', 0, 1))) ?>
+              <?= esc_nativo(strtoupper(substr($_SESSION['nombre'] ?? '?', 0, 1))) ?>
             </div>
             <div class="d-none d-md-flex flex-column lh-1">
-              <span class="user-name"><?= esc($_SESSION['nombre'] ?? '') ?></span>
-              <small class="user-role"><?= esc($_SESSION['rol'] ?? '') ?></small>
+              <span class="user-name"><?= esc_nativo($_SESSION['nombre'] ?? '') ?></span>
+              <small class="user-role"><?= esc_nativo($_SESSION['rol'] ?? '') ?></small>
             </div>
           </li>
 
@@ -99,10 +99,10 @@
     <?php if ($errorFlash || $messageFlash) : ?>
       <div class="pt-4 px-3">
         <?php if ($errorFlash) : ?>
-          <div class="alert alert-danger"><?= esc($errorFlash) ?></div>
+          <div class="alert alert-danger"><?= esc_nativo($errorFlash) ?></div>
         <?php endif; ?>
         <?php if ($messageFlash) : ?>
-          <div class="alert alert-success"><?= esc($messageFlash) ?></div>
+          <div class="alert alert-success"><?= esc_nativo($messageFlash) ?></div>
         <?php endif; ?>
       </div>
     <?php endif; ?>

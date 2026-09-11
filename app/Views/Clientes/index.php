@@ -28,10 +28,10 @@
                         <?php if(!empty($clientes) && is_array($clientes)): ?>
                             <?php foreach($clientes as $cliente): ?>
                                 <tr>
-                                    <td><?= esc($cliente['id']) ?></td>
-                                    <td><?= esc($cliente['nombre']) ?></td>
-                                    <td><?= esc($cliente['telefono']) ?></td>
-                                    <td><?= esc($cliente['direccion_principal']) ?></td>
+                                    <td><?= esc_nativo($cliente['id']) ?></td>
+                                    <td><?= esc_nativo($cliente['nombre']) ?></td>
+                                    <td><?= esc_nativo($cliente['telefono']) ?></td>
+                                    <td><?= esc_nativo($cliente['direccion_principal']) ?></td>
                                     <td>
                                         <!-- Botón Editar (Abre modal específico por ID) -->
                                         <button type="button" class="btn btn-warning btn-sm btn-floating" data-mdb-ripple-init data-mdb-modal-init data-mdb-target="#modalEditarCliente<?= $cliente['id'] ?>">
@@ -57,15 +57,15 @@
                                           <div class="modal-body">
                                               <!-- Inputs con clases MDB -->
                                               <div class="form-outline mb-4" data-mdb-input-init>
-                                                  <input type="text" id="nombreEdit<?= $cliente['id'] ?>" name="nombre" class="form-control" value="<?= esc($cliente['nombre']) ?>" required maxlength="150" />
+                                                  <input type="text" id="nombreEdit<?= $cliente['id'] ?>" name="nombre" class="form-control" value="<?= esc_nativo($cliente['nombre']) ?>" required maxlength="150" />
                                                   <label class="form-label" for="nombreEdit<?= $cliente['id'] ?>">Nombre</label>
                                               </div>
                                               <div class="form-outline mb-4" data-mdb-input-init>
-                                                  <input type="text" id="telefonoEdit<?= $cliente['id'] ?>" name="telefono" class="form-control" value="<?= esc($cliente['telefono']) ?>" maxlength="20" />
+                                                  <input type="text" id="telefonoEdit<?= $cliente['id'] ?>" name="telefono" class="form-control" value="<?= esc_nativo($cliente['telefono']) ?>" maxlength="20" />
                                                   <label class="form-label" for="telefonoEdit<?= $cliente['id'] ?>">Teléfono</label>
                                               </div>
                                               <div class="form-outline mb-4" data-mdb-input-init>
-                                                  <input type="text" id="direccionEdit<?= $cliente['id'] ?>" name="direccion_principal" class="form-control" value="<?= esc($cliente['direccion_principal']) ?>" required maxlength="255" />
+                                                  <input type="text" id="direccionEdit<?= $cliente['id'] ?>" name="direccion_principal" class="form-control" value="<?= esc_nativo($cliente['direccion_principal']) ?>" required maxlength="255" />
                                                   <label class="form-label" for="direccionEdit<?= $cliente['id'] ?>">Dirección Principal</label>
                                               </div>
                                           </div>

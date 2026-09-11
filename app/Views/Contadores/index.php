@@ -16,16 +16,16 @@
                     <label for="q" class="form-label small mb-1">Buscar</label>
                     <input type="text" name="q" id="q" class="form-control"
                            placeholder="Codigo, direccion, cliente o DPI"
-                           value="<?= esc($q ?? '') ?>">
+                           value="<?= esc_nativo($q ?? '') ?>">
                 </div>
                 <div class="col-md-4 col-lg-3">
                     <label for="sector" class="form-label small mb-1">Sector</label>
                     <select name="sector" id="sector" class="form-select">
                         <option value="">-- Todos --</option>
                         <?php foreach ($sectores as $s): ?>
-                            <option value="<?= esc($s['id']) ?>"
+                            <option value="<?= esc_nativo($s['id']) ?>"
                                 <?= (int) ($sectorSeleccionado ?? 0) === (int) $s['id'] ? 'selected' : '' ?>>
-                                <?= esc($s['nombre']) ?>
+                                <?= esc_nativo($s['nombre']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -73,13 +73,13 @@
                             <?php foreach ($contadores as $cont): ?>
                                 <?php $pend = $pendientes[$cont['id']] ?? 0; ?>
                                 <tr>
-                                    <td class="fw-semibold"><?= esc($cont['codigo_fisico']) ?></td>
-                                    <td><?= esc($cont['cliente_nombre']) ?></td>
-                                    <td><?= esc($cont['cliente_dpi'] ?? '') ?></td>
-                                    <td><?= esc($cont['direccion_servicio']) ?></td>
-                                    <td><?= esc($cont['sector_nombre']) ?></td>
-                                    <td><?= esc($cont['tipo_nombre']) ?></td>
-                                    <td><?= esc($cont['fecha_asignacion'] ?? '') ?></td>
+                                    <td class="fw-semibold"><?= esc_nativo($cont['codigo_fisico']) ?></td>
+                                    <td><?= esc_nativo($cont['cliente_nombre']) ?></td>
+                                    <td><?= esc_nativo($cont['cliente_dpi'] ?? '') ?></td>
+                                    <td><?= esc_nativo($cont['direccion_servicio']) ?></td>
+                                    <td><?= esc_nativo($cont['sector_nombre']) ?></td>
+                                    <td><?= esc_nativo($cont['tipo_nombre']) ?></td>
+                                    <td><?= esc_nativo($cont['fecha_asignacion'] ?? '') ?></td>
                                     <td>
                                         <?php if ($pend > 0): ?>
                                             <span class="badge bg-warning text-dark"><?= $pend ?> pendiente<?= $pend > 1 ? 's' : '' ?></span>

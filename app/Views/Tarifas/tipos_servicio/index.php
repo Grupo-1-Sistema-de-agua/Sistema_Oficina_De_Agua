@@ -33,8 +33,8 @@
         <?php else : ?>
           <?php foreach ($tipos as $tipo) : ?>
             <tr>
-              <td><code><?= esc($tipo['codigo']) ?></code></td>
-              <td><?= esc($tipo['nombre']) ?></td>
+              <td><code><?= esc_nativo($tipo['codigo']) ?></code></td>
+              <td><?= esc_nativo($tipo['nombre']) ?></td>
               <td><?= $tipo['volumen_incluido_litros'] !== null ? number_format((float) $tipo['volumen_incluido_litros'], 0) . ' L' : '—' ?></td>
               <td>
                 <?php if ((int) $tipo['es_servicio'] === 1) : ?>

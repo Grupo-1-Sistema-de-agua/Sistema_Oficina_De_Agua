@@ -16,7 +16,7 @@
                             <select name="usuario_id" class="form-select" required>
                                 <option value="">Selecciona un usuario</option>
                                 <?php foreach ($usuarios as $usuario): ?>
-                                    <option value="<?= esc($usuario['id']) ?>"><?= esc($usuario['nombre']) ?> (<?= esc($usuario['email']) ?>)</option>
+                                    <option value="<?= esc_nativo($usuario['id']) ?>"><?= esc_nativo($usuario['nombre']) ?> (<?= esc_nativo($usuario['email']) ?>)</option>
                                 <?php endforeach; ?>
                             </select>
                         </div>

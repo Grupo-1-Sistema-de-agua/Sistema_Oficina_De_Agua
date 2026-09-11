@@ -40,11 +40,11 @@
 
                 <?php $errorFlash = flash_get('error'); ?>
                 <?php if ($errorFlash) : ?>
-                  <div class="alert alert-danger"><?= esc($errorFlash) ?></div>
+                  <div class="alert alert-danger"><?= esc_nativo($errorFlash) ?></div>
                 <?php endif; ?>
                 <?php $messageFlash = flash_get('message'); ?>
                 <?php if ($messageFlash) : ?>
-                  <div class="alert alert-success"><?= esc($messageFlash) ?></div>
+                  <div class="alert alert-success"><?= esc_nativo($messageFlash) ?></div>
                 <?php endif; ?>
 
                 <div class="form-outline mb-4" data-mdb-input-init>
