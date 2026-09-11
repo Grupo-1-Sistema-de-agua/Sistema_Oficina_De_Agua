@@ -4,9 +4,18 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\UsuarioModel;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class PasswordController extends BaseController
 {
+    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
+    {
+        parent::initController($request, $response, $logger);
+        $this->requiereRol(['administrador']);
+    }
+
     public function index()
     {
         $usuarios = (new UsuarioModel())
@@ -31,20 +40,24 @@ class PasswordController extends BaseController
         $confirmacion = (string) $this->request->getPost('confirm_password');
 
         if ($usuarioId <= 0 || $password === '') {
-            return redirect()->back()->with('error', 'Debes seleccionar un usuario y escribir una nueva contraseña.');
+            flash_set('error', 'Debes seleccionar un usuario y escribir una nueva contraseña.');
+            return redirect()->back();
         }
 
         if (strlen($password) < 10) {
-            return redirect()->back()->with('error', 'La contraseña debe tener al menos 10 caracteres.');
+            flash_set('error', 'La contraseña debe tener al menos 10 caracteres.');
+            return redirect()->back();
         }
 
         if ($password !== $confirmacion) {
-            return redirect()->back()->with('error', 'La confirmación de la contraseña no coincide.');
+            flash_set('error', 'La confirmación de la contraseña no coincide.');
+            return redirect()->back();
         }
 
         $usuario = (new UsuarioModel())->find($usuarioId);
         if (! $usuario) {
-            return redirect()->back()->with('error', 'Usuario no encontrado.');
+            flash_set('error', 'Usuario no encontrado.');
+            return redirect()->back();
         }
 
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
@@ -54,11 +67,14 @@ class PasswordController extends BaseController
             'password_hash' => $hashedPassword,
         ]);
 
-        $session = session();
-        if ((int) $session->get('usuario_id') === $usuarioId) {
-            $session->set('usuario_password_fingerprint', hash('sha256', $hashedPassword));
+        // Si el usuario se cambio la contrasena a si mismo, actualizamos la
+        // huella en su propia sesion para que no quede invalidada de inmediato
+        // por requiereLogin() (que compara esta huella contra el hash actual).
+        if ((int) ($_SESSION['id_usuario'] ?? 0) === $usuarioId) {
+            $_SESSION['password_fingerprint'] = hash('sha256', $hashedPassword);
         }
 
-        return redirect()->to('/admin/password')->with('message', 'Contraseña actualizada correctamente.');
+        flash_set('message', 'Contraseña actualizada correctamente.');
+        return redirect()->to('/admin/password');
     }
 }
