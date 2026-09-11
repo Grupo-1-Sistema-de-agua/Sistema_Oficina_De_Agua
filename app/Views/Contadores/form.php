@@ -10,7 +10,7 @@
                 </div>
                 <div class="card-body">
                     <form method="post" action="<?= ! empty($contador) ? base_url('contadores/actualizar/' . $contador['id']) : base_url('contadores') ?>">
-                        <?= csrf_field() ?>
+                        <?= csrf_field_nativo() ?>
 
                         <div class="mb-3">
                             <label for="cliente_id" class="form-label">Cliente</label>
