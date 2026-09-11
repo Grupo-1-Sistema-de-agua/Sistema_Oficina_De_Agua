@@ -22,40 +22,51 @@ class PagosController extends BaseController
 
     public function index()
     {
-        $pagos = (new PagoModel())
+        $qPendientes = trim((string) $this->request->getGet('q_pendientes'));
+        $qPagos      = trim((string) $this->request->getGet('q_pagos'));
+
+        $pagosQuery = (new PagoModel())
             ->select('Tb_Pagos.*, Tb_Lecturas.numero_recibo, Tb_Clientes.nombre AS cliente_nombre, Tb_Metodos_Pago.nombre AS metodo_nombre, Tb_Usuarios.nombre AS usuario_nombre')
             ->join('Tb_Lecturas', 'Tb_Lecturas.id = Tb_Pagos.lectura_id')
             ->join('Tb_Contadores', 'Tb_Contadores.id = Tb_Lecturas.contador_id')
             ->join('Tb_Clientes', 'Tb_Clientes.id = Tb_Contadores.cliente_id')
             ->join('Tb_Metodos_Pago', 'Tb_Metodos_Pago.id = Tb_Pagos.metodo_id')
             ->join('Tb_Usuarios', 'Tb_Usuarios.id = Tb_Pagos.usuario_registro_id')
-            ->orderBy('Tb_Pagos.fecha_pago', 'DESC')
-            ->findAll();
+            ->orderBy('Tb_Pagos.fecha_pago', 'DESC');
+
+        if ($qPagos !== '') {
+            $pagosQuery->groupStart()
+                ->like('Tb_Clientes.nombre', $qPagos)
+                ->orLike('Tb_Lecturas.numero_recibo', $qPagos)
+            ->groupEnd();
+        }
+
+        $pagos = $pagosQuery->findAll();
 
         // "Pendiente" = no tiene ningun pago ACTIVO (lectura_id_activa).
         // Si su unico pago fue anulado, vuelve a aparecer aqui.
-        $lecturasPendientes = (new LecturaModel())
+        $pendientesQuery = (new LecturaModel())
             ->select('Tb_Lecturas.id, Tb_Lecturas.numero_recibo, Tb_Lecturas.fecha, Tb_Lecturas.consumo_litros, Tb_Lecturas.monto_base, Tb_Lecturas.monto_exceso, Tb_Clientes.nombre AS cliente_nombre, Tb_Clientes.telefono, Tb_Clientes.direccion_principal')
             ->join('Tb_Pagos', 'Tb_Pagos.lectura_id_activa = Tb_Lecturas.id', 'left')
             ->join('Tb_Contadores', 'Tb_Contadores.id = Tb_Lecturas.contador_id')
             ->join('Tb_Clientes', 'Tb_Clientes.id = Tb_Contadores.cliente_id')
             ->where('Tb_Pagos.id', null)
-            ->orderBy('Tb_Lecturas.fecha', 'ASC')
-            ->findAll();
+            ->orderBy('Tb_Lecturas.fecha', 'ASC');
 
-        $estadosCuenta = (new ClienteModel())
-            ->select('Tb_Clientes.id, Tb_Clientes.nombre, Tb_Clientes.telefono, Tb_Clientes.direccion_principal, COUNT(DISTINCT CASE WHEN Tb_Lecturas.id IS NOT NULL AND Tb_Pagos.id IS NULL THEN Tb_Lecturas.id END) AS lecturas_pendientes', false)
-            ->join('Tb_Contadores', 'Tb_Contadores.cliente_id = Tb_Clientes.id', 'left')
-            ->join('Tb_Lecturas', 'Tb_Lecturas.contador_id = Tb_Contadores.id', 'left')
-            ->join('Tb_Pagos', 'Tb_Pagos.lectura_id_activa = Tb_Lecturas.id', 'left')
-            ->groupBy('Tb_Clientes.id')
-            ->orderBy('Tb_Clientes.nombre', 'ASC')
-            ->findAll();
+        if ($qPendientes !== '') {
+            $pendientesQuery->groupStart()
+                ->like('Tb_Clientes.nombre', $qPendientes)
+                ->orLike('Tb_Lecturas.numero_recibo', $qPendientes)
+            ->groupEnd();
+        }
+
+        $lecturasPendientes = $pendientesQuery->findAll();
 
         return view('Pagos/index', [
             'pagos'              => $pagos,
             'lecturasPendientes' => $lecturasPendientes,
-            'estadosCuenta'      => $estadosCuenta,
+            'qPendientes'        => $qPendientes,
+            'qPagos'             => $qPagos,
         ]);
     }
 

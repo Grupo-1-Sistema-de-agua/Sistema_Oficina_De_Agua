@@ -8,11 +8,24 @@
 
   <div class="card shadow-sm mb-4">
     <div class="card-body p-0">
-      <div class="px-3 pt-3 d-flex justify-content-between align-items-center">
+      <div class="px-3 pt-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h5 class="card-title mb-3">Lecturas pendientes de pago</h5>
         <span class="badge bg-warning text-dark mb-3">
           <?= count($lecturasPendientes) ?> pendiente<?= count($lecturasPendientes) === 1 ? '' : 's' ?>
         </span>
+      </div>
+      <div class="px-3 pb-3">
+        <form method="get" action="<?= base_url('pagos') ?>" class="d-flex gap-2">
+          <input type="text" name="q_pendientes" class="form-control form-control-sm" style="max-width: 300px;"
+                 placeholder="Buscar por cliente o recibo..." value="<?= esc_nativo($qPendientes ?? '') ?>">
+          <?php if (! empty($qPagos)) : ?>
+            <input type="hidden" name="q_pagos" value="<?= esc_nativo($qPagos) ?>">
+          <?php endif; ?>
+          <button type="submit" class="btn btn-sm btn-outline-secondary">Buscar</button>
+          <?php if (! empty($qPendientes)) : ?>
+            <a href="<?= base_url('pagos' . (! empty($qPagos) ? '?q_pagos=' . urlencode($qPagos) : '')) ?>" class="btn btn-sm btn-link">Limpiar</a>
+          <?php endif; ?>
+        </form>
       </div>
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
@@ -57,51 +70,24 @@
     </div>
   </div>
 
-  <div class="card shadow-sm mb-4">
-    <div class="card-body p-0">
-      <div class="px-3 pt-3">
-        <h5 class="card-title mb-3">Estado de cuenta de clientes</h5>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light">
-            <tr>
-              <th>Cliente</th>
-              <th>Telefono</th>
-              <th>Direccion</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php if (! $estadosCuenta) : ?>
-              <tr><td colspan="4" class="text-center text-muted py-4">No hay clientes registrados.</td></tr>
-            <?php endif; ?>
-            <?php foreach ($estadosCuenta as $cuenta) : ?>
-              <?php $tienePendientes = (int) $cuenta['lecturas_pendientes'] > 0; ?>
-              <tr>
-                <td><?= esc_nativo($cuenta['nombre']) ?></td>
-                <td><?= esc_nativo($cuenta['telefono'] ?: 'Sin telefono') ?></td>
-                <td><?= esc_nativo($cuenta['direccion_principal']) ?></td>
-                <td>
-                  <?php if ($tienePendientes) : ?>
-                    <span class="badge bg-warning text-dark">Pendiente (<?= esc_nativo($cuenta['lecturas_pendientes']) ?>)</span>
-                  <?php else : ?>
-                    <span class="badge bg-success">Al dia</span>
-                  <?php endif; ?>
-                </td>
-              </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
   <div class="card shadow-sm">
     <div class="card-body p-0">
-      <div class="px-3 pt-3 d-flex justify-content-between align-items-center">
+      <div class="px-3 pt-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h5 class="card-title mb-3">Pagos registrados</h5>
         <span class="badge bg-primary mb-3"><?= count($pagos) ?> pago<?= count($pagos) === 1 ? '' : 's' ?></span>
+      </div>
+      <div class="px-3 pb-3">
+        <form method="get" action="<?= base_url('pagos') ?>" class="d-flex gap-2">
+          <input type="text" name="q_pagos" class="form-control form-control-sm" style="max-width: 300px;"
+                 placeholder="Buscar por cliente o recibo..." value="<?= esc_nativo($qPagos ?? '') ?>">
+          <?php if (! empty($qPendientes)) : ?>
+            <input type="hidden" name="q_pendientes" value="<?= esc_nativo($qPendientes) ?>">
+          <?php endif; ?>
+          <button type="submit" class="btn btn-sm btn-outline-secondary">Buscar</button>
+          <?php if (! empty($qPagos)) : ?>
+            <a href="<?= base_url('pagos' . (! empty($qPendientes) ? '?q_pendientes=' . urlencode($qPendientes) : '')) ?>" class="btn btn-sm btn-link">Limpiar</a>
+          <?php endif; ?>
+        </form>
       </div>
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">

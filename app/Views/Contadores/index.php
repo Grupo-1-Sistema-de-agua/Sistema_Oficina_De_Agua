@@ -52,7 +52,6 @@
                         <tr>
                             <th>Codigo</th>
                             <th>Cliente</th>
-                            <th>DPI</th>
                             <th>Direccion</th>
                             <th>Sector</th>
                             <th>Tipo de servicio</th>
@@ -75,7 +74,6 @@
                                 <tr>
                                     <td class="fw-semibold"><?= esc_nativo($cont['codigo_fisico']) ?></td>
                                     <td><?= esc_nativo($cont['cliente_nombre']) ?></td>
-                                    <td><?= esc_nativo($cont['cliente_dpi'] ?? '') ?></td>
                                     <td><?= esc_nativo($cont['direccion_servicio']) ?></td>
                                     <td><?= esc_nativo($cont['sector_nombre']) ?></td>
                                     <td><?= esc_nativo($cont['tipo_nombre']) ?></td>
