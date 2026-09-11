@@ -39,6 +39,7 @@ class AuthController extends BaseController
         $rolNombre = Roles::normalize($rol['nombre'] ?? null);
 
         session_regenerate_id(true);
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 
         $_SESSION['logueado']   = true;
         $_SESSION['id_usuario'] = (int) $usuario['id'];
