@@ -9,6 +9,9 @@ use App\Models\TarifaModel;
 use App\Models\SectorModel;
 use App\Models\TipoServicioModel;
 use App\Models\ClienteModel;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Controlador del modulo de Lecturas.
@@ -30,6 +33,12 @@ class LecturasController extends BaseController
     private ContadorModel $contadores;
     private LecturaModel $lecturas;
     private TarifaModel $tarifas;
+
+    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
+    {
+        parent::initController($request, $response, $logger);
+        $this->requiereRol(['lector', 'administrador']);
+    }
 
     public function __construct()
     {
@@ -79,7 +88,8 @@ class LecturasController extends BaseController
             ->find($contadorId);
 
         if (! $contador) {
-            return redirect()->to('/lecturas')->with('error', 'Contador no encontrado.');
+            flash_set('error', 'Contador no encontrado.');
+            return redirect()->to('/lecturas');
         }
 
         $ultima = $this->lecturas->ultimaDeContador((int) $contadorId);
@@ -115,13 +125,14 @@ class LecturasController extends BaseController
             ->find($contadorId);
 
         if (! $contador) {
-            return redirect()->to('/lecturas')->with('error', 'Contador no encontrado.');
+            flash_set('error', 'Contador no encontrado.');
+            return redirect()->to('/lecturas');
         }
 
         // Regla: una lectura por contador por mes de calendario
         if ($this->lecturas->existeEnMes($contadorId, $fecha)) {
-            return redirect()->to('/lecturas')
-                ->with('error', 'Este contador ya tiene una lectura registrada en el mes de ' . date('F Y', strtotime($fecha)) . '. Recien el proximo mes se puede registrar una nueva lectura.');
+            flash_set('error', 'Este contador ya tiene una lectura registrada en el mes de ' . date('F Y', strtotime($fecha)) . '. Recien el proximo mes se puede registrar una nueva lectura.');
+            return redirect()->to('/lecturas');
         }
 
         $ultima = $this->lecturas->ultimaDeContador($contadorId);
@@ -129,8 +140,8 @@ class LecturasController extends BaseController
 
         // Regla: no se permite actual < anterior
         if ($lecturaActual < $anterior) {
-            return redirect()->back()->withInput()
-                ->with('error', 'La lectura actual no puede ser menor que la anterior (' . $anterior . ').');
+            flash_set('error', 'La lectura actual no puede ser menor que la anterior (' . $anterior . ').');
+            return redirect()->back()->withInput();
         }
 
         $consumo = $lecturaActual - $anterior;
@@ -138,8 +149,8 @@ class LecturasController extends BaseController
         // Tarifa base vigente
         $tarifaBase = $this->tarifas->vigentePara((int) $contador['tipo_servicio_id'], $fecha);
         if (! $tarifaBase) {
-            return redirect()->back()->withInput()
-                ->with('error', 'No hay tarifa base vigente para este tipo de servicio.');
+            flash_set('error', 'No hay tarifa base vigente para este tipo de servicio.');
+            return redirect()->back()->withInput();
         }
 
         $montoBase = $tarifaBase['precio'] * $consumo;
@@ -174,13 +185,13 @@ class LecturasController extends BaseController
             'contador_id'        => $contadorId,
             'tarifa_base_id'     => (int) $tarifaBase['id'],
             'tarifa_exceso_id'   => $tarifaExcesoId,
-            'usuario_lector_id'  => (int) session()->get('usuario_id'),
+            'usuario_lector_id'  => (int) ($_SESSION['id_usuario'] ?? 0),
             'monto_base'         => $montoBase,
             'monto_exceso'       => $montoExceso,
         ]);
 
-        return redirect()->to('/lecturas')
-            ->with('message', 'Lectura registrada. Consumo: ' . $consumo . ' L. Total: Q' . number_format($montoBase + $montoExceso, 2));
+        flash_set('message', 'Lectura registrada. Consumo: ' . $consumo . ' L. Total: Q' . number_format($montoBase + $montoExceso, 2));
+        return redirect()->to('/lecturas');
     }
 
     /**
@@ -193,18 +204,21 @@ class LecturasController extends BaseController
         $lectura = $this->lecturas->find($lecturaId);
 
         if (! $lectura) {
-            return redirect()->to('/lecturas')->with('error', 'Lectura no encontrada.');
+            flash_set('error', 'Lectura no encontrada.');
+            return redirect()->to('/lecturas');
         }
 
         $contadorId = (int) $lectura['contador_id'];
 
         // Solo se puede editar la lectura vigente del mes y sin pago
         if (! $this->lecturas->esUltimaDeContador((int) $lectura['id'], $contadorId)) {
-            return redirect()->to('/lecturas')->with('error', 'Esta lectura ya no se puede editar porque corresponde a un mes anterior.');
+            flash_set('error', 'Esta lectura ya no se puede editar porque corresponde a un mes anterior.');
+            return redirect()->to('/lecturas');
         }
 
         if ($this->lecturas->tienePago((int) $lectura['id'])) {
-            return redirect()->to('/lecturas')->with('error', 'Esta lectura ya fue pagada y no se puede editar.');
+            flash_set('error', 'Esta lectura ya fue pagada y no se puede editar.');
+            return redirect()->to('/lecturas');
         }
 
         $contador = $this->contadores
@@ -236,25 +250,28 @@ class LecturasController extends BaseController
         $lectura = $this->lecturas->find($lecturaId);
 
         if (! $lectura) {
-            return redirect()->to('/lecturas')->with('error', 'Lectura no encontrada.');
+            flash_set('error', 'Lectura no encontrada.');
+            return redirect()->to('/lecturas');
         }
 
         $contadorId = (int) $lectura['contador_id'];
 
         if (! $this->lecturas->esUltimaDeContador((int) $lectura['id'], $contadorId)) {
-            return redirect()->to('/lecturas')->with('error', 'Esta lectura ya no se puede editar porque corresponde a un mes anterior.');
+            flash_set('error', 'Esta lectura ya no se puede editar porque corresponde a un mes anterior.');
+            return redirect()->to('/lecturas');
         }
 
         if ($this->lecturas->tienePago((int) $lectura['id'])) {
-            return redirect()->to('/lecturas')->with('error', 'Esta lectura ya fue pagada y no se puede editar.');
+            flash_set('error', 'Esta lectura ya fue pagada y no se puede editar.');
+            return redirect()->to('/lecturas');
         }
 
         $anterior = (int) $lectura['lectura_anterior'];
         $fecha    = $lectura['fecha'];
 
         if ($lecturaActual < $anterior) {
-            return redirect()->back()->withInput()
-                ->with('error', 'La lectura actual no puede ser menor que la anterior (' . $anterior . ').');
+            flash_set('error', 'La lectura actual no puede ser menor que la anterior (' . $anterior . ').');
+            return redirect()->back()->withInput();
         }
 
         $contador = $this->contadores
@@ -266,8 +283,8 @@ class LecturasController extends BaseController
 
         $tarifaBase = $this->tarifas->vigentePara((int) $contador['tipo_servicio_id'], $fecha);
         if (! $tarifaBase) {
-            return redirect()->back()->withInput()
-                ->with('error', 'No hay tarifa base vigente para este tipo de servicio.');
+            flash_set('error', 'No hay tarifa base vigente para este tipo de servicio.');
+            return redirect()->back()->withInput();
         }
 
         $montoBase = $tarifaBase['precio'] * $consumo;
@@ -296,7 +313,7 @@ class LecturasController extends BaseController
             'monto_exceso'     => $montoExceso,
         ]);
 
-        return redirect()->to('/lecturas')
-            ->with('message', 'Lectura actualizada. Consumo: ' . $consumo . ' L. Total: Q' . number_format($montoBase + $montoExceso, 2));
+        flash_set('message', 'Lectura actualizada. Consumo: ' . $consumo . ' L. Total: Q' . number_format($montoBase + $montoExceso, 2));
+        return redirect()->to('/lecturas');
     }
 }
