@@ -40,6 +40,38 @@ abstract class BaseController extends Controller
         parent::initController($request, $response, $logger);
 
         // Preload any models, libraries, etc, here.
-        // $this->session = service('session');
+        $this->iniciarSesionNativa();
+    }
+
+    /**
+     * Inicia la sesión nativa de PHP para no utilizar sesiones de CI4.
+     * Se llama una sola vez por petición, desde initController(), antes de que cualquier controlador
+     * hijo ejecute su logica.
+     */
+    private function iniciarSesionNativa(): void
+    {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            return;
+        }
+
+        $esHttps = (bool) (
+            ($_SERVER['HTTPS'] ?? '') !== '' && ($_SERVER['HTTPS'] ?? '') !== 'off'
+        );
+
+        session_set_cookie_params([
+            'lifetime' => 7200,
+            'path'     => '/',
+            'domain'   => '',
+            'secure'   => $esHttps,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+
+        session_start();
+    }
+
+    protected function estaLogueado(): bool
+    {
+        return isset($_SESSION['logueado']) && $_SESSION['logueado'] === true;
     }
 }
