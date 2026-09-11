@@ -10,22 +10,6 @@
         </button>
     </div>
 
-    <!-- Alertas de respuesta del Controlador -->
-    <?php if (session()->getFlashdata('mensaje')): ?>
-        <div class="alert alert-success">
-            <?= session()->getFlashdata('mensaje') ?>
-        </div>
-    <?php endif; ?>
-    <?php if (session()->getFlashdata('errores')): ?>
-        <div class="alert alert-danger">
-            <ul class="mb-0">
-            <?php foreach (session()->getFlashdata('errores') as $error): ?>
-                <li><?= esc($error) ?></li>
-            <?php endforeach; ?>
-            </ul>
-        </div>
-    <?php endif; ?>
-
     <!-- Tabla principal -->
     <div class="card">
         <div class="card-body">
