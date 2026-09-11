@@ -90,9 +90,5 @@ $routes->group('pagos', ['namespace' => 'App\Controllers\Pagos'], function ($rou
 // Modulo: Recibos
 $routes->group('recibos', ['namespace' => 'App\Controllers\Recibos'], function ($routes) {
     $routes->get('/', 'RecibosController::index');
-    $routes->post('store', 'RecibosController::store');
-    $routes->post('update/(:num)', 'RecibosController::update/$1');
-    $routes->get('delete/(:num)', 'RecibosController::delete/$1');
     $routes->get('imprimir/(:num)', 'RecibosController::imprimir/$1');
-    $routes->get('anular/(:num)', 'RecibosController::anular/$1');
 });
