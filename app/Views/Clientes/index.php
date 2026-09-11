@@ -53,6 +53,7 @@
                                         <button type="button" class="btn-close" data-mdb-ripple-init data-mdb-dismiss="modal" aria-label="Close"></button>
                                       </div>
                                       <form action="<?= base_url('clientes/update/' . $cliente['id']) ?>" method="POST">
+                                      <?= csrf_field_nativo() ?>
                                           <div class="modal-body">
                                               <!-- Inputs con clases MDB -->
                                               <div class="form-outline mb-4" data-mdb-input-init>
@@ -98,6 +99,7 @@
         <button type="button" class="btn-close" data-mdb-ripple-init data-mdb-dismiss="modal" aria-label="Close"></button>
       </div>
       <form action="<?= base_url('clientes/store') ?>" method="POST">
+      <?= csrf_field_nativo() ?>
           <div class="modal-body">
               <div class="form-outline mb-4" data-mdb-input-init>
                   <input type="text" id="nombre" name="nombre" class="form-control" required maxlength="150" />
