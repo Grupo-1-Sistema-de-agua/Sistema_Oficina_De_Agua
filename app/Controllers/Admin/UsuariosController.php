@@ -6,9 +6,18 @@ use App\Constants\Roles;
 use App\Controllers\BaseController;
 use App\Models\RolModel;
 use App\Models\UsuarioModel;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class UsuariosController extends BaseController
 {
+    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
+    {
+        parent::initController($request, $response, $logger);
+        $this->requiereRol(['administrador']);
+    }
+
     public function index()
     {
         $usuarios = (new UsuarioModel())
@@ -40,29 +49,35 @@ class UsuariosController extends BaseController
         $rolId = (int) $this->request->getPost('rol_id');
 
         if ($nombre === '' || $email === '' || $password === '' || $rolId <= 0) {
-            return redirect()->back()->with('error', 'Todos los campos son obligatorios.');
+            flash_set('error', 'Todos los campos son obligatorios.');
+            return redirect()->back();
         }
 
         if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return redirect()->back()->with('error', 'El correo no es valido.');
+            flash_set('error', 'El correo no es valido.');
+            return redirect()->back();
         }
 
         if (strlen($password) < 10) {
-            return redirect()->back()->with('error', 'La contraseña debe tener al menos 10 caracteres.');
+            flash_set('error', 'La contraseña debe tener al menos 10 caracteres.');
+            return redirect()->back();
         }
 
         if ($password !== $confirmacion) {
-            return redirect()->back()->with('error', 'La confirmación de la contraseña no coincide.');
+            flash_set('error', 'La confirmación de la contraseña no coincide.');
+            return redirect()->back();
         }
 
         $usuarioModel = new UsuarioModel();
         if ($usuarioModel->where('email', $email)->first()) {
-            return redirect()->back()->with('error', 'Ese correo ya esta registrado.');
+            flash_set('error', 'Ese correo ya esta registrado.');
+            return redirect()->back();
         }
 
         $rol = (new RolModel())->find($rolId);
         if (! $rol) {
-            return redirect()->back()->with('error', 'El rol seleccionado no existe.');
+            flash_set('error', 'El rol seleccionado no existe.');
+            return redirect()->back();
         }
 
         $usuarioModel->insert([
@@ -73,7 +88,8 @@ class UsuariosController extends BaseController
             'rol_id'        => $rolId,
         ]);
 
-        return redirect()->to('/admin/usuarios')->with('message', 'Usuario creado correctamente.');
+        flash_set('message', 'Usuario creado correctamente.');
+        return redirect()->to('/admin/usuarios');
     }
 
     public function toggle()
@@ -86,11 +102,13 @@ class UsuariosController extends BaseController
         $usuario = (new UsuarioModel())->find($usuarioId);
 
         if (! $usuario) {
-            return redirect()->back()->with('error', 'Usuario no encontrado.');
+            flash_set('error', 'Usuario no encontrado.');
+            return redirect()->back();
         }
 
-        if ((int) session()->get('usuario_id') === $usuarioId) {
-            return redirect()->back()->with('error', 'No puedes desactivar tu propia cuenta.');
+        if ((int) ($_SESSION['id_usuario'] ?? 0) === $usuarioId) {
+            flash_set('error', 'No puedes desactivar tu propia cuenta.');
+            return redirect()->back();
         }
 
         $nuevoEstado = (int) $usuario['activo'] === 1 ? 0 : 1;
@@ -98,7 +116,8 @@ class UsuariosController extends BaseController
 
         $estadoTexto = $nuevoEstado === 1 ? 'activado' : 'desactivado';
 
-        return redirect()->to('/admin/usuarios')->with('message', 'Usuario ' . $estadoTexto . ' correctamente.');
+        flash_set('message', 'Usuario ' . $estadoTexto . ' correctamente.');
+        return redirect()->to('/admin/usuarios');
     }
 
     public function delete()
@@ -111,18 +130,22 @@ class UsuariosController extends BaseController
         $usuario = (new UsuarioModel())->find($usuarioId);
 
         if (! $usuario) {
-            return redirect()->back()->with('error', 'Usuario no encontrado.');
+            flash_set('error', 'Usuario no encontrado.');
+            return redirect()->back();
         }
 
-        if ((int) session()->get('usuario_id') === $usuarioId) {
-            return redirect()->back()->with('error', 'No puedes eliminar tu propia cuenta.');
+        if ((int) ($_SESSION['id_usuario'] ?? 0) === $usuarioId) {
+            flash_set('error', 'No puedes eliminar tu propia cuenta.');
+            return redirect()->back();
         }
 
         try {
             (new UsuarioModel())->delete($usuarioId);
-            return redirect()->to('/admin/usuarios')->with('message', 'Usuario eliminado correctamente.');
+            flash_set('message', 'Usuario eliminado correctamente.');
+            return redirect()->to('/admin/usuarios');
         } catch (\Throwable $e) {
-            return redirect()->to('/admin/usuarios')->with('error', 'No se puede eliminar este usuario porque hay registros relacionados.');
+            flash_set('error', 'No se puede eliminar este usuario porque hay registros relacionados.');
+            return redirect()->to('/admin/usuarios');
         }
     }
 }
