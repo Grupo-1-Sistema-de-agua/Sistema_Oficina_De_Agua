@@ -10,7 +10,7 @@
                     <p class="text-muted">Establece una nueva contraseña para cualquier usuario del sistema.</p>
 
                     <form action="<?= base_url('admin/password') ?>" method="post">
-                        <?= csrf_field() ?>
+                        <?= csrf_field_nativo() ?>
                         <div class="mb-3">
                             <label class="form-label">Usuario</label>
                             <select name="usuario_id" class="form-select" required>
