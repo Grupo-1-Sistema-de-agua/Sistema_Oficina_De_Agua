@@ -16,31 +16,37 @@ class PasswordController extends BaseController
         $this->requiereRol(['administrador']);
     }
 
-    public function index()
+    public function edit(int $usuarioId)
     {
-        $usuarios = (new UsuarioModel())
-            ->select('Tb_Usuarios.*, Tb_Roles.nombre AS rol_nombre')
-            ->join('Tb_Roles', 'Tb_Roles.id = Tb_Usuarios.rol_id')
-            ->orderBy('Tb_Usuarios.id', 'ASC')
-            ->findAll();
+        $usuario = (new UsuarioModel())->find($usuarioId);
+
+        if (! $usuario) {
+            flash_set('error', 'Usuario no encontrado.');
+            return redirect()->to('/admin/usuarios');
+        }
 
         return view('admin/password', [
-            'usuarios' => $usuarios,
+            'usuario' => $usuario,
         ]);
     }
 
-    public function update()
+    public function update(int $usuarioId)
     {
         if (! $this->request->is('post')) {
-            return redirect()->back();
+            return redirect()->to('/admin/usuarios');
         }
 
-        $usuarioId = (int) $this->request->getPost('usuario_id');
+        $usuario = (new UsuarioModel())->find($usuarioId);
+        if (! $usuario) {
+            flash_set('error', 'Usuario no encontrado.');
+            return redirect()->to('/admin/usuarios');
+        }
+
         $password = (string) $this->request->getPost('password');
         $confirmacion = (string) $this->request->getPost('confirm_password');
 
-        if ($usuarioId <= 0 || $password === '') {
-            flash_set('error', 'Debes seleccionar un usuario y escribir una nueva contraseña.');
+        if ($password === '') {
+            flash_set('error', 'Debes escribir una nueva contraseña.');
             return redirect()->back();
         }
 
@@ -54,16 +60,9 @@ class PasswordController extends BaseController
             return redirect()->back();
         }
 
-        $usuario = (new UsuarioModel())->find($usuarioId);
-        if (! $usuario) {
-            flash_set('error', 'Usuario no encontrado.');
-            return redirect()->back();
-        }
-
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        $usuarioModel = new UsuarioModel();
-        $usuarioModel->update($usuarioId, [
+        (new UsuarioModel())->update($usuarioId, [
             'password_hash' => $hashedPassword,
         ]);
 
@@ -74,7 +73,7 @@ class PasswordController extends BaseController
             $_SESSION['password_fingerprint'] = hash('sha256', $hashedPassword);
         }
 
-        flash_set('message', 'Contraseña actualizada correctamente.');
-        return redirect()->to('/admin/password');
+        flash_set('message', 'Contraseña de ' . $usuario['nombre'] . ' actualizada correctamente.');
+        return redirect()->to('/admin/usuarios');
     }
 }
