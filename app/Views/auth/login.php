@@ -36,7 +36,7 @@
           <div class="row justify-content-center">
             <div class="col-xl-5 col-md-8">
               <form class="bg-white rounded shadow-5-strong p-5" action="<?= base_url('login') ?>" method="post">
-                <?= csrf_field() ?>
+                <?= csrf_field_nativo() ?>
 
                 <?php $errorFlash = flash_get('error'); ?>
                 <?php if ($errorFlash) : ?>
