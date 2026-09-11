@@ -4,9 +4,18 @@ namespace App\Controllers\Tarifas;
 
 use App\Controllers\BaseController;
 use App\Models\TipoServicioModel;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class TiposServicioController extends BaseController
 {
+    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
+    {
+        parent::initController($request, $response, $logger);
+        $this->requiereRol(['administrador']);
+    }
+
     public function index()
     {
         $model = new TipoServicioModel();
@@ -47,8 +56,8 @@ class TiposServicioController extends BaseController
 
         $model->insert($data);
 
-        return redirect()->to(base_url('tipos-servicio'))
-            ->with('message', 'Tipo de servicio creado correctamente.');
+        flash_set('message', 'Tipo de servicio creado correctamente.');
+        return redirect()->to(base_url('tipos-servicio'));
     }
 
     public function edit($id)
@@ -57,8 +66,8 @@ class TiposServicioController extends BaseController
         $tipo  = $model->find($id);
 
         if (! $tipo) {
-            return redirect()->to(base_url('tipos-servicio'))
-                ->with('error', 'Tipo de servicio no encontrado.');
+            flash_set('error', 'Tipo de servicio no encontrado.');
+            return redirect()->to(base_url('tipos-servicio'));
         }
 
         return view('Tarifas/tipos_servicio/edit', [
@@ -73,8 +82,8 @@ class TiposServicioController extends BaseController
         $tipo  = $model->find($id);
 
         if (! $tipo) {
-            return redirect()->to(base_url('tipos-servicio'))
-                ->with('error', 'Tipo de servicio no encontrado.');
+            flash_set('error', 'Tipo de servicio no encontrado.');
+            return redirect()->to(base_url('tipos-servicio'));
         }
 
         $nombre = trim((string) $this->request->getPost('nombre'));
@@ -100,8 +109,8 @@ class TiposServicioController extends BaseController
 
         $model->update($id, $data);
 
-        return redirect()->to(base_url('tipos-servicio'))
-            ->with('message', 'Tipo de servicio actualizado correctamente.');
+        flash_set('message', 'Tipo de servicio actualizado correctamente.');
+        return redirect()->to(base_url('tipos-servicio'));
     }
 
     public function delete($id)
@@ -112,14 +121,14 @@ class TiposServicioController extends BaseController
         $enTarifas    = db_connect()->table('Tb_Tarifas')->where('tipo_servicio_id', $id)->countAllResults();
 
         if ($enContadores > 0 || $enTarifas > 0) {
-            return redirect()->to(base_url('tipos-servicio'))
-                ->with('error', 'No se puede eliminar: este tipo de servicio tiene contadores o tarifas asociadas.');
+            flash_set('error', 'No se puede eliminar: este tipo de servicio tiene contadores o tarifas asociadas.');
+            return redirect()->to(base_url('tipos-servicio'));
         }
 
         $model->delete($id);
 
-        return redirect()->to(base_url('tipos-servicio'))
-            ->with('message', 'Tipo de servicio eliminado.');
+        flash_set('message', 'Tipo de servicio eliminado.');
+        return redirect()->to(base_url('tipos-servicio'));
     }
 
     private function generarCodigoUnico(string $nombre, TipoServicioModel $model, ?int $idExcluir = null): string
