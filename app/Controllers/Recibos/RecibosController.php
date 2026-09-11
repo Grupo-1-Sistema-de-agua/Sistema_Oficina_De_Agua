@@ -66,7 +66,7 @@ class RecibosController extends BaseController
         ];
 
         if (!$this->validate($validationRules)) {
-            flash_set('errores', $this->validator->getErrors());
+            flash_set('error', $this->validator->getErrors());
             return redirect()->back()->withInput();
         }
         
@@ -84,7 +84,7 @@ class RecibosController extends BaseController
 
         $this->reciboModel->insert($data);
 
-        flash_set('mensaje', 'Recibo generado con éxito.');
+        flash_set('message', 'Recibo generado con éxito.');
         return redirect()->to('/recibos');
     }
 
@@ -101,22 +101,22 @@ class RecibosController extends BaseController
         ];
 
         if (!$this->reciboModel->update($id, $datos)) {
-            flash_set('errores', $this->reciboModel->errors());
+            flash_set('error', $this->reciboModel->errors());
             return redirect()->back()->withInput();
         }
 
-        flash_set('mensaje', 'Recibo actualizado exitosamente.');
+        flash_set('message', 'Recibo actualizado exitosamente.');
         return redirect()->to('/recibos');
     }
 
     public function anular($id = null)
     {
         if ($this->reciboModel->delete($id)) {
-            flash_set('mensaje', 'El recibo ha sido anulado correctamente.');
+            flash_set('message', 'El recibo ha sido anulado correctamente.');
             return redirect()->to('/recibos');
         }
 
-        flash_set('errores', ['No se pudo anular el recibo.']);
+        flash_set('error', ['No se pudo anular el recibo.']);
         return redirect()->to('/recibos');
     }
     
@@ -125,7 +125,7 @@ class RecibosController extends BaseController
         $recibo = $this->reciboModel->find($id);
 
         if (!$recibo) {
-            flash_set('errores', ['El recibo solicitado no existe.']);
+            flash_set('error', ['El recibo solicitado no existe.']);
             return redirect()->to('/recibos');
         }
 
