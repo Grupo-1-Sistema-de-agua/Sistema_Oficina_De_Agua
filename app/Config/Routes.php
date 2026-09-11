@@ -34,9 +34,11 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function ($rou
 // Modulo: Clientes
 $routes->group('clientes', ['namespace' => 'App\Controllers\Clientes'], function ($routes) {
     $routes->get('/', 'ClientesController::index');
+    $routes->get('nuevo', 'ClientesController::nuevo');
     $routes->post('store', 'ClientesController::store');
+    $routes->get('editar/(:num)', 'ClientesController::editar/$1');
     $routes->post('update/(:num)', 'ClientesController::update/$1');
-    $routes->get('delete/(:num)', 'ClientesController::delete/$1');
+    $routes->post('delete/(:num)', 'ClientesController::delete/$1');
 });
 
 // Modulo: Contadores
