@@ -64,13 +64,22 @@ class ContadoresController extends BaseController
             return redirect()->back()->withInput();
         }
 
-        $datos = $this->request->getPost();
+        $datos = [
+            'cliente_id'          => $this->request->getPost('cliente_id'),
+            'tipo_servicio_id'    => $this->request->getPost('tipo_servicio_id'),
+            'sector_id'           => $this->request->getPost('sector_id'),
+            'direccion_servicio'  => $this->request->getPost('direccion_servicio'),
+            'codigo_fisico'       => $this->request->getPost('codigo_fisico'),
+            'activo'              => $this->request->getPost('activo') ? 1 : 0,
+            'fecha_asignacion'    => date('Y-m-d'),
+            'fecha_desactivacion' => null,
+        ];
+
         if ($this->contadores->activoEnMismaDireccion($datos['cliente_id'], $datos['direccion_servicio'])) {
             flash_set('errors', ['direccion_servicio' => 'El cliente ya tiene un contador ACTIVO en esa direccion.']);
             return redirect()->back()->withInput();
         }
 
-        $datos['fecha_asignacion'] = date('Y-m-d');
         $this->contadores->save($datos);
 
         flash_set('message', 'Contador registrado correctamente.');
@@ -110,7 +119,15 @@ class ContadoresController extends BaseController
             return redirect()->back()->withInput();
         }
 
-        $datos = $this->request->getPost();
+        $datos = [
+            'cliente_id'         => $this->request->getPost('cliente_id'),
+            'tipo_servicio_id'   => $this->request->getPost('tipo_servicio_id'),
+            'sector_id'          => $this->request->getPost('sector_id'),
+            'direccion_servicio' => $this->request->getPost('direccion_servicio'),
+            'codigo_fisico'      => $this->request->getPost('codigo_fisico'),
+            'activo'             => $this->request->getPost('activo') ? 1 : 0,
+        ];
+
         if ($this->contadores->activoEnMismaDireccion($datos['cliente_id'], $datos['direccion_servicio'], (int) $id)) {
             flash_set('errors', ['direccion_servicio' => 'El cliente ya tiene un contador ACTIVO en esa direccion.']);
             return redirect()->back()->withInput();
