@@ -92,6 +92,11 @@ class LecturasController extends BaseController
             return redirect()->to('/lecturas');
         }
 
+        if ((int) $contador['activo'] !== 1) {
+            flash_set('error', 'Este contador esta desactivado, no se le pueden registrar lecturas nuevas.');
+            return redirect()->to('/lecturas');
+        }
+
         $ultima = $this->lecturas->ultimaDeContador((int) $contadorId);
 
         $data['titulo']        = 'Registrar lectura';
@@ -171,12 +176,12 @@ class LecturasController extends BaseController
             }
         }
 
-        // Generar numero de recibo automatico: R-AAAA-NNN
-        $anio = date('Y', strtotime($fecha));
-        $conteo = (int) $this->lecturas->countAll() + 1;
+        // Generar numero de recibo automatico: R-AAAA-NNNN, consecutivo por anio
+        $anio = (int) date('Y', strtotime($fecha));
+        $conteo = $this->lecturas->contarDelAnio($anio) + 1;
         $numeroRecibo = 'R-' . $anio . '-' . str_pad((string) $conteo, 4, '0', STR_PAD_LEFT);
 
-        $this->lecturas->save([
+        $guardado = $this->lecturas->save([
             'numero_recibo'      => $numeroRecibo,
             'lectura_anterior'   => $anterior,
             'lectura_actual'     => $lecturaActual,
@@ -189,6 +194,11 @@ class LecturasController extends BaseController
             'monto_base'         => $montoBase,
             'monto_exceso'       => $montoExceso,
         ]);
+
+        if (! $guardado) {
+            flash_set('error', 'No se pudo registrar la lectura. Intenta de nuevo.');
+            return redirect()->back()->withInput();
+        }
 
         flash_set('message', 'Lectura registrada. Consumo: ' . $consumo . ' L. Total: Q' . number_format($montoBase + $montoExceso, 2));
         return redirect()->to('/lecturas');
