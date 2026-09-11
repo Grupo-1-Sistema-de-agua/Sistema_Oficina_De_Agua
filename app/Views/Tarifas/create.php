@@ -15,7 +15,7 @@
   <?php endif; ?>
 
   <form action="<?= base_url('tarifas') ?>" method="post" class="col-lg-6">
-    <?= csrf_field() ?>
+    <?= csrf_field_nativo() ?>
 
     <div class="mb-4">
       <label class="form-label" for="tipo_servicio_id">Tipo de servicio</label>
