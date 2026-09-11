@@ -7,9 +7,18 @@ use App\Models\ClienteModel;
 use App\Models\LecturaModel;
 use App\Models\MetodoPagoModel;
 use App\Models\PagoModel;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class PagosController extends BaseController
 {
+    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
+    {
+        parent::initController($request, $response, $logger);
+        $this->requiereRol(['secretaria', 'administrador']);
+    }
+
     public function index()
     {
         return $this->renderIndex();
@@ -31,17 +40,20 @@ class PagosController extends BaseController
         $error = $this->validarDatos($datos);
 
         if ($error !== null) {
-            return redirect()->back()->withInput()->with('error', $error);
+            flash_set('error', $error);
+            return redirect()->back()->withInput();
         }
 
-        $datos['usuario_registro_id'] = (int) session()->get('usuario_id');
+        $datos['usuario_registro_id'] = (int) ($_SESSION['id_usuario'] ?? 0);
         $modelo = new PagoModel();
 
         if (! $modelo->insert($datos)) {
-            return redirect()->back()->withInput()->with('error', 'No se pudo registrar el pago.');
+            flash_set('error', 'No se pudo registrar el pago.');
+            return redirect()->back()->withInput();
         }
 
-        return redirect()->to('/pagos')->with('message', 'Pago registrado correctamente.');
+        flash_set('message', 'Pago registrado correctamente.');
+        return redirect()->to('/pagos');
     }
 
     public function edit(int $id)
@@ -49,7 +61,8 @@ class PagosController extends BaseController
         $pago = (new PagoModel())->find($id);
 
         if (! $pago) {
-            return redirect()->to('/pagos')->with('error', 'Pago no encontrado.');
+            flash_set('error', 'Pago no encontrado.');
+            return redirect()->to('/pagos');
         }
 
         return $this->renderIndex($pago);
@@ -63,21 +76,25 @@ class PagosController extends BaseController
 
         $modelo = new PagoModel();
         if (! $modelo->find($id)) {
-            return redirect()->to('/pagos')->with('error', 'Pago no encontrado.');
+            flash_set('error', 'Pago no encontrado.');
+            return redirect()->to('/pagos');
         }
 
         $datos = $this->datosDelFormulario();
         $error = $this->validarDatos($datos, $id);
 
         if ($error !== null) {
-            return redirect()->back()->withInput()->with('error', $error);
+            flash_set('error', $error);
+            return redirect()->back()->withInput();
         }
 
         if (! $modelo->update($id, $datos)) {
-            return redirect()->back()->withInput()->with('error', 'No se pudo actualizar el pago.');
+            flash_set('error', 'No se pudo actualizar el pago.');
+            return redirect()->back()->withInput();
         }
 
-        return redirect()->to('/pagos')->with('message', 'Pago actualizado correctamente.');
+        flash_set('message', 'Pago actualizado correctamente.');
+        return redirect()->to('/pagos');
     }
 
     public function delete()
@@ -90,12 +107,14 @@ class PagosController extends BaseController
         $modelo = new PagoModel();
 
         if (! $modelo->find($id)) {
-            return redirect()->to('/pagos')->with('error', 'Pago no encontrado.');
+            flash_set('error', 'Pago no encontrado.');
+            return redirect()->to('/pagos');
         }
 
         $modelo->delete($id);
 
-        return redirect()->to('/pagos')->with('message', 'Pago eliminado correctamente.');
+        flash_set('message', 'Pago eliminado correctamente.');
+        return redirect()->to('/pagos');
     }
 
     private function renderIndex(?array $pago = null)
