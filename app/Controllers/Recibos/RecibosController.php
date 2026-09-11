@@ -7,12 +7,21 @@ use App\Models\ReciboModel;
 use App\Models\ClienteModel;
 use App\Models\ContadorModel;
 use App\Models\LecturaModel;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class RecibosController extends BaseController
 {
     protected $reciboModel;
     protected $clienteModel;
     protected $contadorModel;
+
+    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
+    {
+        parent::initController($request, $response, $logger);
+        $this->requiereRol(['secretaria', 'administrador']);
+    }
 
     public function __construct()
     {
@@ -57,7 +66,8 @@ class RecibosController extends BaseController
         ];
 
         if (!$this->validate($validationRules)) {
-            return redirect()->back()->withInput()->with('errores', $this->validator->getErrors());
+            flash_set('errores', $this->validator->getErrors());
+            return redirect()->back()->withInput();
         }
         
         $numeroRecibo = 'REC-' . strtoupper(substr(uniqid(), -5));
@@ -74,7 +84,8 @@ class RecibosController extends BaseController
 
         $this->reciboModel->insert($data);
 
-        return redirect()->to('/recibos')->with('mensaje', 'Recibo generado con éxito.');
+        flash_set('mensaje', 'Recibo generado con éxito.');
+        return redirect()->to('/recibos');
     }
 
     public function update($id = null)
@@ -90,19 +101,23 @@ class RecibosController extends BaseController
         ];
 
         if (!$this->reciboModel->update($id, $datos)) {
-            return redirect()->back()->withInput()->with('errores', $this->reciboModel->errors());
+            flash_set('errores', $this->reciboModel->errors());
+            return redirect()->back()->withInput();
         }
 
-        return redirect()->to('/recibos')->with('mensaje', 'Recibo actualizado exitosamente.');
+        flash_set('mensaje', 'Recibo actualizado exitosamente.');
+        return redirect()->to('/recibos');
     }
 
     public function anular($id = null)
     {
         if ($this->reciboModel->delete($id)) {
-            return redirect()->to('/recibos')->with('mensaje', 'El recibo ha sido anulado correctamente.');
+            flash_set('mensaje', 'El recibo ha sido anulado correctamente.');
+            return redirect()->to('/recibos');
         }
 
-        return redirect()->to('/recibos')->with('errores', ['No se pudo anular el recibo.']);
+        flash_set('errores', ['No se pudo anular el recibo.']);
+        return redirect()->to('/recibos');
     }
     
     public function imprimir($id = null)
@@ -110,7 +125,8 @@ class RecibosController extends BaseController
         $recibo = $this->reciboModel->find($id);
 
         if (!$recibo) {
-            return redirect()->to('/recibos')->with('errores', ['El recibo solicitado no existe.']);
+            flash_set('errores', ['El recibo solicitado no existe.']);
+            return redirect()->to('/recibos');
         }
 
         $data['recibo'] = $recibo;
