@@ -5,6 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <title><?= esc_nativo($titulo ?? 'Oficina del Agua') ?></title>
   <link rel="icon" type="image/svg+xml" href="<?= base_url('assets/img/favicon-agua.svg') ?>">
+  <script>
+    // Se ejecuta durante la carga del <head>, ANTES de que el <body> se
+    // pinte en pantalla -- a diferencia de pageshow (que solo se entera
+    // DESPUES de que el navegador ya mostro la foto guardada). Si esta
+    // pagina se esta restaurando desde el boton atras/adelante, la
+    // escondemos antes de que llegue a pintarse.
+    (function () {
+      var nav = performance.getEntriesByType('navigation')[0];
+      if (nav && nav.type === 'back_forward') {
+        document.documentElement.style.visibility = 'hidden';
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" />
   <link rel="stylesheet" href="<?= base_url('assets/css/mdb.min.css') ?>" />
@@ -171,6 +184,15 @@
         aplicar(oscuro);
       });
     })();
+  </script>
+  <script>
+    // El escondido ya lo hizo el script del <head> antes del primer
+    // pintado. Aqui solo forzamos la recarga real hacia el servidor.
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted) {
+        window.location.reload();
+      }
+    });
   </script>
 </body>
 </html>

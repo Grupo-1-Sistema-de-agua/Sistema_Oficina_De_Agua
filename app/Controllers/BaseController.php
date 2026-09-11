@@ -86,6 +86,13 @@ abstract class BaseController extends Controller
             exit;
         }
 
+        // Evita que el navegador guarde una copia de esta pagina en su
+        // cache. Sin esto, el boton "atras" despues de cerrar sesion
+        // puede mostrar una version ya guardada de una pagina protegida
+        // sin volver a pasar por esta verificacion.
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+
         $usuario = (new UsuarioModel())->find($_SESSION['id_usuario'] ?? null);
 
         if (! $usuario || (int) ($usuario['activo'] ?? 0) !== 1) {
