@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Constants\Roles;
+use App\Models\UsuarioModel;
 use CodeIgniter\Controller;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -20,10 +22,6 @@ use Psr\Log\LoggerInterface;
  */
 abstract class BaseController extends Controller
 {
-    /**
-     * Be sure to declare properties for any property fetch you initialized.
-     * The creation of dynamic property is deprecated in PHP 8.2.
-     */
 
     protected $session;
     protected $helpers = ['flash'];
@@ -33,14 +31,8 @@ abstract class BaseController extends Controller
      */
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
-        // Load here all helpers you want to be available in your controllers that extend BaseController.
-        // Caution: Do not put the this below the parent::initController() call below.
-        // $this->helpers = ['form', 'url'];
-
-        // Caution: Do not edit this line.
         parent::initController($request, $response, $logger);
 
-        // Preload any models, libraries, etc, here.
         $this->iniciarSesionNativa();
     }
 
@@ -74,5 +66,68 @@ abstract class BaseController extends Controller
     protected function estaLogueado(): bool
     {
         return isset($_SESSION['logueado']) && $_SESSION['logueado'] === true;
+    }
+
+    /**
+     * Exige que haya sesion iniciada. Reemplaza a AuthFilter.
+     *
+     * Llamar al inicio de cualquier controlador protegido. Si no hay
+     * sesion, o la sesion quedo invalida (usuario desactivado, o la
+     * contrasena cambio en otro lugar mientras esta sesion seguia activa),
+     * corta la ejecucion con un redirect nativo y detiene el script con
+     * exit — el resto del codigo que llamo a esto nunca se ejecuta.
+     */
+    protected function requiereLogin(): void
+    {
+        if (! $this->estaLogueado()) {
+            flash_set('error', 'Debes iniciar sesion para continuar.');
+            header('Location: ' . site_url('login'));
+            exit;
+        }
+
+        $usuario = (new UsuarioModel())->find($_SESSION['id_usuario'] ?? null);
+
+        if (! $usuario || (int) ($usuario['activo'] ?? 0) !== 1) {
+            $this->cerrarSesionInvalida('Tu sesion fue invalidada por falta de acceso.');
+        }
+
+        $huellaActual = hash('sha256', (string) ($usuario['password_hash'] ?? ''));
+        if (($_SESSION['password_fingerprint'] ?? null) !== $huellaActual) {
+            $this->cerrarSesionInvalida('Tu sesion expiro por un cambio de contrasena.');
+        }
+    }
+
+    /**
+     * Exige sesion iniciada Y que el rol actual este entre los permitidos.
+     * Reemplaza a RoleFilter.
+     *
+     * @param string[] $rolesPermitidos ej. ['administrador'] o ['secretaria', 'administrador']
+     */
+    protected function requiereRol(array $rolesPermitidos): void
+    {
+        $this->requiereLogin();
+
+        $rolActual       = Roles::normalize($_SESSION['rol'] ?? null);
+        $rolesPermitidos = array_map(static fn ($rol) => Roles::normalize($rol), $rolesPermitidos);
+
+        if (! in_array($rolActual, $rolesPermitidos, true)) {
+            flash_set('error', 'No tienes permiso para acceder a esa seccion.');
+            header('Location: ' . site_url('dashboard'));
+            exit;
+        }
+    }
+
+    /**
+     * Destruye una sesion que ya no es valida y redirige al login con un
+     * mensaje explicando por que. Se usa desde requiereLogin().
+     */
+    private function cerrarSesionInvalida(string $mensaje): void
+    {
+        $_SESSION = [];
+        session_destroy();
+        session_start();
+        flash_set('error', $mensaje);
+        header('Location: ' . site_url('login'));
+        exit;
     }
 }
