@@ -2,18 +2,23 @@
 
 namespace App\Controllers;
 
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
+
 class DashboardController extends BaseController
 {
-    /**
-     * Landing page despues del login. Cada quien puede ir agregando
-     * aqui los widgets/resumen que le correspondan a su modulo, o
-     * dejarla como esta y enlazar desde el sidebar del layout.
-     */
+    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
+    {
+        parent::initController($request, $response, $logger);
+        $this->requiereLogin();
+    }
+
     public function index()
     {
         return view('dashboard/index', [
-            'nombre' => session()->get('usuario_nombre'),
-            'rol'    => session()->get('usuario_rol'),
+            'nombre' => $_SESSION['nombre'] ?? null,
+            'rol'    => $_SESSION['rol'] ?? null,
         ]);
     }
 }
