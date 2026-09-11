@@ -1,16 +1,13 @@
 <?php
 $mesesEs = [1=>'Ene',2=>'Feb',3=>'Mar',4=>'Abr',5=>'May',6=>'Jun',7=>'Jul',8=>'Ago',9=>'Sep',10=>'Oct',11=>'Nov',12=>'Dic'];
-function periodoEs(string $fecha, array $meses): string
-{
-    $ts = strtotime($fecha);
-    return $meses[(int) date('n', $ts)] . ' ' . date('Y', $ts);
-}
+$ts = strtotime($lectura['fecha']);
+$periodo = $mesesEs[(int) date('n', $ts)] . ' ' . date('Y', $ts);
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Recibo — <?= esc_nativo($contador['cliente_nombre']) ?></title>
+<title>Recibo pagado — <?= esc_nativo($lectura['cliente_nombre']) ?></title>
 <style>
   * {
     box-sizing: border-box;
@@ -31,6 +28,7 @@ function periodoEs(string $fecha, array $meses): string
     border-radius: 14px;
     overflow: hidden;
     border: 1px solid #e2e2de;
+    position: relative;
   }
   .encabezado {
     background: linear-gradient(135deg, #0f2942 0%, #123a52 100%);
@@ -53,12 +51,7 @@ function periodoEs(string $fecha, array $meses): string
     width: 100%;
     height: 30px;
   }
-  .marca-fila {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    position: relative;
-  }
+  .marca-fila { display: flex; align-items: center; gap: 12px; position: relative; }
   .marca-fila .titulo {
     font-family: Georgia, 'Times New Roman', serif;
     font-size: 25px;
@@ -72,30 +65,38 @@ function periodoEs(string $fecha, array $meses): string
     margin-top: 2px;
     font-weight: bold;
   }
-  .cuerpo { padding: 28px 32px 8px; }
-  .datos-fila {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 20px;
-    gap: 16px;
+  .sello {
+    position: absolute;
+    top: 64px;
+    right: 26px;
+    transform: rotate(-14deg);
+    border: 3px solid #1d7a4c;
+    color: #1d7a4c;
+    font-weight: bold;
+    font-size: 21px;
+    letter-spacing: 2px;
+    padding: 5px 14px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.88);
   }
+  .cuerpo { padding: 28px 32px 8px; }
   .datos {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 4px 28px;
     font-size: 13px;
+    margin-bottom: 18px;
   }
   .datos .etiqueta { color: #6b6b68; font-weight: bold; }
   .datos .valor { color: #1a1a18; font-weight: bold; font-size: 14px; }
-  .badge-estado {
-    background: #fdecc8;
-    color: #7a4f08;
-    font-size: 11.5px;
-    font-weight: bold;
-    padding: 5px 12px;
-    border-radius: 20px;
-    white-space: nowrap;
+  .caja-pago {
+    background: #eaf5ee;
+    border: 1px solid #b7ddc4;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-bottom: 18px;
+    color: #1d7a4c;
   }
   table.lecturas {
     width: 100%;
@@ -111,29 +112,14 @@ function periodoEs(string $fecha, array $meses): string
     color: #123a52;
   }
   table.lecturas th.num, table.lecturas td.num { text-align: right; }
-  table.lecturas tbody tr { border-bottom: 0.5px solid #e5e5e1; }
   table.lecturas td {
     padding: 8px 4px;
     font-family: 'Courier New', Courier, monospace;
     color: #1a1a18;
   }
-  table.lecturas td.periodo { font-family: Arial, sans-serif; }
-  .talon {
-    position: relative;
-    margin: 6px 0;
-  }
-  .talon .linea {
-    border-top: 2px dashed #b7c4c9;
-    margin: 0 32px;
-  }
-  .talon .corte {
-    position: absolute;
-    top: -10px;
-    width: 20px;
-    height: 20px;
-    background: #eef1f0;
-    border-radius: 50%;
-  }
+  .talon { position: relative; margin: 6px 0; }
+  .talon .linea { border-top: 2px dashed #b7c4c9; margin: 0 32px; }
+  .talon .corte { position: absolute; top: -10px; width: 20px; height: 20px; background: #eef1f0; border-radius: 50%; }
   .talon .corte.izq { left: -10px; }
   .talon .corte.der { right: -10px; }
   .total-fila {
@@ -143,12 +129,11 @@ function periodoEs(string $fecha, array $meses): string
     align-items: center;
   }
   .total-fila .etiqueta { font-size: 12.5px; color: #4a4a47; font-weight: bold; }
-  .total-fila .sub { font-size: 11.5px; color: #7a7a76; }
   .total-fila .monto {
     font-family: 'Courier New', Courier, monospace;
     font-size: 32px;
     font-weight: bold;
-    color: #7a4f08;
+    color: #1d7a4c;
   }
   .pie {
     text-align: center;
@@ -194,40 +179,41 @@ function periodoEs(string $fecha, array $meses): string
         </svg>
         <div>
           <div class="titulo">Oficina del Agua</div>
-          <div class="subtitulo">Recibo de consumo pendiente de pago</div>
+          <div class="subtitulo">Comprobante de pago</div>
         </div>
       </div>
     </div>
 
+    <div class="sello">CANCELADO</div>
+
     <div class="cuerpo">
-      <div class="datos-fila">
-        <div class="datos">
-          <div><div class="etiqueta">Cliente</div><div class="valor"><?= esc_nativo($contador['cliente_nombre']) ?></div></div>
-          <div><div class="etiqueta">Contador</div><div class="valor"><?= esc_nativo($contador['codigo_fisico']) ?></div></div>
-          <div><div class="etiqueta">Direccion</div><div class="valor"><?= esc_nativo($contador['direccion_principal']) ?></div></div>
-          <div><div class="etiqueta">Sector / servicio</div><div class="valor"><?= esc_nativo($contador['sector_nombre']) ?> &middot; <?= esc_nativo($contador['tipo_nombre']) ?></div></div>
-        </div>
-        <span class="badge-estado">Pendiente</span>
+      <div class="datos">
+        <div><div class="etiqueta">Cliente</div><div class="valor"><?= esc_nativo($lectura['cliente_nombre']) ?></div></div>
+        <div><div class="etiqueta">Recibo</div><div class="valor"><?= esc_nativo($lectura['numero_recibo']) ?></div></div>
+        <div><div class="etiqueta">Contador</div><div class="valor"><?= esc_nativo($lectura['codigo_fisico']) ?></div></div>
+        <div><div class="etiqueta">Periodo</div><div class="valor"><?= esc_nativo($periodo) ?></div></div>
+        <div><div class="etiqueta">Direccion</div><div class="valor"><?= esc_nativo($lectura['direccion_principal']) ?></div></div>
+        <div><div class="etiqueta">Sector / servicio</div><div class="valor"><?= esc_nativo($lectura['sector_nombre']) ?> &middot; <?= esc_nativo($lectura['tipo_nombre']) ?></div></div>
+      </div>
+
+      <div class="caja-pago">
+        <strong>Pagado</strong> el <?= esc_nativo(date('d/m/Y', strtotime($lectura['fecha_pago']))) ?> &middot; via <?= esc_nativo($lectura['metodo_nombre']) ?>
       </div>
 
       <table class="lecturas">
         <thead>
           <tr>
-            <th>Recibo</th>
-            <th>Periodo</th>
+            <th>Lectura anterior</th>
+            <th class="num">Lectura actual</th>
             <th class="num">Consumo</th>
-            <th class="num">Monto</th>
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($lecturas as $l) : ?>
-            <tr>
-              <td><?= esc_nativo($l['numero_recibo']) ?></td>
-              <td class="periodo"><?= esc_nativo(periodoEs($l['fecha'], $mesesEs)) ?></td>
-              <td class="num"><?= number_format((float) $l['consumo_litros'], 0) ?> L</td>
-              <td class="num"><?= number_format((float) $l['monto_base'] + (float) $l['monto_exceso'], 2) ?></td>
-            </tr>
-          <?php endforeach; ?>
+          <tr>
+            <td><?= number_format((float) $lectura['lectura_anterior'], 0) ?></td>
+            <td class="num"><?= number_format((float) $lectura['lectura_actual'], 0) ?></td>
+            <td class="num"><?= number_format((float) $lectura['consumo_litros'], 0) ?> L</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -239,15 +225,12 @@ function periodoEs(string $fecha, array $meses): string
     </div>
 
     <div class="total-fila">
-      <div>
-        <div class="etiqueta">Total pendiente</div>
-        <div class="sub"><?= count($lecturas) ?> recibo<?= count($lecturas) === 1 ? '' : 's' ?></div>
-      </div>
-      <div class="monto">Q<?= number_format($totalPendiente, 2) ?></div>
+      <div class="etiqueta">Monto pagado</div>
+      <div class="monto">Q<?= number_format((float) $lectura['monto_base'] + (float) $lectura['monto_exceso'], 2) ?></div>
     </div>
 
     <div class="pie">
-      Fecha de emision: <?= esc_nativo(date('d/m/Y H:i', strtotime($fechaEmision))) ?> &middot; documento generado por el sistema, no requiere firma
+      Documento generado por el sistema &middot; no requiere firma
     </div>
   </div>
 

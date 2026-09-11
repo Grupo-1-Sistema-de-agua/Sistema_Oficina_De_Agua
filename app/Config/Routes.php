@@ -91,4 +91,5 @@ $routes->group('pagos', ['namespace' => 'App\Controllers\Pagos'], function ($rou
 $routes->group('recibos', ['namespace' => 'App\Controllers\Recibos'], function ($routes) {
     $routes->get('/', 'RecibosController::index');
     $routes->get('imprimir/(:num)', 'RecibosController::imprimir/$1');
+    $routes->get('pagada/(:num)', 'RecibosController::pagada/$1');
 });

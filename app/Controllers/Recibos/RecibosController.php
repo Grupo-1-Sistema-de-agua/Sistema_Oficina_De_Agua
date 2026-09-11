@@ -4,7 +4,6 @@ namespace App\Controllers\Recibos;
 
 use App\Controllers\BaseController;
 use App\Models\LecturaModel;
-use App\Models\TarifaModel;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -17,12 +16,6 @@ class RecibosController extends BaseController
         $this->requiereRol(['secretaria', 'administrador']);
     }
 
-    /**
-     * Listado agrupado por contador: cuantas lecturas tiene, cuantas
-     * estan pendientes de pago, y el monto pendiente acumulado.
-     * Filtrable por texto (cliente o codigo de contador) y por estado
-     * (solo pendientes, o todos los contadores con al menos una lectura).
-     */
     public function index()
     {
         $qPendientes = trim((string) $this->request->getGet('q_pendientes'));
@@ -56,7 +49,7 @@ class RecibosController extends BaseController
 
         $contadoresPendientes = $pendientesQuery->orderBy('Tb_Clientes.nombre', 'ASC')->get()->getResultArray();
 
-        // Pagadas SI queda individual, una fila por lectura -- cada una
+        // Pagadas si queda individual, una fila por lectura -- cada una
         // tiene su propio comprobante que ver aparte.
         $pagadasQuery = (new LecturaModel())
             ->select('Tb_Lecturas.id, Tb_Lecturas.numero_recibo, Tb_Lecturas.fecha, Tb_Lecturas.monto_base, Tb_Lecturas.monto_exceso, Tb_Contadores.codigo_fisico, Tb_Clientes.nombre AS cliente_nombre, Tb_Pagos.fecha_pago, Tb_Metodos_Pago.nombre AS metodo_nombre')
@@ -84,11 +77,8 @@ class RecibosController extends BaseController
     }
 
     /**
-     * Documento imprimible de un contador: lista TODAS sus lecturas
-     * (pagadas y pendientes, cada una con su estado), y un total general
-     * solo de lo pendiente. Asi sirve tanto para el caso normal (varias
-     * lecturas sin pagar) como para reimprimir el historial completo de
-     * un cliente que ya esta al dia.
+     * Documento combinado: todas las lecturas PENDIENTES de un contador,
+     * con el total general. Es "lo que se debe", no un historial.
      */
     public function imprimir(int $contadorId)
     {
@@ -105,8 +95,6 @@ class RecibosController extends BaseController
             return redirect()->to('/recibos');
         }
 
-        // El recibo solo incluye lo que todavia se debe, no el historial
-        // completo -- por eso solo se traen lecturas sin pago activo.
         $lecturas = (new LecturaModel())
             ->select('Tb_Lecturas.*, Tb_Tarifas.precio AS tarifa_precio')
             ->join('Tb_Pagos', 'Tb_Pagos.lectura_id_activa = Tb_Lecturas.id', 'left')
@@ -131,6 +119,35 @@ class RecibosController extends BaseController
             'lecturas'       => $lecturas,
             'totalPendiente' => $totalPendiente,
             'fechaEmision'   => date('Y-m-d H:i:s'),
+        ]);
+    }
+
+    /**
+     * Documento individual de UNA lectura ya pagada, con sello de
+     * CANCELADO -- el comprobante historico de ese pago especifico.
+     */
+    public function pagada(int $lecturaId)
+    {
+        $lectura = (new LecturaModel())
+            ->select('Tb_Lecturas.*, Tb_Tarifas.precio AS tarifa_precio, Tb_Contadores.codigo_fisico, Tb_Contadores.direccion_servicio, Tb_Clientes.nombre AS cliente_nombre, Tb_Clientes.direccion_principal, Tb_Clientes.telefono, Tb_Sectores.nombre AS sector_nombre, Tb_Tipos_Servicios.nombre AS tipo_nombre, Tb_Pagos.fecha_pago, Tb_Metodos_Pago.nombre AS metodo_nombre')
+            ->join('Tb_Tarifas', 'Tb_Tarifas.id = Tb_Lecturas.tarifa_base_id')
+            ->join('Tb_Contadores', 'Tb_Contadores.id = Tb_Lecturas.contador_id')
+            ->join('Tb_Clientes', 'Tb_Clientes.id = Tb_Contadores.cliente_id')
+            ->join('Tb_Sectores', 'Tb_Sectores.id = Tb_Contadores.sector_id')
+            ->join('Tb_Tipos_Servicios', 'Tb_Tipos_Servicios.id = Tb_Contadores.tipo_servicio_id')
+            ->join('Tb_Pagos', 'Tb_Pagos.lectura_id_activa = Tb_Lecturas.id')
+            ->join('Tb_Metodos_Pago', 'Tb_Metodos_Pago.id = Tb_Pagos.metodo_id')
+            ->where('Tb_Lecturas.id', $lecturaId)
+            ->get()->getRowArray();
+
+        if (! $lectura) {
+            flash_set('error', 'Esta lectura no tiene un pago registrado.');
+            return redirect()->to('/recibos');
+        }
+
+        return view('recibos/ticket_pagado', [
+            'lectura'      => $lectura,
+            'fechaEmision' => date('Y-m-d H:i:s'),
         ]);
     }
 }
