@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <title><?= esc_nativo($titulo ?? 'Oficina del Agua') ?></title>
+  <link rel="icon" type="image/svg+xml" href="<?= base_url('assets/img/favicon-agua.svg') ?>">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" />
   <link rel="stylesheet" href="<?= base_url('assets/css/mdb.min.css') ?>" />
