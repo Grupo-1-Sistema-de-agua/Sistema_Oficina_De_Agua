@@ -18,8 +18,8 @@ class PagoModel extends Model
     protected $validationRules = [
         'monto'               => 'required|decimal',
         'fecha_pago'          => 'required|valid_date',
-        'lectura_id'          => 'required|integer|is_unique[Tb_Pagos.lectura_id,id,{id}]',
-        'metodo_id'           => 'required|integer',
-        'usuario_registro_id' => 'required|integer',
+        'lectura_id'          => 'required|integer|is_unique[Tb_Pagos.lectura_id,id,{id}]|is_not_unique[Tb_Lecturas.id]',
+        'metodo_id'           => 'required|integer|is_not_unique[Tb_Metodos_Pago.id]',
+        'usuario_registro_id' => 'required|integer|is_not_unique[Tb_Usuarios.id]',
     ];
 }

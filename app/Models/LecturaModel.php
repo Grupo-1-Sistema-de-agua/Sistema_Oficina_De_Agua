@@ -34,9 +34,10 @@ class LecturaModel extends Model
         'numero_recibo'      => 'required|max_length[20]|is_unique[Tb_Lecturas.numero_recibo,id,{id}]',
         'lectura_actual'     => 'required|integer',
         'fecha'              => 'required|valid_date',
-        'contador_id'        => 'required|integer',
-        'tarifa_base_id'     => 'required|integer',
-        'usuario_lector_id'  => 'required|integer',
+        'contador_id'        => 'required|integer|is_not_unique[Tb_Contadores.id]',
+        'tarifa_base_id'     => 'required|integer|is_not_unique[Tb_Tarifas.id]',
+        'tarifa_exceso_id'   => 'permit_empty|integer|is_not_unique[Tb_Tarifas.id]',
+        'usuario_lector_id'  => 'required|integer|is_not_unique[Tb_Usuarios.id]',
     ];
 
     /**
