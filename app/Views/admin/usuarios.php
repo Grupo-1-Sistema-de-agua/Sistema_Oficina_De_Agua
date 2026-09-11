@@ -84,7 +84,7 @@
                                         </button>
                                     </form>
 
-                                    <?php if ((int) session()->get('usuario_id') !== (int) $usuario['id']): ?>
+                                    <?php if ((int) ($_SESSION['id_usuario'] ?? 0) !== (int) $usuario['id']): ?>
                                         <form action="<?= base_url('admin/usuarios/eliminar') ?>" method="post" class="d-inline ms-2" onsubmit="return confirm('Seguro que quieres eliminar este usuario?');">
                                             <?= csrf_field() ?>
                                             <input type="hidden" name="usuario_id" value="<?= esc($usuario['id']) ?>">
