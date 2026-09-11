@@ -38,11 +38,13 @@
               <form class="bg-white rounded shadow-5-strong p-5" action="<?= base_url('login') ?>" method="post">
                 <?= csrf_field() ?>
 
-                <?php if (session()->getFlashdata('error')) : ?>
-                  <div class="alert alert-danger"><?= esc(session()->getFlashdata('error')) ?></div>
+                <?php $errorFlash = flash_get('error'); ?>
+                <?php if ($errorFlash) : ?>
+                  <div class="alert alert-danger"><?= esc($errorFlash) ?></div>
                 <?php endif; ?>
-                <?php if (session()->getFlashdata('message')) : ?>
-                  <div class="alert alert-success"><?= esc(session()->getFlashdata('message')) ?></div>
+                <?php $messageFlash = flash_get('message'); ?>
+                <?php if ($messageFlash) : ?>
+                  <div class="alert alert-success"><?= esc($messageFlash) ?></div>
                 <?php endif; ?>
 
                 <div class="form-outline mb-4" data-mdb-input-init>
