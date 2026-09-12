@@ -18,26 +18,28 @@
     <i class="fas fa-tint" style="font-size: 40px; color: #7fd8e3;"></i>
   </div>
 
-  <div class="rounded-4 p-4" style="background: #fdfcf9; border: 1px solid #e2e2de;">
-    <div class="fw-semibold mb-3" style="color: #123a52;">Proximos a leer</div>
-    <?php if (empty($pendientesLector)) : ?>
-      <p class="text-muted small mb-0">No tienes contadores pendientes este mes.</p>
-    <?php else : ?>
-      <?php foreach (array_slice($pendientesLector, 0, 6) as $i => $c) : ?>
-        <div class="d-flex justify-content-between align-items-center py-2 <?= $i > 0 ? 'border-top' : '' ?>">
-          <div>
-            <div class="fw-semibold" style="color: #1a1a18; font-size: 13px;"><?= esc_nativo($c['codigo_fisico']) ?></div>
-            <div class="small text-muted"><?= esc_nativo($c['cliente_nombre']) ?> &middot; <?= esc_nativo($c['sector_nombre']) ?></div>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="fw-semibold mb-3">Proximos a leer</div>
+      <?php if (empty($pendientesLector)) : ?>
+        <p class="text-muted small mb-0">No tienes contadores pendientes este mes.</p>
+      <?php else : ?>
+        <?php foreach (array_slice($pendientesLector, 0, 6) as $i => $c) : ?>
+          <div class="d-flex justify-content-between align-items-center py-2 <?= $i > 0 ? 'border-top' : '' ?>">
+            <div>
+              <div class="fw-semibold" style="font-size: 13px;"><?= esc_nativo($c['codigo_fisico']) ?></div>
+              <div class="small text-muted"><?= esc_nativo($c['cliente_nombre']) ?> &middot; <?= esc_nativo($c['sector_nombre']) ?></div>
+            </div>
+            <a href="<?= base_url('lecturas/nueva/' . $c['id']) ?>" class="btn btn-sm btn-primary">Registrar</a>
           </div>
-          <a href="<?= base_url('lecturas/nueva/' . $c['id']) ?>" class="btn btn-sm" style="background: #123a52; color: #fff;">Registrar</a>
-        </div>
-      <?php endforeach; ?>
-      <?php if (count($pendientesLector) > 6) : ?>
-        <div class="text-center mt-2">
-          <a href="<?= base_url('lecturas') ?>" class="small">Ver los <?= count($pendientesLector) - 6 ?> restantes</a>
-        </div>
+        <?php endforeach; ?>
+        <?php if (count($pendientesLector) > 6) : ?>
+          <div class="text-center mt-2">
+            <a href="<?= base_url('lecturas') ?>" class="small">Ver los <?= count($pendientesLector) - 6 ?> restantes</a>
+          </div>
+        <?php endif; ?>
       <?php endif; ?>
-    <?php endif; ?>
+    </div>
   </div>
 
 </div>
