@@ -43,11 +43,35 @@ class DashboardController extends BaseController
         ];
     }
 
+
+    private function estadoDeCuenta(): array
+    {
+        $q = trim((string) $this->request->getGet('q_cuenta'));
+
+        $query = db_connect()->table('Tb_Clientes')
+            ->select('Tb_Clientes.id, Tb_Clientes.nombre, Tb_Clientes.telefono, COUNT(DISTINCT CASE WHEN Tb_Lecturas.id IS NOT NULL AND Tb_Pagos.id IS NULL THEN Tb_Lecturas.id END) AS lecturas_pendientes', false)
+            ->join('Tb_Contadores', 'Tb_Contadores.cliente_id = Tb_Clientes.id', 'left')
+            ->join('Tb_Lecturas', 'Tb_Lecturas.contador_id = Tb_Contadores.id', 'left')
+            ->join('Tb_Pagos', 'Tb_Pagos.lectura_id_activa = Tb_Lecturas.id', 'left')
+            ->groupBy('Tb_Clientes.id')
+            ->orderBy('Tb_Clientes.nombre', 'ASC');
+
+        if ($q !== '') {
+            $query->like('Tb_Clientes.nombre', $q);
+        }
+
+        return [
+            'estadosCuenta' => $query->get()->getResultArray(),
+            'qCuenta'       => $q,
+        ];
+    }
+
     private function dashboardAdministrador()
     {
         return view('dashboard/administrador', array_merge(
             ['nombre' => $_SESSION['nombre'] ?? null],
-            $this->totalesGenerales()
+            $this->totalesGenerales(),
+            $this->estadoDeCuenta()
         ));
     }
 
@@ -55,7 +79,8 @@ class DashboardController extends BaseController
     {
         return view('dashboard/secretaria', array_merge(
             ['nombre' => $_SESSION['nombre'] ?? null],
-            $this->totalesGenerales()
+            $this->totalesGenerales(),
+            $this->estadoDeCuenta()
         ));
     }
 
