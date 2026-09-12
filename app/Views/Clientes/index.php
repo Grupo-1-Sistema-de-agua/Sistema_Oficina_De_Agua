@@ -12,7 +12,7 @@
   <div class="card shadow-sm">
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover align-middle mb-0 table-responsive-cards">
           <thead class="table-light">
             <tr>
               <th>Nombre</th>
@@ -30,12 +30,12 @@
             <?php else : ?>
               <?php foreach ($clientes as $cliente) : ?>
                 <tr>
-                  <td class="fw-semibold"><?= esc_nativo($cliente['nombre']) ?></td>
-                  <td><?= esc_nativo($cliente['dpi'] ?? '') ?></td>
-                  <td><?= esc_nativo($cliente['telefono'] ?? '') ?></td>
-                  <td><?= esc_nativo($cliente['direccion_principal']) ?></td>
-                  <td class="text-end">
-                    <div class="d-inline-flex gap-2">
+                  <td class="fw-semibold" data-label="Nombre"><?= esc_nativo($cliente['nombre']) ?></td>
+                  <td data-label="DPI"><?= esc_nativo($cliente['dpi'] ?? '') ?></td>
+                  <td data-label="Telefono"><?= esc_nativo($cliente['telefono'] ?? '') ?></td>
+                  <td data-label="Direccion"><?= esc_nativo($cliente['direccion_principal']) ?></td>
+                  <td class="text-end celda-acciones" data-label="Acciones">
+                    <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
                       <a href="<?= base_url('clientes/editar/' . $cliente['id']) ?>" class="btn btn-sm btn-outline-secondary">
                         <i class="fas fa-edit me-1"></i>Editar
                       </a>
