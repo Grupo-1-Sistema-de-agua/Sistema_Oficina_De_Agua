@@ -158,11 +158,14 @@ class LecturasController extends BaseController
             return redirect()->back()->withInput();
         }
 
-        $montoBase = $tarifaBase['precio'] * $consumo;
+        //La tarifa del tipo de servicio es un monto FIJO que ya incluye
+        // el volumen_incluido_litros -- no se multiplica por el consumo real.
+        // Solo el excedente se cobra aparte, por bloques completos de 1000
+        // litros redondeados hacia arriba (ceil).
+        $montoBase = (float) $tarifaBase['precio'];
         $montoExceso = 0;
         $tarifaExcesoId = null;
 
-        // Excedente
         $incluido = (int) $contador['volumen_incluido_litros'];
         if ($consumo > $incluido) {
             $excedente = $consumo - $incluido;
@@ -170,7 +173,7 @@ class LecturasController extends BaseController
             if ($tipoExceso) {
                 $tarifaExceso = $this->tarifas->vigentePara((int) $tipoExceso['id'], $fecha);
                 if ($tarifaExceso) {
-                    $montoExceso   = $tarifaExceso['precio'] * $excedente;
+                    $montoExceso   = ceil($excedente / 1000) * $tarifaExceso['precio'];
                     $tarifaExcesoId = (int) $tarifaExceso['id'];
                 }
             }
@@ -297,7 +300,11 @@ class LecturasController extends BaseController
             return redirect()->back()->withInput();
         }
 
-        $montoBase = $tarifaBase['precio'] * $consumo;
+        // La tarifa del tipo de servicio es un monto FIJO que ya incluye
+        // el volumen_incluido_litros -- no se multiplica por el consumo real.
+        // Solo el excedente se cobra aparte, por bloques completos de 1000
+        // litros redondeados hacia arriba (ceil).
+        $montoBase = (float) $tarifaBase['precio'];
         $montoExceso = 0;
         $tarifaExcesoId = null;
 
@@ -308,7 +315,7 @@ class LecturasController extends BaseController
             if ($tipoExceso) {
                 $tarifaExceso = $this->tarifas->vigentePara((int) $tipoExceso['id'], $fecha);
                 if ($tarifaExceso) {
-                    $montoExceso   = $tarifaExceso['precio'] * $excedente;
+                    $montoExceso   = ceil($excedente / 1000) * $tarifaExceso['precio'];
                     $tarifaExcesoId = (int) $tarifaExceso['id'];
                 }
             }
