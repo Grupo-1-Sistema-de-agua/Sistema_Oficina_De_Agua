@@ -55,6 +55,7 @@
     <?php if (empty($bloque['datos'])) continue; ?>
 
     <?php $muestraVencimiento = in_array($bloque['clave'], ['historicas', 'anuladas'], true); ?>
+    <?php $muestraAccion = $bloque['clave'] !== 'anuladas' && $bloque['clave'] !== 'historicas'; ?>
 
     <div class="d-flex align-items-center px-3 py-2 mb-2 rounded-2"
          style="background-color: <?= $bloque['color'] ?>26; border-left: 5px solid <?= $bloque['color'] ?>;">
@@ -65,7 +66,7 @@
     <div class="card shadow-sm mb-4">
       <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
+          <table class="table table-hover align-middle mb-0 table-responsive-cards">
             <colgroup>
               <col style="width: <?= $muestraVencimiento ? '30' : '35' ?>%;">
               <col style="width: <?= $muestraVencimiento ? '15' : '20' ?>%;">
@@ -74,7 +75,7 @@
                 <col style="width: 18%;">
               <?php endif; ?>
               <col style="width: 13%;">
-              <?php if ($bloque['clave'] !== 'anuladas' && $bloque['clave'] !== 'historicas') : ?>
+              <?php if ($muestraAccion) : ?>
                 <col style="width: 12%;">
               <?php endif; ?>
             </colgroup>
@@ -87,7 +88,7 @@
                   <th>Vigente hasta</th>
                 <?php endif; ?>
                 <th>Estado</th>
-                <?php if ($bloque['clave'] !== 'anuladas' && $bloque['clave'] !== 'historicas') : ?>
+                <?php if ($muestraAccion) : ?>
                   <th></th>
                 <?php endif; ?>
               </tr>
@@ -95,15 +96,15 @@
             <tbody>
               <?php foreach ($bloque['datos'] as $tarifa) : ?>
                 <tr>
-                  <td><?= esc_nativo($tarifa['tipo_nombre']) ?> <span class="text-muted">(<?= esc_nativo($tarifa['tipo_codigo']) ?>)</span></td>
-                  <td>Q<?= number_format((float) $tarifa['precio'], 2) ?></td>
-                  <td><?= date('d/m/Y H:i', strtotime($tarifa['vigente_desde'])) ?></td>
+                  <td data-label="Tipo de servicio"><?= esc_nativo($tarifa['tipo_nombre']) ?> <span class="text-muted">(<?= esc_nativo($tarifa['tipo_codigo']) ?>)</span></td>
+                  <td data-label="Precio">Q<?= number_format((float) $tarifa['precio'], 2) ?></td>
+                  <td data-label="Vigente desde"><?= date('d/m/Y H:i', strtotime($tarifa['vigente_desde'])) ?></td>
                   <?php if ($muestraVencimiento) : ?>
-                    <td><?= $tarifa['vigente_hasta'] ? date('d/m/Y H:i', strtotime($tarifa['vigente_hasta'])) : '—' ?></td>
+                    <td data-label="Vigente hasta"><?= $tarifa['vigente_hasta'] ? date('d/m/Y H:i', strtotime($tarifa['vigente_hasta'])) : '—' ?></td>
                   <?php endif; ?>
-                  <td><span class="badge <?= $bloque['badge'] ?>"><?= esc_nativo($bloque['texto']) ?></span></td>
-                  <?php if ($bloque['clave'] !== 'anuladas' && $bloque['clave'] !== 'historicas') : ?>
-                    <td class="text-end">
+                  <td data-label="Estado"><span class="badge <?= $bloque['badge'] ?>"><?= esc_nativo($bloque['texto']) ?></span></td>
+                  <?php if ($muestraAccion) : ?>
+                    <td class="text-end celda-acciones" data-label="Acciones">
                       <form action="<?= base_url('tarifas/' . $tarifa['id'] . '/anular') ?>" method="post"
                             onsubmit="return confirm('¿Anular esta tarifa? Esta accion no se puede deshacer.');">
                         <?= csrf_field_nativo() ?>
