@@ -137,28 +137,21 @@
 
   .table-responsive-cards td {
     border: none;
-    padding: 0.3rem 0;
-    text-align: left !important;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.75rem;
+    padding: 0.35rem 0;
+    display: block;
+    text-align: left;
   }
 
   .table-responsive-cards td::before {
     content: attr(data-label);
+    display: block;
     font-weight: 600;
     font-size: 0.72rem;
     color: var(--mdb-secondary-color, #6c757d);
-    flex-shrink: 0;
-  }
-
-  .table-responsive-cards td.celda-acciones {
-    justify-content: flex-end;
-    flex-wrap: wrap;
+    text-align: left;
+    margin-bottom: 2px;
   }
 
   .table-responsive-cards td.celda-acciones::before {
     content: none;
   }
-}
