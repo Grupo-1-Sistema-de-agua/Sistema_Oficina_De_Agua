@@ -53,9 +53,7 @@
                             <th>Codigo</th>
                             <th>Cliente</th>
                             <th>Direccion</th>
-                            <th>Sector</th>
                             <th>Tipo de servicio</th>
-                            <th>Pagos</th>
                             <th>Estado</th>
                             <th class="text-center">Acciones</th>
                         </tr>
@@ -74,15 +72,7 @@
                                     <td class="fw-semibold" data-label="Codigo"><?= esc_nativo($cont['codigo_fisico']) ?></td>
                                     <td data-label="Cliente"><?= esc_nativo($cont['cliente_nombre']) ?></td>
                                     <td data-label="Direccion"><?= esc_nativo($cont['direccion_servicio']) ?></td>
-                                    <td data-label="Sector"><?= esc_nativo($cont['sector_nombre']) ?></td>
                                     <td data-label="Tipo de servicio"><?= esc_nativo($cont['tipo_nombre']) ?></td>
-                                    <td data-label="Pagos">
-                                        <?php if ($pend > 0): ?>
-                                            <span class="badge bg-warning text-dark"><?= $pend ?> pendiente<?= $pend > 1 ? 's' : '' ?></span>
-                                        <?php else: ?>
-                                            <span class="badge bg-success">Al dia</span>
-                                        <?php endif; ?>
-                                    </td>
                                     <td data-label="Estado">
                                         <?php if ($cont['activo']): ?>
                                             <span class="badge bg-success">Activo</span>

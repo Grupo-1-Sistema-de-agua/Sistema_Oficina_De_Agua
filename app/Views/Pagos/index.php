@@ -15,7 +15,7 @@
         </span>
       </div>
       <div class="px-3 pb-3">
-        <form method="get" action="<?= base_url('pagos') ?>" class="d-flex gap-2">
+        <form method="get" action="<?= base_url('pagos') ?>" class="d-flex gap-2 flex-wrap">
           <input type="text" name="q_pendientes" class="form-control form-control-sm" style="max-width: 300px;"
                  placeholder="Buscar por cliente o recibo..." value="<?= esc_nativo($qPendientes ?? '') ?>">
           <?php if (! empty($qPagos)) : ?>
@@ -28,7 +28,7 @@
         </form>
       </div>
       <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover align-middle mb-0 table-responsive-cards">
           <thead class="table-light">
             <tr>
               <th>Cliente</th>
@@ -46,18 +46,18 @@
             <?php endif; ?>
             <?php foreach ($lecturasPendientes as $lectura) : ?>
               <tr>
-                <td>
+                <td data-label="Cliente">
                   <strong><?= esc_nativo($lectura['cliente_nombre']) ?></strong>
                   <?php if ($lectura['telefono']) : ?>
                     <br><small class="text-muted"><?= esc_nativo($lectura['telefono']) ?></small>
                   <?php endif; ?>
                 </td>
-                <td><?= esc_nativo($lectura['direccion_principal']) ?></td>
-                <td><?= esc_nativo($lectura['numero_recibo']) ?></td>
-                <td><?= esc_nativo(date('d/m/Y', strtotime($lectura['fecha']))) ?></td>
-                <td><?= esc_nativo($lectura['consumo_litros']) ?> litros</td>
-                <td>Q<?= number_format((float) $lectura['monto_base'] + (float) $lectura['monto_exceso'], 2) ?></td>
-                <td class="text-end">
+                <td data-label="Direccion"><?= esc_nativo($lectura['direccion_principal']) ?></td>
+                <td data-label="Recibo"><?= esc_nativo($lectura['numero_recibo']) ?></td>
+                <td data-label="Fecha de lectura"><?= esc_nativo(date('d/m/Y', strtotime($lectura['fecha']))) ?></td>
+                <td data-label="Consumo"><?= esc_nativo($lectura['consumo_litros']) ?> litros</td>
+                <td data-label="Monto">Q<?= number_format((float) $lectura['monto_base'] + (float) $lectura['monto_exceso'], 2) ?></td>
+                <td class="text-end celda-acciones" data-label="Acciones">
                   <a href="<?= base_url('pagos/nuevo/' . $lectura['id']) ?>" class="btn btn-sm btn-primary">
                     <i class="fas fa-money-bill me-1"></i>Pagar
                   </a>
@@ -77,7 +77,7 @@
         <span class="badge bg-primary mb-3"><?= count($pagos) ?> pago<?= count($pagos) === 1 ? '' : 's' ?></span>
       </div>
       <div class="px-3 pb-3">
-        <form method="get" action="<?= base_url('pagos') ?>" class="d-flex gap-2">
+        <form method="get" action="<?= base_url('pagos') ?>" class="d-flex gap-2 flex-wrap">
           <input type="text" name="q_pagos" class="form-control form-control-sm" style="max-width: 300px;"
                  placeholder="Buscar por cliente o recibo..." value="<?= esc_nativo($qPagos ?? '') ?>">
           <?php if (! empty($qPendientes)) : ?>
@@ -90,7 +90,7 @@
         </form>
       </div>
       <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover align-middle mb-0 table-responsive-cards">
           <thead class="table-light">
             <tr>
               <th>Cliente</th>
@@ -109,20 +109,20 @@
             <?php endif; ?>
             <?php foreach ($pagos as $pago) : ?>
               <tr class="<?= (int) $pago['anulado'] === 1 ? 'text-muted' : '' ?>">
-                <td><?= esc_nativo($pago['cliente_nombre']) ?></td>
-                <td><?= esc_nativo($pago['numero_recibo']) ?></td>
-                <td>Q<?= esc_nativo(number_format((float) $pago['monto'], 2)) ?></td>
-                <td><?= esc_nativo(date('d/m/Y H:i', strtotime($pago['fecha_pago']))) ?></td>
-                <td><?= esc_nativo($pago['metodo_nombre']) ?></td>
-                <td><?= esc_nativo($pago['usuario_nombre']) ?></td>
-                <td>
+                <td data-label="Cliente"><?= esc_nativo($pago['cliente_nombre']) ?></td>
+                <td data-label="Recibo"><?= esc_nativo($pago['numero_recibo']) ?></td>
+                <td data-label="Monto">Q<?= esc_nativo(number_format((float) $pago['monto'], 2)) ?></td>
+                <td data-label="Fecha"><?= esc_nativo(date('d/m/Y H:i', strtotime($pago['fecha_pago']))) ?></td>
+                <td data-label="Metodo"><?= esc_nativo($pago['metodo_nombre']) ?></td>
+                <td data-label="Registrado por"><?= esc_nativo($pago['usuario_nombre']) ?></td>
+                <td data-label="Estado">
                   <?php if ((int) $pago['anulado'] === 1) : ?>
                     <span class="badge bg-secondary">Anulado</span>
                   <?php else : ?>
                     <span class="badge bg-success">Activo</span>
                   <?php endif; ?>
                 </td>
-                <td class="text-end">
+                <td class="text-end celda-acciones" data-label="Acciones">
                   <?php if ((int) $pago['anulado'] !== 1) : ?>
                     <form action="<?= base_url('pagos/' . $pago['id'] . '/anular') ?>" method="post" class="d-inline"
                           onsubmit="return confirm('¿Anular este pago? La lectura volvera a quedar pendiente.');">
