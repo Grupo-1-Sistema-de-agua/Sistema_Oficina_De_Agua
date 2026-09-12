@@ -66,12 +66,54 @@ class DashboardController extends BaseController
         ];
     }
 
+    private function seguimientoCobranza(): array
+    {
+        $db = db_connect();
+
+        $pendientes = $db->table('Tb_Lecturas')
+            ->select('Tb_Lecturas.id, Tb_Lecturas.monto_base, Tb_Lecturas.monto_exceso')
+            ->join('Tb_Pagos', 'Tb_Pagos.lectura_id_activa = Tb_Lecturas.id', 'left')
+            ->where('Tb_Pagos.id', null)
+            ->get()->getResultArray();
+
+        $montoPendiente = array_sum(array_map(
+            fn ($l) => (float) $l['monto_base'] + (float) $l['monto_exceso'],
+            $pendientes
+        ));
+
+        $ingresosPorMes = $db->query("
+            SELECT DATE_FORMAT(fecha_pago, '%Y-%m') AS mes, SUM(monto) AS total
+            FROM Tb_Pagos
+            WHERE anulado = 0 AND fecha_pago >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+            GROUP BY mes
+            ORDER BY mes ASC
+        ")->getResultArray();
+
+        $ultimosPagos = $db->table('Tb_Pagos')
+            ->select('Tb_Pagos.monto, Tb_Pagos.fecha_pago, Tb_Clientes.nombre AS cliente_nombre')
+            ->join('Tb_Lecturas', 'Tb_Lecturas.id = Tb_Pagos.lectura_id')
+            ->join('Tb_Contadores', 'Tb_Contadores.id = Tb_Lecturas.contador_id')
+            ->join('Tb_Clientes', 'Tb_Clientes.id = Tb_Contadores.cliente_id')
+            ->where('Tb_Pagos.anulado', 0)
+            ->orderBy('Tb_Pagos.fecha_pago', 'DESC')
+            ->limit(5)
+            ->get()->getResultArray();
+
+        return [
+            'lecturasPendientes' => count($pendientes),
+            'montoPendiente'     => $montoPendiente,
+            'ingresosPorMes'     => $ingresosPorMes,
+            'ultimosPagos'       => $ultimosPagos,
+        ];
+    }
+
     private function dashboardAdministrador()
     {
         return view('dashboard/administrador', array_merge(
             ['nombre' => $_SESSION['nombre'] ?? null],
             $this->totalesGenerales(),
-            $this->estadoDeCuenta()
+            $this->estadoDeCuenta(),
+            $this->seguimientoCobranza()
         ));
     }
 
