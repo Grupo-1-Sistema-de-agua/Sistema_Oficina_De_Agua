@@ -126,11 +126,29 @@ class DashboardController extends BaseController
         ));
     }
 
+    private function pendientesLector(): array
+    {
+        $pendientes = db_connect()->table('Tb_Contadores')
+            ->select('Tb_Contadores.id, Tb_Contadores.codigo_fisico, Tb_Clientes.nombre AS cliente_nombre, Tb_Sectores.nombre AS sector_nombre')
+            ->join('Tb_Clientes', 'Tb_Clientes.id = Tb_Contadores.cliente_id')
+            ->join('Tb_Sectores', 'Tb_Sectores.id = Tb_Contadores.sector_id')
+            ->join('Tb_Lecturas', "Tb_Lecturas.contador_id = Tb_Contadores.id AND DATE_FORMAT(Tb_Lecturas.fecha, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')", 'left')
+            ->where('Tb_Contadores.activo', 1)
+            ->where('Tb_Lecturas.id', null)
+            ->orderBy('Tb_Clientes.nombre', 'ASC')
+            ->get()->getResultArray();
+
+        return [
+            'pendientesLector' => $pendientes,
+        ];
+    }
+
     private function dashboardLector()
     {
         return view('dashboard/lector', array_merge(
             ['nombre' => $_SESSION['nombre'] ?? null],
-            $this->totalesGenerales()
+            $this->totalesGenerales(),
+            $this->pendientesLector()
         ));
     }
 }
