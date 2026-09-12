@@ -68,7 +68,7 @@ class LecturasSeeder extends Seeder
                     continue;
                 }
 
-                $montoBase      = $tarifaBase['precio'] * $consumo;
+                $montoBase      = (float) $tarifaBase['precio'];
                 $montoExceso    = 0;
                 $tarifaExcesoId = null;
                 $incluido       = (int) $contadorRow['volumen_incluido_litros'];
@@ -77,7 +77,7 @@ class LecturasSeeder extends Seeder
                     $excedente    = $consumo - $incluido;
                     $tarifaExceso = $tarifaModel->vigentePara((int) $tipoExceso->id, $fecha);
                     if ($tarifaExceso) {
-                        $montoExceso    = $tarifaExceso['precio'] * $excedente;
+                        $montoExceso    = ceil($excedente / 1000) * $tarifaExceso['precio'];
                         $tarifaExcesoId = (int) $tarifaExceso['id'];
                     }
                 }
