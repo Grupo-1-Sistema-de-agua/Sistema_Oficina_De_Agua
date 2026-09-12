@@ -18,7 +18,7 @@
     <div class="card shadow-sm mt-3">
       <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
+          <table class="table table-hover align-middle mb-0 table-responsive-cards">
             <thead class="table-light">
               <tr>
                 <th>Codigo</th>
@@ -36,18 +36,18 @@
               <?php else : ?>
                 <?php foreach ($tipos as $tipo) : ?>
                   <tr>
-                    <td><code><?= esc_nativo($tipo['codigo']) ?></code></td>
-                    <td class="fw-semibold"><?= esc_nativo($tipo['nombre']) ?></td>
-                    <td><?= $tipo['volumen_incluido_litros'] !== null ? number_format((float) $tipo['volumen_incluido_litros'], 0) . ' L' : '—' ?></td>
-                    <td>
+                    <td data-label="Codigo"><code><?= esc_nativo($tipo['codigo']) ?></code></td>
+                    <td class="fw-semibold" data-label="Nombre"><?= esc_nativo($tipo['nombre']) ?></td>
+                    <td data-label="Volumen incluido"><?= $tipo['volumen_incluido_litros'] !== null ? number_format((float) $tipo['volumen_incluido_litros'], 0) . ' L' : '—' ?></td>
+                    <td data-label="Contratable">
                       <?php if ((int) $tipo['es_servicio'] === 1) : ?>
                         <span class="badge bg-success">Si</span>
                       <?php else : ?>
                         <span class="badge bg-secondary">No (excedente)</span>
                       <?php endif; ?>
                     </td>
-                    <td class="text-end">
-                      <div class="d-inline-flex gap-2">
+                    <td class="text-end celda-acciones" data-label="Acciones">
+                      <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
                         <a href="<?= base_url('tipos-servicio/' . $tipo['id'] . '/editar') ?>" class="btn btn-sm btn-outline-secondary">
                           <i class="fas fa-edit me-1"></i>Editar
                         </a>
