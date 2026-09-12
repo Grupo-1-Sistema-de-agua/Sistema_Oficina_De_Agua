@@ -54,20 +54,46 @@ class LecturasController extends BaseController
      */
     public function index()
     {
-        $sectorId    = $this->request->getGet('sector');
-        $q           = $this->request->getGet('q');
-        $data['titulo']   = 'Contadores pendientes de lectura';
+        $sectorId = $this->request->getGet('sector');
+        $q        = $this->request->getGet('q');
+        $estado   = $this->request->getGet('estado') ?: 'todas';
+
+        $data['titulo']   = 'Lecturas';
         $data['sectores'] = model('SectorModel')->findAll();
         $data['sectorSeleccionado'] = $sectorId;
-        $data['q']        = $q;
-        $data['pendientes'] = $this->contadores->pendientesLectura(
+        $data['q']      = $q;
+        $data['estado'] = $estado;
+
+        $contadores = $this->contadores->pendientesLectura(
             $sectorId ? (int) $sectorId : null,
             $q ?: null
         );
 
-        // Mapa contador_id => id de la lectura del mes (si ya se registro)
-        $ids = array_column($data['pendientes'], 'id');
-        $data['lecturasMes'] = $this->lecturas->lecturaDelMesActual($ids);
+        $ids = array_column($contadores, 'id');
+        $lecturasMes = $this->lecturas->lecturaDelMesActual($ids);
+
+        // Filtro de estado: solo se aplica si el lector pidio uno especifico.
+        $contadores = array_values(array_filter($contadores, function ($c) use ($lecturasMes, $estado) {
+            $tieneLectura = isset($lecturasMes[$c['id']]);
+            if ($estado === 'pendientes') {
+                return ! $tieneLectura;
+            }
+            if ($estado === 'listas') {
+                return $tieneLectura;
+            }
+            return true;
+        }));
+
+        // Los pendientes siempre van primero, sin importar el filtro de
+        // estado activo -- asi el lector ve de una vez lo que le falta.
+        usort($contadores, function ($a, $b) use ($lecturasMes) {
+            $aPendiente = ! isset($lecturasMes[$a['id']]);
+            $bPendiente = ! isset($lecturasMes[$b['id']]);
+            return $bPendiente <=> $aPendiente;
+        });
+
+        $data['pendientes']  = $contadores;
+        $data['lecturasMes'] = $lecturasMes;
 
         return view('Lecturas/index', $data);
     }
