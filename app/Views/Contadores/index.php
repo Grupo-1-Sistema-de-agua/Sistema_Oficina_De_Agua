@@ -3,7 +3,7 @@
 <?= $this->section('contenido') ?>
 <div class="container-fluid px-4 py-4">
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <h2 class="mb-0">Contadores</h2>
+        <h2 class="h4 mb-0">Contadores</h2>
         <a href="<?= base_url('contadores/nuevo') ?>" class="btn btn-primary">
             <i class="fas fa-plus me-1"></i>Nuevo contador
         </a>
@@ -47,7 +47,7 @@
     <div class="card shadow-sm mt-3">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover align-middle mb-0 table-responsive-cards">
                     <thead class="table-light">
                         <tr>
                             <th>Codigo</th>
@@ -55,7 +55,6 @@
                             <th>Direccion</th>
                             <th>Sector</th>
                             <th>Tipo de servicio</th>
-                            <th>Fecha asignacion</th>
                             <th>Pagos</th>
                             <th>Estado</th>
                             <th class="text-center">Acciones</th>
@@ -72,28 +71,27 @@
                             <?php foreach ($contadores as $cont): ?>
                                 <?php $pend = $pendientes[$cont['id']] ?? 0; ?>
                                 <tr>
-                                    <td class="fw-semibold"><?= esc_nativo($cont['codigo_fisico']) ?></td>
-                                    <td><?= esc_nativo($cont['cliente_nombre']) ?></td>
-                                    <td><?= esc_nativo($cont['direccion_servicio']) ?></td>
-                                    <td><?= esc_nativo($cont['sector_nombre']) ?></td>
-                                    <td><?= esc_nativo($cont['tipo_nombre']) ?></td>
-                                    <td><?= esc_nativo($cont['fecha_asignacion'] ?? '') ?></td>
-                                    <td>
+                                    <td class="fw-semibold" data-label="Codigo"><?= esc_nativo($cont['codigo_fisico']) ?></td>
+                                    <td data-label="Cliente"><?= esc_nativo($cont['cliente_nombre']) ?></td>
+                                    <td data-label="Direccion"><?= esc_nativo($cont['direccion_servicio']) ?></td>
+                                    <td data-label="Sector"><?= esc_nativo($cont['sector_nombre']) ?></td>
+                                    <td data-label="Tipo de servicio"><?= esc_nativo($cont['tipo_nombre']) ?></td>
+                                    <td data-label="Pagos">
                                         <?php if ($pend > 0): ?>
                                             <span class="badge bg-warning text-dark"><?= $pend ?> pendiente<?= $pend > 1 ? 's' : '' ?></span>
                                         <?php else: ?>
                                             <span class="badge bg-success">Al dia</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td>
+                                    <td data-label="Estado">
                                         <?php if ($cont['activo']): ?>
                                             <span class="badge bg-success">Activo</span>
                                         <?php else: ?>
                                             <span class="badge bg-secondary">Inactivo</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="text-end">
-                                        <div class="d-inline-flex gap-2">
+                                    <td class="text-end celda-acciones" data-label="Acciones">
+                                        <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
                                         <a href="<?= base_url('contadores/ver/' . $cont['id']) ?>"
                                            class="btn btn-sm btn-outline-primary">
                                             <i class="fas fa-eye me-1"></i>Ver
