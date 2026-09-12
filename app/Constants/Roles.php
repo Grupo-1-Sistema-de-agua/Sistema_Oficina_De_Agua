@@ -3,15 +3,25 @@
 namespace App\Constants;
 
 /**
- * Nombres de rol validos en el sistema (deben coincidir exactamente
- * con los valores de Tb_Roles.nombre sembrados por RolesSeeder).
- *
- * Usenlos en vez de escribir el string a mano, por ejemplo:
- *   'filter' => 'auth,role:' . Roles::ADMINISTRADOR
+ * Nombres de rol validos en el sistema.
  */
 class Roles
 {
     public const ADMINISTRADOR = 'administrador';
     public const SECRETARIA    = 'secretaria';
     public const LECTOR        = 'lector';
+
+    public static function normalize(?string $rol): ?string
+    {
+        if ($rol === null) {
+            return null;
+        }
+
+        return strtolower(trim($rol));
+    }
+
+    public static function isAdmin(?string $rol): bool
+    {
+        return self::normalize($rol) === self::ADMINISTRADOR;
+    }
 }

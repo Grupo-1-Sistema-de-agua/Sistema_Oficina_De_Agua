@@ -2,29 +2,141 @@
 
 <?= $this->section('contenido') ?>
 <div class="container-fluid px-4 py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div><h2 class="mb-1">Pagos</h2><p class="text-muted mb-0">Registra y consulta los pagos asociados a cada lectura.</p></div>
-    <?php if ($pagoEditar): ?><a href="<?= base_url('pagos') ?>" class="btn btn-outline-secondary">Cancelar edicion</a><?php endif; ?>
+  <div class="mb-3">
+    <h2 class="h4 mb-0">Pagos</h2>
   </div>
-  <?php if (session()->getFlashdata('error')): ?><div class="alert alert-danger"><?= esc(session()->getFlashdata('error')) ?></div><?php endif; ?>
-  <?php if (session()->getFlashdata('message')): ?><div class="alert alert-success"><?= esc(session()->getFlashdata('message')) ?></div><?php endif; ?>
 
-  <div class="card shadow-sm border-0 mb-4"><div class="card-body">
-    <h5 class="card-title mb-3"><?= $pagoEditar ? 'Editar pago' : 'Registrar pago' ?></h5>
-    <?php $formAction = $pagoEditar ? 'pagos/actualizar/' . $pagoEditar['id'] : 'pagos'; ?>
-    <form action="<?= base_url($formAction) ?>" method="post"><?= csrf_field() ?><div class="row g-3">
-      <div class="col-md-3"><label class="form-label" for="monto">Monto</label><input id="monto" type="number" name="monto" class="form-control" min="0.01" step="0.01" value="<?= esc(old('monto', $pagoEditar['monto'] ?? '')) ?>" required></div>
-      <div class="col-md-3"><label class="form-label" for="fecha_pago">Fecha y hora del pago</label><input id="fecha_pago" type="datetime-local" name="fecha_pago" lang="es-GT" class="form-control" aria-label="Fecha y hora del pago" value="<?= esc(old('fecha_pago', isset($pagoEditar['fecha_pago']) ? date('Y-m-d\TH:i', strtotime($pagoEditar['fecha_pago'])) : date('Y-m-d\TH:i'))) ?>" readonly></div>
-      <div class="col-md-3"><label class="form-label" for="lectura_id">Lectura</label><select id="lectura_id" name="lectura_id" class="form-select" required><option value="">Selecciona...</option><?php foreach ($lecturas as $lectura): ?><option value="<?= esc($lectura['id']) ?>" <?= (string) old('lectura_id', $pagoEditar['lectura_id'] ?? '') === (string) $lectura['id'] ? 'selected' : '' ?>><?= esc($lectura['cliente_nombre']) ?> - <?= esc($lectura['numero_recibo']) ?> - <?= esc($lectura['consumo_litros']) ?> litros</option><?php endforeach; ?></select></div>
-      <div class="col-md-3"><label class="form-label" for="metodo_id">Metodo de pago</label><select id="metodo_id" name="metodo_id" class="form-select" required><option value="">Selecciona...</option><?php foreach ($metodos as $metodo): ?><option value="<?= esc($metodo['id']) ?>" <?= (string) old('metodo_id', $pagoEditar['metodo_id'] ?? '') === (string) $metodo['id'] ? 'selected' : '' ?>><?= esc($metodo['nombre']) ?></option><?php endforeach; ?></select></div>
-      <div class="col-12 text-end"><button type="submit" class="btn btn-primary"><?= $pagoEditar ? 'Actualizar pago' : 'Registrar pago' ?></button></div>
-    </div></form>
-  </div></div>
+  <div class="card shadow-sm mb-4">
+    <div class="card-body p-0">
+      <div class="px-3 pt-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="card-title mb-3">Lecturas pendientes de pago</h5>
+        <span class="badge bg-warning text-dark mb-3">
+          <?= count($lecturasPendientes) ?> pendiente<?= count($lecturasPendientes) === 1 ? '' : 's' ?>
+        </span>
+      </div>
+      <div class="px-3 pb-3">
+        <form method="get" action="<?= base_url('pagos') ?>" class="d-flex gap-2 flex-wrap">
+          <input type="text" name="q_pendientes" class="form-control form-control-sm" style="max-width: 300px;"
+                 placeholder="Buscar por cliente o recibo..." value="<?= esc_nativo($qPendientes ?? '') ?>">
+          <?php if (! empty($qPagos)) : ?>
+            <input type="hidden" name="q_pagos" value="<?= esc_nativo($qPagos) ?>">
+          <?php endif; ?>
+          <button type="submit" class="btn btn-sm btn-outline-secondary">Buscar</button>
+          <?php if (! empty($qPendientes)) : ?>
+            <a href="<?= base_url('pagos' . (! empty($qPagos) ? '?q_pagos=' . urlencode($qPagos) : '')) ?>" class="btn btn-sm btn-link">Limpiar</a>
+          <?php endif; ?>
+        </form>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 table-responsive-cards">
+          <thead class="table-light">
+            <tr>
+              <th>Cliente</th>
+              <th>Direccion</th>
+              <th>Recibo</th>
+              <th>Fecha de lectura</th>
+              <th>Consumo</th>
+              <th>Monto</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php if (! $lecturasPendientes) : ?>
+              <tr><td colspan="7" class="text-center text-muted py-4">No hay lecturas pendientes de pago.</td></tr>
+            <?php endif; ?>
+            <?php foreach ($lecturasPendientes as $lectura) : ?>
+              <tr>
+                <td data-label="Cliente">
+                  <strong><?= esc_nativo($lectura['cliente_nombre']) ?></strong>
+                  <?php if ($lectura['telefono']) : ?>
+                    <br><small class="text-muted"><?= esc_nativo($lectura['telefono']) ?></small>
+                  <?php endif; ?>
+                </td>
+                <td data-label="Direccion"><?= esc_nativo($lectura['direccion_principal']) ?></td>
+                <td data-label="Recibo"><?= esc_nativo($lectura['numero_recibo']) ?></td>
+                <td data-label="Fecha de lectura"><?= esc_nativo(date('d/m/Y', strtotime($lectura['fecha']))) ?></td>
+                <td data-label="Consumo"><?= esc_nativo($lectura['consumo_litros']) ?> litros</td>
+                <td data-label="Monto">Q<?= number_format((float) $lectura['monto_base'] + (float) $lectura['monto_exceso'], 2) ?></td>
+                <td class="text-end celda-acciones" data-label="Acciones">
+                  <a href="<?= base_url('pagos/nuevo/' . $lectura['id']) ?>" class="btn btn-sm btn-primary">
+                    <i class="fas fa-money-bill me-1"></i>Pagar
+                  </a>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-  <div class="card shadow-sm border-0 mb-4"><div class="card-body p-0"><div class="px-3 pt-3 d-flex justify-content-between align-items-center"><h5 class="card-title mb-3">Lecturas pendientes de pago</h5><span class="badge bg-warning text-dark mb-3"><?= count($lecturasPendientes) ?> pendiente<?= count($lecturasPendientes) === 1 ? '' : 's' ?></span></div><div class="table-responsive"><table class="table align-middle mb-0"><thead class="table-light"><tr><th>Cliente</th><th>Direccion</th><th>Recibo</th><th>Fecha de lectura</th><th>Consumo</th></tr></thead><tbody><?php if (! $lecturasPendientes): ?><tr><td colspan="5" class="text-center text-muted py-4">No hay lecturas pendientes de pago.</td></tr><?php endif; ?><?php foreach ($lecturasPendientes as $lectura): ?><tr><td><strong><?= esc($lectura['cliente_nombre']) ?></strong><?php if ($lectura['telefono']): ?><br><small class="text-muted"><?= esc($lectura['telefono']) ?></small><?php endif; ?></td><td><?= esc($lectura['direccion_principal']) ?></td><td><?= esc($lectura['numero_recibo']) ?></td><td><?= esc(date('d/m/Y', strtotime($lectura['fecha']))) ?></td><td><?= esc($lectura['consumo_litros']) ?> litros</td></tr><?php endforeach; ?></tbody></table></div></div></div>
-
-  <div class="card shadow-sm border-0 mb-4"><div class="card-body p-0"><div class="px-3 pt-3"><h5 class="card-title mb-3">Estado de cuenta de clientes</h5></div><div class="table-responsive"><table class="table align-middle mb-0"><thead class="table-light"><tr><th>Cliente</th><th>Telefono</th><th>Direccion</th><th>Estado</th></tr></thead><tbody><?php if (! $estadosCuenta): ?><tr><td colspan="4" class="text-center text-muted py-4">No hay clientes registrados.</td></tr><?php endif; ?><?php foreach ($estadosCuenta as $cuenta): ?><?php $tienePendientes = (int) $cuenta['lecturas_pendientes'] > 0; ?><tr><td><?= esc($cuenta['nombre']) ?></td><td><?= esc($cuenta['telefono'] ?: 'Sin telefono') ?></td><td><?= esc($cuenta['direccion_principal']) ?></td><td><?php if ($tienePendientes): ?><span class="badge bg-warning text-dark">Pendiente (<?= esc($cuenta['lecturas_pendientes']) ?>)</span><?php else: ?><span class="badge bg-success">Al dia</span><?php endif; ?></td></tr><?php endforeach; ?></tbody></table></div></div></div>
-
-  <div class="card shadow-sm border-0"><div class="card-body p-0"><div class="px-3 pt-3 d-flex justify-content-between align-items-center"><h5 class="card-title mb-3">Pagos registrados</h5><span class="badge bg-primary mb-3"><?= count($pagos) ?> pago<?= count($pagos) === 1 ? '' : 's' ?></span></div><div class="table-responsive"><table class="table align-middle mb-0"><thead class="table-light"><tr><th>Cliente</th><th>Recibo</th><th>Monto</th><th>Fecha</th><th>Metodo</th><th>Registrado por</th><th class="text-end">Acciones</th></tr></thead><tbody><?php if (! $pagos): ?><tr><td colspan="7" class="text-center text-muted py-4">No hay pagos registrados.</td></tr><?php endif; ?><?php foreach ($pagos as $pago): ?><tr><td><?= esc($pago['cliente_nombre']) ?></td><td><?= esc($pago['numero_recibo']) ?></td><td>$<?= esc(number_format((float) $pago['monto'], 2)) ?></td><td><?= esc(date('d/m/Y H:i', strtotime($pago['fecha_pago']))) ?></td><td><?= esc($pago['metodo_nombre']) ?></td><td><?= esc($pago['usuario_nombre']) ?></td><td class="text-end"><a href="<?= base_url('pagos/editar/' . $pago['id']) ?>" class="btn btn-sm btn-outline-primary">Editar</a><form action="<?= base_url('pagos/eliminar') ?>" method="post" class="d-inline ms-2" onsubmit="return confirm('Seguro que quieres eliminar este pago?');"><?= csrf_field() ?><input type="hidden" name="pago_id" value="<?= esc($pago['id']) ?>"><button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button></form></td></tr><?php endforeach; ?></tbody></table></div></div></div>
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="px-3 pt-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="card-title mb-3">Pagos registrados</h5>
+        <span class="badge bg-primary mb-3"><?= count($pagos) ?> pago<?= count($pagos) === 1 ? '' : 's' ?></span>
+      </div>
+      <div class="px-3 pb-3">
+        <form method="get" action="<?= base_url('pagos') ?>" class="d-flex gap-2 flex-wrap">
+          <input type="text" name="q_pagos" class="form-control form-control-sm" style="max-width: 300px;"
+                 placeholder="Buscar por cliente o recibo..." value="<?= esc_nativo($qPagos ?? '') ?>">
+          <?php if (! empty($qPendientes)) : ?>
+            <input type="hidden" name="q_pendientes" value="<?= esc_nativo($qPendientes) ?>">
+          <?php endif; ?>
+          <button type="submit" class="btn btn-sm btn-outline-secondary">Buscar</button>
+          <?php if (! empty($qPagos)) : ?>
+            <a href="<?= base_url('pagos' . (! empty($qPendientes) ? '?q_pendientes=' . urlencode($qPendientes) : '')) ?>" class="btn btn-sm btn-link">Limpiar</a>
+          <?php endif; ?>
+        </form>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 table-responsive-cards">
+          <thead class="table-light">
+            <tr>
+              <th>Cliente</th>
+              <th>Recibo</th>
+              <th>Monto</th>
+              <th>Fecha</th>
+              <th>Metodo</th>
+              <th>Registrado por</th>
+              <th>Estado</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php if (! $pagos) : ?>
+              <tr><td colspan="8" class="text-center text-muted py-4">No hay pagos registrados.</td></tr>
+            <?php endif; ?>
+            <?php foreach ($pagos as $pago) : ?>
+              <tr class="<?= (int) $pago['anulado'] === 1 ? 'text-muted' : '' ?>">
+                <td data-label="Cliente"><?= esc_nativo($pago['cliente_nombre']) ?></td>
+                <td data-label="Recibo"><?= esc_nativo($pago['numero_recibo']) ?></td>
+                <td data-label="Monto">Q<?= esc_nativo(number_format((float) $pago['monto'], 2)) ?></td>
+                <td data-label="Fecha"><?= esc_nativo(date('d/m/Y H:i', strtotime($pago['fecha_pago']))) ?></td>
+                <td data-label="Metodo"><?= esc_nativo($pago['metodo_nombre']) ?></td>
+                <td data-label="Registrado por"><?= esc_nativo($pago['usuario_nombre']) ?></td>
+                <td data-label="Estado">
+                  <?php if ((int) $pago['anulado'] === 1) : ?>
+                    <span class="badge bg-secondary">Anulado</span>
+                  <?php else : ?>
+                    <span class="badge bg-success">Activo</span>
+                  <?php endif; ?>
+                </td>
+                <td class="text-end celda-acciones" data-label="Acciones">
+                  <?php if ((int) $pago['anulado'] !== 1) : ?>
+                    <form action="<?= base_url('pagos/' . $pago['id'] . '/anular') ?>" method="post" class="d-inline"
+                          onsubmit="return confirm('¿Anular este pago? La lectura volvera a quedar pendiente.');">
+                      <?= csrf_field_nativo() ?>
+                      <button type="submit" class="btn btn-sm btn-outline-danger">Anular</button>
+                    </form>
+                  <?php endif; ?>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
 <?= $this->endSection() ?>

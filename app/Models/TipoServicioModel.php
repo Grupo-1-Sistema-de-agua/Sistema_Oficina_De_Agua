@@ -16,6 +16,7 @@ class TipoServicioModel extends Model
     protected $useTimestamps = false;
 
     protected $validationRules = [
+        'id'     => 'permit_empty|is_natural_no_zero',
         'codigo' => 'required|max_length[20]|is_unique[Tb_Tipos_Servicios.codigo,id,{id}]',
         'nombre' => 'required|max_length[50]',
     ];

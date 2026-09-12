@@ -6,6 +6,13 @@ use CodeIgniter\Config\BaseConfig;
 
 class App extends BaseConfig
 {
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->appTimezone = getenv('app.timezone') ?: 'UTC';
+    }
     /**
      * --------------------------------------------------------------------------
      * Base Site URL

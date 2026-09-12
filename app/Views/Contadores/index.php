@@ -16,16 +16,16 @@
                     <label for="q" class="form-label small mb-1">Buscar</label>
                     <input type="text" name="q" id="q" class="form-control"
                            placeholder="Codigo, direccion, cliente o DPI"
-                           value="<?= esc($q ?? '') ?>">
+                           value="<?= esc_nativo($q ?? '') ?>">
                 </div>
                 <div class="col-md-4 col-lg-3">
                     <label for="sector" class="form-label small mb-1">Sector</label>
                     <select name="sector" id="sector" class="form-select">
                         <option value="">-- Todos --</option>
                         <?php foreach ($sectores as $s): ?>
-                            <option value="<?= esc($s['id']) ?>"
+                            <option value="<?= esc_nativo($s['id']) ?>"
                                 <?= (int) ($sectorSeleccionado ?? 0) === (int) $s['id'] ? 'selected' : '' ?>>
-                                <?= esc($s['nombre']) ?>
+                                <?= esc_nativo($s['nombre']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -47,17 +47,13 @@
     <div class="card shadow-sm mt-3">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover align-middle mb-0 table-responsive-cards">
                     <thead class="table-light">
                         <tr>
                             <th>Codigo</th>
                             <th>Cliente</th>
-                            <th>DPI</th>
                             <th>Direccion</th>
-                            <th>Sector</th>
                             <th>Tipo de servicio</th>
-                            <th>Fecha asignacion</th>
-                            <th>Pagos</th>
                             <th>Estado</th>
                             <th class="text-center">Acciones</th>
                         </tr>
@@ -73,29 +69,19 @@
                             <?php foreach ($contadores as $cont): ?>
                                 <?php $pend = $pendientes[$cont['id']] ?? 0; ?>
                                 <tr>
-                                    <td class="fw-semibold"><?= esc($cont['codigo_fisico']) ?></td>
-                                    <td><?= esc($cont['cliente_nombre']) ?></td>
-                                    <td><?= esc($cont['cliente_dpi'] ?? '') ?></td>
-                                    <td><?= esc($cont['direccion_servicio']) ?></td>
-                                    <td><?= esc($cont['sector_nombre']) ?></td>
-                                    <td><?= esc($cont['tipo_nombre']) ?></td>
-                                    <td><?= esc($cont['fecha_asignacion'] ?? '') ?></td>
-                                    <td>
-                                        <?php if ($pend > 0): ?>
-                                            <span class="badge bg-warning text-dark"><?= $pend ?> pendiente<?= $pend > 1 ? 's' : '' ?></span>
-                                        <?php else: ?>
-                                            <span class="badge bg-success">Al dia</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
+                                    <td class="fw-semibold" data-label="Codigo"><?= esc_nativo($cont['codigo_fisico']) ?></td>
+                                    <td data-label="Cliente"><?= esc_nativo($cont['cliente_nombre']) ?></td>
+                                    <td data-label="Direccion"><?= esc_nativo($cont['direccion_servicio']) ?></td>
+                                    <td data-label="Tipo de servicio"><?= esc_nativo($cont['tipo_nombre']) ?></td>
+                                    <td data-label="Estado">
                                         <?php if ($cont['activo']): ?>
                                             <span class="badge bg-success">Activo</span>
                                         <?php else: ?>
                                             <span class="badge bg-secondary">Inactivo</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="text-end">
-                                        <div class="d-inline-flex gap-2">
+                                    <td class="text-end celda-acciones" data-label="Acciones">
+                                        <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
                                         <a href="<?= base_url('contadores/ver/' . $cont['id']) ?>"
                                            class="btn btn-sm btn-outline-primary">
                                             <i class="fas fa-eye me-1"></i>Ver
@@ -107,7 +93,7 @@
                                         <form method="post" action="<?= base_url('contadores/eliminar/' . $cont['id']) ?>"
                                               class="d-inline"
                                               onsubmit="return confirm('<?= $cont['activo'] ? 'Desactivar' : 'Activar' ?> este contador?');">
-                                            <?= csrf_field() ?>
+                                            <?= csrf_field_nativo() ?>
                                             <button type="submit" class="btn btn-sm <?= $cont['activo'] ? 'btn-outline-danger' : 'btn-outline-success' ?>">
                                                 <i class="fas <?= $cont['activo'] ? 'fa-times' : 'fa-check' ?> me-1"></i>
                                                 <?= $cont['activo'] ? 'Desactivar' : 'Activar' ?>

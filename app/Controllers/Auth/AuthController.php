@@ -1,7 +1,7 @@
 <?php
-
 namespace App\Controllers\Auth;
 
+use App\Constants\Roles;
 use App\Controllers\BaseController;
 use App\Models\UsuarioModel;
 
@@ -14,32 +14,51 @@ class AuthController extends BaseController
 
     public function procesarLogin()
     {
-        $email    = $this->request->getPost('email');
-        $password = $this->request->getPost('password');
+        $email    = trim((string) $this->request->getPost('email'));
+        $password = (string) $this->request->getPost('password');
 
-        $usuarios = new UsuarioModel();
-        $usuario  = $usuarios->where('email', $email)->where('activo', 1)->first();
-
-        if (! $usuario || ! password_verify($password ?? '', $usuario['password_hash'])) {
-            return redirect()->to('/login')->with('error', 'Correo o contrasena incorrectos.');
+        if ($email === '' || $password === '') {
+            flash_set('error', 'Debes completar correo y contraseña.');
+            return redirect()->to('/login');
         }
 
-        $rol = model('RolModel')->find($usuario['rol_id']);
+        $usuarios = new UsuarioModel();
+        $usuario  = $usuarios->where('email', $email)->first();
 
-        session()->set([
-            'usuario_id'     => $usuario['id'],
-            'usuario_nombre' => $usuario['nombre'],
-            'usuario_rol'    => $rol['nombre'] ?? null,
-            'isLoggedIn'     => true,
-        ]);
+        if (! $usuario || (int) ($usuario['activo'] ?? 0) !== 1) {
+            flash_set('error', 'No puedes iniciar sesión porque tu usuario fue desactivado temporalmente.');
+            return redirect()->to('/login');
+        }
+
+        if (! password_verify($password, (string) ($usuario['password_hash'] ?? ''))) {
+            flash_set('error', 'Correo o contraseña incorrectos.');
+            return redirect()->to('/login');
+        }
+
+        $rol       = model('RolModel')->find($usuario['rol_id']);
+        $rolNombre = Roles::normalize($rol['nombre'] ?? null);
+
+        session_regenerate_id(true);
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
+        $_SESSION['logueado']   = true;
+        $_SESSION['id_usuario'] = (int) $usuario['id'];
+        $_SESSION['nombre']     = $usuario['nombre'];
+        $_SESSION['rol']        = $rolNombre;
+        $_SESSION['email']      = $usuario['email'];
+        $_SESSION['password_fingerprint'] = hash('sha256', (string) ($usuario['password_hash'] ?? ''));
 
         return redirect()->to('/dashboard');
     }
 
     public function logout()
     {
-        session()->destroy();
+        $_SESSION = [];
+        session_destroy();
 
-        return redirect()->to('/login')->with('message', 'Sesion cerrada.');
+        session_start();
+        flash_set('message', 'Sesion cerrada.');
+
+        return redirect()->to('/login');
     }
 }
