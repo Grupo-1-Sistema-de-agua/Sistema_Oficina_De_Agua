@@ -18,9 +18,9 @@ class UsuariosSeeder extends Seeder
         }
 
         $usuarios = [
-            ['nombre' => 'Administrador',       'email' => 'admin@oficinadelagua.local',      'password_hash' => password_hash('admin123', PASSWORD_DEFAULT),      'activo' => 1, 'rol_id' => $roles['administrador']],
-            ['nombre' => 'Ana Sofia Ramirez',    'email' => 'secretaria@oficinadelagua.local', 'password_hash' => password_hash('secretaria123', PASSWORD_DEFAULT), 'activo' => 1, 'rol_id' => $roles['secretaria']],
-            ['nombre' => 'Carlos Eduardo Lopez', 'email' => 'lector@oficinadelagua.local',     'password_hash' => password_hash('lector123', PASSWORD_DEFAULT),     'activo' => 1, 'rol_id' => $roles['lector']],
+            ['nombre' => 'Juan Luis Perez',       'email' => 'admin@oficinadelagua.local',      'password_hash' => password_hash('admin123.', PASSWORD_DEFAULT),      'activo' => 1, 'rol_id' => $roles['administrador']],
+            ['nombre' => 'Ana Sofia Ramirez',    'email' => 'secretaria@oficinadelagua.local', 'password_hash' => password_hash('secretaria123.', PASSWORD_DEFAULT), 'activo' => 1, 'rol_id' => $roles['secretaria']],
+            ['nombre' => 'Carlos Eduardo Lopez', 'email' => 'lector@oficinadelagua.local',     'password_hash' => password_hash('lector123.', PASSWORD_DEFAULT),     'activo' => 1, 'rol_id' => $roles['lector']],
         ];
 
         foreach ($usuarios as $usuario) {
