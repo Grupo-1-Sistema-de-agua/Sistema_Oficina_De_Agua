@@ -33,5 +33,48 @@
     </div>
   </div>
 
+  <div class="rounded-4 p-4" style="background: #fdfcf9; border: 1px solid #e2e2de;">
+    <div class="fw-semibold mb-3" style="color: #123a52;">Estado de cuenta de clientes</div>
+    <form method="get" action="<?= base_url('dashboard') ?>" class="mb-3">
+      <div class="d-flex gap-2">
+        <input type="text" name="q_cuenta" class="form-control form-control-sm" style="max-width: 300px;"
+               placeholder="Buscar por nombre..." value="<?= esc_nativo($qCuenta ?? '') ?>">
+        <button type="submit" class="btn btn-sm btn-outline-secondary">Buscar</button>
+        <?php if (! empty($qCuenta)) : ?>
+          <a href="<?= base_url('dashboard') ?>" class="btn btn-sm btn-link">Limpiar</a>
+        <?php endif; ?>
+      </div>
+    </form>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Cliente</th>
+            <th class="text-end">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php if (empty($estadosCuenta)) : ?>
+            <tr><td colspan="2" class="text-center text-muted py-4">No hay clientes que coincidan.</td></tr>
+          <?php else : ?>
+            <?php foreach ($estadosCuenta as $c) : ?>
+              <?php $pendientes = (int) $c['lecturas_pendientes']; ?>
+              <tr>
+                <td><?= esc_nativo($c['nombre']) ?></td>
+                <td class="text-end">
+                  <?php if ($pendientes > 0) : ?>
+                    <span class="badge" style="background: #fdecc8; color: #7a4f08;">Pendiente (<?= $pendientes ?>)</span>
+                  <?php else : ?>
+                    <span class="badge" style="background: #e0f0e6; color: #1d7a4c;">Al dia</span>
+                  <?php endif; ?>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+          <?php endif; ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 <?= $this->endSection() ?>
