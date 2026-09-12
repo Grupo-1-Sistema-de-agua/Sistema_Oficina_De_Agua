@@ -22,9 +22,9 @@ class ContadorModel extends Model
     protected $validationRules = [
         'codigo_fisico'      => 'required|max_length[30]|is_unique[Tb_Contadores.codigo_fisico,id,{id}]',
         'direccion_servicio' => 'required|max_length[255]',
-        'cliente_id'         => 'required|integer',
-        'tipo_servicio_id'   => 'required|integer',
-        'sector_id'          => 'required|integer',
+        'cliente_id'         => 'required|integer|is_not_unique[Tb_Clientes.id]',
+        'tipo_servicio_id'   => 'required|integer|is_not_unique[Tb_Tipos_Servicios.id]',
+        'sector_id'          => 'required|integer|is_not_unique[Tb_Sectores.id]',
     ];
 
     /**

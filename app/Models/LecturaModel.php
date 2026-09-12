@@ -34,9 +34,10 @@ class LecturaModel extends Model
         'numero_recibo'      => 'required|max_length[20]|is_unique[Tb_Lecturas.numero_recibo,id,{id}]',
         'lectura_actual'     => 'required|integer',
         'fecha'              => 'required|valid_date',
-        'contador_id'        => 'required|integer',
-        'tarifa_base_id'     => 'required|integer',
-        'usuario_lector_id'  => 'required|integer',
+        'contador_id'        => 'required|integer|is_not_unique[Tb_Contadores.id]',
+        'tarifa_base_id'     => 'required|integer|is_not_unique[Tb_Tarifas.id]',
+        'tarifa_exceso_id'   => 'permit_empty|integer|is_not_unique[Tb_Tarifas.id]',
+        'usuario_lector_id'  => 'required|integer|is_not_unique[Tb_Usuarios.id]',
     ];
 
     /**
@@ -92,16 +93,21 @@ class LecturaModel extends Model
         $inicioMes = date('Y-m-01 00:00:00');
         $inicioProximoMes = date('Y-m-01 00:00:00', strtotime('+1 month'));
 
-        $rows = $this->select('contador_id, id')
+        $rows = $this->select('contador_id, id, numero_recibo')
             ->whereIn('contador_id', $contadorIds)
             ->where('fecha >=', $inicioMes)
             ->where('fecha <', $inicioProximoMes)
             ->findAll();
 
         $mapa = [];
+
         foreach ($rows as $fila) {
-            $mapa[(int) $fila['contador_id']] = (int) $fila['id'];
+            $mapa[(int) $fila['contador_id']] = [
+                'id'            => (int) $fila['id'],
+                'numero_recibo' => $fila['numero_recibo'],
+            ];
         }
+        
         return $mapa;
     }
 
@@ -155,4 +161,14 @@ class LecturaModel extends Model
         return $map;
     }
 
+    /**
+     * Cuenta cuantas lecturas existen dentro de un anio calendario, para
+     * generar el consecutivo del numero de recibo (R-<anio>-<consecutivo>).
+     */
+    public function contarDelAnio(int $anio): int
+    {
+        return $this->where('fecha >=', $anio . '-01-01 00:00:00')
+                    ->where('fecha <', ($anio + 1) . '-01-01 00:00:00')
+                    ->countAllResults();
+    }
 }

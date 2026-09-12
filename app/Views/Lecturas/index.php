@@ -2,31 +2,31 @@
 
 <?= $this->section('contenido') ?>
 <div class="container-fluid px-4 py-4">
-    <h2 class="h4 mb-3">Contadores pendientes de lectura</h2>
+    <h2 class="h4 mb-3">Lecturas</h2>
 
-    <!--
-      CAMBIOS:
-      - Se agrego la caja de busqueda por numero de contador o cliente ($q),
-        ademas del filtro existente por sector (zona/barrio).
-      - Se agrego la columna "Estado mes actual" que indica si el contador ya
-        registro lectura este mes (badge verde + boton "Editar lectura") o si
-        esta pendiente (badge amarillo + boton "Registrar lectura").
-    -->
     <form method="get" action="<?= base_url('lecturas') ?>" class="row g-2 mb-3 align-items-end">
         <div class="col-md-4">
             <label for="q" class="form-label small mb-1">Buscar por numero de contador o cliente</label>
             <input type="text" name="q" id="q" class="form-control"
-                   placeholder="Numero, nombre..." value="<?= esc($q ?? '') ?>">
+                   placeholder="Numero, nombre..." value="<?= esc_nativo($q ?? '') ?>">
         </div>
         <div class="col-md-3">
             <label for="sector" class="form-label small mb-1">Zona / Sector</label>
             <select name="sector" class="form-select">
                 <option value="">-- Todos los sectores --</option>
                 <?php foreach ($sectores as $s): ?>
-                    <option value="<?= esc($s['id']) ?>" <?= (string) ($sectorSeleccionado ?? '') === (string) $s['id'] ? 'selected' : '' ?>>
-                        <?= esc($s['nombre']) ?>
+                    <option value="<?= esc_nativo($s['id']) ?>" <?= (string) ($sectorSeleccionado ?? '') === (string) $s['id'] ? 'selected' : '' ?>>
+                        <?= esc_nativo($s['nombre']) ?>
                     </option>
                 <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="estado" class="form-label small mb-1">Estado</label>
+            <select name="estado" id="estado" class="form-select">
+                <option value="todas" <?= ($estado ?? 'todas') === 'todas' ? 'selected' : '' ?>>Todas</option>
+                <option value="pendientes" <?= ($estado ?? '') === 'pendientes' ? 'selected' : '' ?>>Pendientes</option>
+                <option value="listas" <?= ($estado ?? '') === 'listas' ? 'selected' : '' ?>>Listas</option>
             </select>
         </div>
         <div class="col-md-2">
@@ -34,7 +34,7 @@
                 <i class="fas fa-search me-1"></i>Filtrar
             </button>
         </div>
-        <?php if (! empty($q) || ! empty($sectorSeleccionado)): ?>
+        <?php if (! empty($q) || ! empty($sectorSeleccionado) || ($estado ?? 'todas') !== 'todas'): ?>
             <div class="col-12">
                 <a href="<?= base_url('lecturas') ?>" class="small">Limpiar filtros</a>
             </div>
@@ -44,7 +44,7 @@
     <div class="card shadow-sm">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover align-middle mb-0 table-responsive-cards">
                     <thead class="table-light">
                         <tr>
                             <th>Codigo</th>
@@ -58,26 +58,26 @@
                     <tbody>
                         <?php if (empty($pendientes)): ?>
                             <tr>
-                                <td colspan="6" class="text-center text-muted py-4">No hay contadores pendientes.</td>
+                                <td colspan="6" class="text-center text-muted py-4">No hay contadores que coincidan.</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($pendientes as $c): ?>
                                 <?php $tieneLecturaMes = isset($lecturasMes[$c['id']]); ?>
                                 <tr>
-                                    <td class="fw-semibold"><?= esc($c['codigo_fisico']) ?></td>
-                                    <td><?= esc($c['cliente_nombre']) ?></td>
-                                    <td><?= esc($c['sector_nombre']) ?></td>
-                                    <td><?= esc($c['tipo_nombre']) ?></td>
-                                    <td>
+                                    <td class="fw-semibold" data-label="Codigo"><?= esc_nativo($c['codigo_fisico']) ?></td>
+                                    <td data-label="Cliente"><?= esc_nativo($c['cliente_nombre']) ?></td>
+                                    <td data-label="Sector"><?= esc_nativo($c['sector_nombre']) ?></td>
+                                    <td data-label="Tipo servicio"><?= esc_nativo($c['tipo_nombre']) ?></td>
+                                    <td data-label="Estado">
                                         <?php if ($tieneLecturaMes): ?>
                                             <span class="badge bg-success">Lectura registrada este mes</span>
                                         <?php else: ?>
                                             <span class="badge bg-warning text-dark">Pendiente de lectura</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="text-end">
+                                    <td class="text-end celda-acciones" data-label="Acciones">
                                         <?php if ($tieneLecturaMes): ?>
-                                            <a href="<?= base_url('lecturas/editar/' . $lecturasMes[$c['id']]) ?>" class="btn btn-sm btn-outline-secondary">
+                                            <a href="<?= base_url('lecturas/editar/' . $lecturasMes[$c['id']]['id']) ?>" class="btn btn-sm btn-outline-secondary">
                                                 <i class="fas fa-pen me-1"></i>Editar lectura
                                             </a>
                                         <?php else: ?>

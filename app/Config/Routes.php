@@ -13,96 +13,93 @@ $routes->post('login', 'Auth\AuthController::procesarLogin');
 $routes->get('logout', 'Auth\AuthController::logout');
 
 // -----------------------------------------------------------------
-// Protegidas (exigen sesion iniciada -> filtro 'auth')
+// Protegidas. El control de acceso (sesion iniciada y, donde aplica,
+// rol permitido) ya no se hace con Filters de CodeIgniter: cada
+// controlador llama a $this->requiereLogin() o $this->requiereRol([...])
+// (definidos en BaseController) al inicio de sus metodos protegidos.
 // -----------------------------------------------------------------
-$routes->group('', ['filter' => 'auth'], function ($routes) {
-    $routes->get('dashboard', 'DashboardController::index');
+$routes->get('dashboard', 'DashboardController::index');
 
-    // Modulo de administracion de usuarios y permisos
-    $routes->group('admin', ['filter' => 'role:admin,administrador'], function ($routes) {
-        $routes->get('usuarios', 'Admin\UsuariosController::index');
-        $routes->post('usuarios', 'Admin\UsuariosController::store');
-        $routes->post('usuarios/toggle', 'Admin\UsuariosController::toggle');
-        $routes->post('usuarios/eliminar', 'Admin\UsuariosController::delete');
-        $routes->get('password', 'Admin\PasswordController::index');
-        $routes->post('password', 'Admin\PasswordController::update');
-    });
+// Modulo de administracion de usuarios y permisos
+$routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function ($routes) {
+    $routes->get('usuarios', 'UsuariosController::index');
+    $routes->get('usuarios/nuevo', 'UsuariosController::nuevo');
+    $routes->post('usuarios', 'UsuariosController::store');
+    $routes->post('usuarios/toggle', 'UsuariosController::toggle');
+    $routes->post('usuarios/eliminar', 'UsuariosController::delete');
+    $routes->get('usuarios/(:num)/password', 'PasswordController::edit/$1');
+    $routes->post('usuarios/(:num)/password', 'PasswordController::update/$1');
+});
 
-    // Compatibilidad con formularios que usan una ruta distinta
-    $routes->post('admin/usuarios/toggle', 'Admin\UsuariosController::toggle');
-    $routes->post('admin/usuarios/eliminar', 'Admin\UsuariosController::delete');
+// Modulo: Clientes
+$routes->group('clientes', ['namespace' => 'App\Controllers\Clientes'], function ($routes) {
+    $routes->get('/', 'ClientesController::index');
+    $routes->get('nuevo', 'ClientesController::nuevo');
+    $routes->post('store', 'ClientesController::store');
+    $routes->get('editar/(:num)', 'ClientesController::editar/$1');
+    $routes->post('update/(:num)', 'ClientesController::update/$1');
+    $routes->post('delete/(:num)', 'ClientesController::delete/$1');
+});
 
-    // Modulo: Clientes
-    $routes->group('clientes', ['namespace' => 'App\Controllers\Clientes'], function($routes) {
-        $routes->get('/', 'ClientesController::index');
-        $routes->post('store', 'ClientesController::store');
-        $routes->post('update/(:num)', 'ClientesController::update/$1');
-        $routes->get('delete/(:num)', 'ClientesController::delete/$1');
-    });
+// Modulo: Contadores
+$routes->group('contadores', ['namespace' => 'App\Controllers\Contadores'], function ($routes) {
+    $routes->get('/', 'ContadoresController::index');
+    $routes->get('nuevo', 'ContadoresController::nuevo');
+    $routes->post('/', 'ContadoresController::crear');
+    $routes->get('editar/(:num)', 'ContadoresController::editar/$1');
+    $routes->post('actualizar/(:num)', 'ContadoresController::actualizar/$1');
+    $routes->post('eliminar/(:num)', 'ContadoresController::eliminar/$1');
+    $routes->get('ver/(:num)', 'ContadoresController::ver/$1');
+});
 
-    // Modulo: Contadores
-    $routes->get('contadores', 'Contadores\ContadoresController::index');
-   // Modulo: Contadores (Secretaria y Administrador)
-    $routes->get('contadores/nuevo', 'Contadores\ContadoresController::nuevo');
-    $routes->post('contadores', 'Contadores\ContadoresController::crear');
-    $routes->get('contadores/editar/(:num)', 'Contadores\ContadoresController::editar/$1');
-    $routes->post('contadores/actualizar/(:num)', 'Contadores\ContadoresController::actualizar/$1');
-    $routes->post('contadores/eliminar/(:num)', 'Contadores\ContadoresController::eliminar/$1');
-    $routes->get('contadores/ver/(:num)', 'Contadores\ContadoresController::ver/$1');
+// Modulo: Tarifas
+$routes->group('tarifas', ['namespace' => 'App\Controllers\Tarifas'], function ($routes) {
+    $routes->get('/', 'TarifasController::index');
+    $routes->get('crear', 'TarifasController::create');
+    $routes->post('/', 'TarifasController::store');
+    $routes->post('(:num)/anular', 'TarifasController::anular/$1');
+});
 
-    // Modulo: Tarifas
-    $routes->get('tarifas', 'Tarifas\TarifasController::index');
-    $routes->get('tarifas/crear', 'Tarifas\TarifasController::create');
-    $routes->post('tarifas', 'Tarifas\TarifasController::store');
-    $routes->post('tarifas/(:num)/anular', 'Tarifas\TarifasController::anular/$1');
-    $routes->group('tipos-servicio', ['filter' => 'role:' . \App\Constants\Roles::ADMINISTRADOR], function ($routes) {
-        $routes->get('/', 'Tarifas\TiposServicioController::index');
-        $routes->get('crear', 'Tarifas\TiposServicioController::create');
-        $routes->post('/', 'Tarifas\TiposServicioController::store');
-        $routes->get('(:num)/editar', 'Tarifas\TiposServicioController::edit/$1');
-        $routes->put('(:num)', 'Tarifas\TiposServicioController::update/$1');
-        $routes->get('(:num)/eliminar', 'Tarifas\TiposServicioController::delete/$1');
-    });
+// Modulo: Tipos de Servicio (parte de Tarifas, ruta propia)
+$routes->group('tipos-servicio', ['namespace' => 'App\Controllers\Tarifas'], function ($routes) {
+    $routes->get('/', 'TiposServicioController::index');
+    $routes->get('crear', 'TiposServicioController::create');
+    $routes->post('/', 'TiposServicioController::store');
+    $routes->get('(:num)/editar', 'TiposServicioController::edit/$1');
+    $routes->post('(:num)', 'TiposServicioController::update/$1');
+    $routes->post('(:num)/eliminar', 'TiposServicioController::delete/$1');
+});
 
-    // Modulo: Lecturas
-    $routes->get('lecturas', 'Lecturas\LecturasController::index');
-    // TODO (encargado del modulo): agregar create/store/edit/update/delete + recibo imprimible
-    // Modulo: Lecturas
-    $routes->get('lecturas/nueva/(:num)', 'Lecturas\LecturasController::nueva/$1');
-    $routes->post('lecturas/guardar', 'Lecturas\LecturasController::guardar');
-    // NUEVO: edicion de la lectura vigente del mes (editar recibe el id de la
-    // lectura; actualizar guarda los cambios y recalcula consumo y montos)
-    $routes->get('lecturas/editar/(:num)', 'Lecturas\LecturasController::editar/$1');
-    $routes->post('lecturas/actualizar', 'Lecturas\LecturasController::actualizar');
-    
-    // Modulo: Pagos
-    $routes->get('pagos', 'Pagos\PagosController::index');
+// Modulo: Sectores (catalogo)
+$routes->group('sectores', ['namespace' => 'App\Controllers'], function ($routes) {
+    $routes->get('/', 'SectoresController::index');
+    $routes->get('crear', 'SectoresController::create');
+    $routes->post('/', 'SectoresController::store');
+    $routes->get('(:num)/editar', 'SectoresController::edit/$1');
+    $routes->post('(:num)', 'SectoresController::update/$1');
+    $routes->post('(:num)/eliminar', 'SectoresController::delete/$1');
+});
 
-    // TODO (encargado del modulo): agregar create/store/edit/update/delete
+// Modulo: Lecturas
+$routes->group('lecturas', ['namespace' => 'App\Controllers\Lecturas'], function ($routes) {
+    $routes->get('/', 'LecturasController::index');
+    $routes->get('nueva/(:num)', 'LecturasController::nueva/$1');
+    $routes->post('guardar', 'LecturasController::guardar');
+    $routes->get('editar/(:num)', 'LecturasController::editar/$1');
+    $routes->post('actualizar', 'LecturasController::actualizar');
+});
 
-    // Modulo: Recibos
-    $routes->group('recibos', ['namespace' => 'App\Controllers\Recibos'], function($routes) {
-        $routes->get('/', 'RecibosController::index');
-        $routes->post('store', 'RecibosController::store');
-        $routes->post('update/(:num)', 'RecibosController::update/$1');
-        $routes->get('delete/(:num)', 'RecibosController::delete/$1');
-        
-        // Rutas corregidas (sin repetir "recibos/" ni el namespace)
-        $routes->get('imprimir/(:num)', 'RecibosController::imprimir/$1');
-        $routes->get('anular/(:num)', 'RecibosController::anular/$1');  
-    });
+// Modulo: Pagos
+$routes->group('pagos', ['namespace' => 'App\Controllers\Pagos'], function ($routes) {
+    $routes->get('/', 'PagosController::index');
+    $routes->get('nuevo/(:num)', 'PagosController::nuevo/$1');
+    $routes->post('store', 'PagosController::store');
+    $routes->post('(:num)/anular', 'PagosController::anular/$1');
+});
 
-        $routes->get('pagos/nuevo', 'Pagos\PagosController::create', ['filter' => 'role:secretaria,admin,administrador']);
-        $routes->post('pagos', 'Pagos\PagosController::store', ['filter' => 'role:secretaria,admin,administrador']);
-        $routes->get('pagos/editar/(:num)', 'Pagos\PagosController::edit/$1', ['filter' => 'role:secretaria,admin,administrador']);
-        $routes->post('pagos/actualizar/(:num)', 'Pagos\PagosController::update/$1', ['filter' => 'role:secretaria,admin,administrador']);
-        $routes->post('pagos/eliminar', 'Pagos\PagosController::delete', ['filter' => 'role:secretaria,admin,administrador']);
-
-
-    $routes->get('pagos/nuevo', 'Pagos\PagosController::create', ['filter' => 'role:secretaria,admin,administrador']);
-    $routes->post('pagos', 'Pagos\PagosController::store', ['filter' => 'role:secretaria,admin,administrador']);
-    $routes->get('pagos/editar/(:num)', 'Pagos\PagosController::edit/$1', ['filter' => 'role:secretaria,admin,administrador']);
-    $routes->post('pagos/actualizar/(:num)', 'Pagos\PagosController::update/$1', ['filter' => 'role:secretaria,admin,administrador']);
-    $routes->post('pagos/eliminar', 'Pagos\PagosController::delete', ['filter' => 'role:secretaria,admin,administrador']);
-
+// Modulo: Recibos
+$routes->group('recibos', ['namespace' => 'App\Controllers\Recibos'], function ($routes) {
+    $routes->get('/', 'RecibosController::index');
+    $routes->get('imprimir/(:num)', 'RecibosController::imprimir/$1');
+    $routes->get('pagada/(:num)', 'RecibosController::pagada/$1');
 });

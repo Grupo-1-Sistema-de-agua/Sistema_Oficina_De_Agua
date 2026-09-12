@@ -3,117 +3,151 @@
 namespace App\Controllers\Recibos;
 
 use App\Controllers\BaseController;
-use App\Models\ReciboModel;
-use App\Models\ClienteModel;
-use App\Models\ContadorModel;
 use App\Models\LecturaModel;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class RecibosController extends BaseController
 {
-    protected $reciboModel;
-    protected $clienteModel;
-    protected $contadorModel;
-
-    public function __construct()
+    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
-        $this->reciboModel = new ReciboModel();
-        $this->clienteModel = new ClienteModel();
-        $this->contadorModel = new ContadorModel();
+        parent::initController($request, $response, $logger);
+        $this->requiereRol(['secretaria', 'administrador']);
     }
 
     public function index()
     {
-        $lecturaModel = new LecturaModel();
+        $qPendientes = trim((string) $this->request->getGet('q_pendientes'));
+        $qPagadas    = trim((string) $this->request->getGet('q_pagadas'));
 
-        // Traer todos los recibos para la tabla principal
-        $data['recibos'] = $this->reciboModel->findAll();
+        // Agrupado por contador. GROUP_CONCAT junta los numeros de recibo
+        // de las lecturas pendientes de ese contador en un solo texto
+        // separado por comas, en orden de fecha -- la vista se encarga
+        // de mostrar solo los primeros y un "+N" si hay muchos.
+        $pendientesQuery = db_connect()->table('Tb_Contadores')
+            ->select("
+                Tb_Contadores.id AS contador_id,
+                Tb_Contadores.codigo_fisico,
+                Tb_Clientes.nombre AS cliente_nombre,
+                COUNT(Tb_Lecturas.id) AS lecturas_pendientes,
+                SUM(Tb_Lecturas.monto_base + Tb_Lecturas.monto_exceso) AS monto_pendiente,
+                GROUP_CONCAT(Tb_Lecturas.numero_recibo ORDER BY Tb_Lecturas.fecha ASC SEPARATOR ',') AS recibos_pendientes
+            ", false)
+            ->join('Tb_Clientes', 'Tb_Clientes.id = Tb_Contadores.cliente_id')
+            ->join('Tb_Lecturas', 'Tb_Lecturas.contador_id = Tb_Contadores.id')
+            ->join('Tb_Pagos', 'Tb_Pagos.lectura_id_activa = Tb_Lecturas.id', 'left')
+            ->where('Tb_Pagos.id', null)
+            ->groupBy('Tb_Contadores.id');
 
-        // Traer catálogos básicos
-        $data['clientes']   = $this->clienteModel->findAll(); 
-        $data['contadores'] = $this->contadorModel->where('activo', 1)->findAll(); 
-        
-        // Crear un mapa de lecturas pendientes asociadas por el ID del contador
-        $lecturasPendientes = $lecturaModel->pendientesDePago();
-        $mapaLecturas = [];
-        foreach ($lecturasPendientes as $l) {
-            $total = $l['monto_base'] + $l['monto_exceso'];
-            $mapaLecturas[$l['contador_id']] = [
-                'consumo' => $l['consumo_litros'],
-                'monto'   => $total
-            ];
+        if ($qPendientes !== '') {
+            $pendientesQuery->groupStart()
+                ->like('Tb_Clientes.nombre', $qPendientes)
+                ->orLike('Tb_Lecturas.numero_recibo', $qPendientes)
+            ->groupEnd();
         }
-        $data['mapaLecturas'] = $mapaLecturas;
 
-        return view('recibos/index', $data);
+        $contadoresPendientes = $pendientesQuery->orderBy('Tb_Clientes.nombre', 'ASC')->get()->getResultArray();
+
+        // Pagadas si queda individual, una fila por lectura -- cada una
+        // tiene su propio comprobante que ver aparte.
+        $pagadasQuery = (new LecturaModel())
+            ->select('Tb_Lecturas.id, Tb_Lecturas.numero_recibo, Tb_Lecturas.fecha, Tb_Lecturas.monto_base, Tb_Lecturas.monto_exceso, Tb_Contadores.codigo_fisico, Tb_Clientes.nombre AS cliente_nombre, Tb_Pagos.fecha_pago, Tb_Metodos_Pago.nombre AS metodo_nombre')
+            ->join('Tb_Pagos', 'Tb_Pagos.lectura_id_activa = Tb_Lecturas.id')
+            ->join('Tb_Metodos_Pago', 'Tb_Metodos_Pago.id = Tb_Pagos.metodo_id')
+            ->join('Tb_Contadores', 'Tb_Contadores.id = Tb_Lecturas.contador_id')
+            ->join('Tb_Clientes', 'Tb_Clientes.id = Tb_Contadores.cliente_id')
+            ->orderBy('Tb_Pagos.fecha_pago', 'DESC');
+
+        if ($qPagadas !== '') {
+            $pagadasQuery->groupStart()
+                ->like('Tb_Clientes.nombre', $qPagadas)
+                ->orLike('Tb_Lecturas.numero_recibo', $qPagadas)
+            ->groupEnd();
+        }
+
+        $lecturasPagadas = $pagadasQuery->findAll();
+
+        return view('recibos/index', [
+            'contadoresPendientes' => $contadoresPendientes,
+            'lecturasPagadas'      => $lecturasPagadas,
+            'qPendientes'          => $qPendientes,
+            'qPagadas'             => $qPagadas,
+        ]);
     }
 
-    public function store()
+    /**
+     * Documento combinado: todas las lecturas PENDIENTES de un contador,
+     * con el total general. Es "lo que se debe", no un historial.
+     */
+    public function imprimir(int $contadorId)
     {
-        $validationRules = [
-            'nombre_cliente'  => 'required|max_length[150]',
-            'direccion'       => 'required|max_length[255]',
-            'numero_contador' => 'permit_empty|max_length[50]',
-            'monto_total'     => 'required|numeric'
-        ];
+        $contador = db_connect()->table('Tb_Contadores')
+            ->select('Tb_Contadores.*, Tb_Clientes.nombre AS cliente_nombre, Tb_Clientes.direccion_principal, Tb_Clientes.telefono, Tb_Sectores.nombre AS sector_nombre, Tb_Tipos_Servicios.nombre AS tipo_nombre')
+            ->join('Tb_Clientes', 'Tb_Clientes.id = Tb_Contadores.cliente_id')
+            ->join('Tb_Sectores', 'Tb_Sectores.id = Tb_Contadores.sector_id')
+            ->join('Tb_Tipos_Servicios', 'Tb_Tipos_Servicios.id = Tb_Contadores.tipo_servicio_id')
+            ->where('Tb_Contadores.id', $contadorId)
+            ->get()->getRowArray();
 
-        if (!$this->validate($validationRules)) {
-            return redirect()->back()->withInput()->with('errores', $this->validator->getErrors());
+        if (! $contador) {
+            flash_set('error', 'Contador no encontrado.');
+            return redirect()->to('/recibos');
         }
-        
-        $numeroRecibo = 'REC-' . strtoupper(substr(uniqid(), -5));
 
-        $data = [
-            'numero_recibo'   => $numeroRecibo,
-            'nombre_cliente'  => $this->request->getPost('nombre_cliente'),
-            'direccion'       => $this->request->getPost('direccion'),
-            'numero_contador' => $this->request->getPost('numero_contador'),
-            'monto_total'     => $this->request->getPost('monto_total'),
-            'fecha_emision'   => $this->request->getPost('fecha_emision'),
-            'consumo_litros'  => $this->request->getPost('consumo_litros') // Se recibe del form oculto
-        ];
+        $lecturas = (new LecturaModel())
+            ->select('Tb_Lecturas.*, Tb_Tarifas.precio AS tarifa_precio')
+            ->join('Tb_Pagos', 'Tb_Pagos.lectura_id_activa = Tb_Lecturas.id', 'left')
+            ->join('Tb_Tarifas', 'Tb_Tarifas.id = Tb_Lecturas.tarifa_base_id')
+            ->where('Tb_Lecturas.contador_id', $contadorId)
+            ->where('Tb_Pagos.id', null)
+            ->orderBy('Tb_Lecturas.fecha', 'ASC')
+            ->findAll();
 
-        $this->reciboModel->insert($data);
+        if (empty($lecturas)) {
+            flash_set('error', 'Este contador esta al dia, no hay nada pendiente que imprimir.');
+            return redirect()->to('/recibos');
+        }
 
-        return redirect()->to('/recibos')->with('mensaje', 'Recibo generado con éxito.');
+        $totalPendiente = 0.0;
+        foreach ($lecturas as $lectura) {
+            $totalPendiente += (float) $lectura['monto_base'] + (float) $lectura['monto_exceso'];
+        }
+
+        return view('recibos/ticket', [
+            'contador'       => $contador,
+            'lecturas'       => $lecturas,
+            'totalPendiente' => $totalPendiente,
+            'fechaEmision'   => date('Y-m-d H:i:s'),
+        ]);
     }
 
-    public function update($id = null)
+    /**
+     * Documento individual de UNA lectura ya pagada, con sello de
+     * CANCELADO -- el comprobante historico de ese pago especifico.
+     */
+    public function pagada(int $lecturaId)
     {
-        $datos = [
-            'numero_recibo'   => $this->request->getPost('numero_recibo'),
-            'id_cliente'      => $this->request->getPost('id_cliente'),
-            'nombre_cliente'  => $this->request->getPost('nombre_cliente'),
-            'direccion'       => $this->request->getPost('direccion'),
-            'numero_contador' => $this->request->getPost('numero_contador'),
-            'monto_total'     => $this->request->getPost('monto_total'),
-            'fecha_emision'   => $this->request->getPost('fecha_emision')
-        ];
+        $lectura = (new LecturaModel())
+            ->select('Tb_Lecturas.*, Tb_Tarifas.precio AS tarifa_precio, Tb_Contadores.codigo_fisico, Tb_Contadores.direccion_servicio, Tb_Clientes.nombre AS cliente_nombre, Tb_Clientes.direccion_principal, Tb_Clientes.telefono, Tb_Sectores.nombre AS sector_nombre, Tb_Tipos_Servicios.nombre AS tipo_nombre, Tb_Pagos.fecha_pago, Tb_Metodos_Pago.nombre AS metodo_nombre')
+            ->join('Tb_Tarifas', 'Tb_Tarifas.id = Tb_Lecturas.tarifa_base_id')
+            ->join('Tb_Contadores', 'Tb_Contadores.id = Tb_Lecturas.contador_id')
+            ->join('Tb_Clientes', 'Tb_Clientes.id = Tb_Contadores.cliente_id')
+            ->join('Tb_Sectores', 'Tb_Sectores.id = Tb_Contadores.sector_id')
+            ->join('Tb_Tipos_Servicios', 'Tb_Tipos_Servicios.id = Tb_Contadores.tipo_servicio_id')
+            ->join('Tb_Pagos', 'Tb_Pagos.lectura_id_activa = Tb_Lecturas.id')
+            ->join('Tb_Metodos_Pago', 'Tb_Metodos_Pago.id = Tb_Pagos.metodo_id')
+            ->where('Tb_Lecturas.id', $lecturaId)
+            ->get()->getRowArray();
 
-        if (!$this->reciboModel->update($id, $datos)) {
-            return redirect()->back()->withInput()->with('errores', $this->reciboModel->errors());
+        if (! $lectura) {
+            flash_set('error', 'Esta lectura no tiene un pago registrado.');
+            return redirect()->to('/recibos');
         }
 
-        return redirect()->to('/recibos')->with('mensaje', 'Recibo actualizado exitosamente.');
-    }
-
-    public function anular($id = null)
-    {
-        if ($this->reciboModel->delete($id)) {
-            return redirect()->to('/recibos')->with('mensaje', 'El recibo ha sido anulado correctamente.');
-        }
-
-        return redirect()->to('/recibos')->with('errores', ['No se pudo anular el recibo.']);
-    }
-    
-    public function imprimir($id = null)
-    {
-        $recibo = $this->reciboModel->find($id);
-
-        if (!$recibo) {
-            return redirect()->to('/recibos')->with('errores', ['El recibo solicitado no existe.']);
-        }
-
-        $data['recibo'] = $recibo;
-        return view('recibos/ticket', $data);
+        return view('recibos/ticket_pagado', [
+            'lectura'      => $lectura,
+            'fechaEmision' => date('Y-m-d H:i:s'),
+        ]);
     }
 }

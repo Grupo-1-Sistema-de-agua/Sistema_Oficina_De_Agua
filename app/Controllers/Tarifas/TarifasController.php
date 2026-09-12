@@ -5,9 +5,18 @@ namespace App\Controllers\Tarifas;
 use App\Controllers\BaseController;
 use App\Models\TarifaModel;
 use App\Models\TipoServicioModel;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class TarifasController extends BaseController
 {
+    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
+    {
+        parent::initController($request, $response, $logger);
+        $this->requiereRol(['administrador']);
+    }
+
     public function index()
     {
         $tarifaModel = new TarifaModel();
@@ -159,8 +168,8 @@ class TarifasController extends BaseController
             ]);
         }
 
-        return redirect()->to(base_url('tarifas'))
-            ->with('message', 'Tarifa registrada correctamente.');
+        flash_set('message', 'Tarifa registrada correctamente.');
+        return redirect()->to(base_url('tarifas'));
     }
 
     public function anular($id)
@@ -169,13 +178,13 @@ class TarifasController extends BaseController
         $tarifa      = $tarifaModel->find($id);
 
         if (! $tarifa) {
-            return redirect()->to(base_url('tarifas'))
-                ->with('error', 'Tarifa no encontrada.');
+            flash_set('error', 'Tarifa no encontrada.');
+            return redirect()->to(base_url('tarifas'));
         }
 
         if ((int) $tarifa['anulada'] === 1) {
-            return redirect()->to(base_url('tarifas'))
-                ->with('error', 'Esta tarifa ya estaba anulada.');
+            flash_set('error', 'Esta tarifa ya estaba anulada.');
+            return redirect()->to(base_url('tarifas'));
         }
 
         // No se puede anular una tarifa que ya se uso en al menos una lectura,
@@ -186,8 +195,8 @@ class TarifasController extends BaseController
         $enExceso = $db->table('Tb_Lecturas')->where('tarifa_exceso_id', $id)->countAllResults();
 
         if ($enBase > 0 || $enExceso > 0) {
-            return redirect()->to(base_url('tarifas'))
-                ->with('error', 'No se puede anular: esta tarifa ya fue usada en al menos una lectura.');
+            flash_set('error', 'No se puede anular: esta tarifa ya fue usada en al menos una lectura.');
+            return redirect()->to(base_url('tarifas'));
         }
 
         // Si la tarifa ya tenia un vigente_hasta (porque algo vino despues de
@@ -207,11 +216,11 @@ class TarifasController extends BaseController
         $db->transComplete();
 
         if ($db->transStatus() === false) {
-            return redirect()->to(base_url('tarifas'))
-                ->with('error', 'Ocurrio un error al anular la tarifa. No se aplico ningun cambio.');
+            flash_set('error', 'Ocurrio un error al anular la tarifa. No se aplico ningun cambio.');
+            return redirect()->to(base_url('tarifas'));
         }
 
-        return redirect()->to(base_url('tarifas'))
-            ->with('message', 'Tarifa anulada correctamente.');
+        flash_set('message', 'Tarifa anulada correctamente.');
+        return redirect()->to(base_url('tarifas'));
     }
 }

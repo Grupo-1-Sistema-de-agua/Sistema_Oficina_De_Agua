@@ -3,7 +3,7 @@
 <?= $this->section('contenido') ?>
 <div class="container-fluid px-4 py-4">
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <h2 class="h4 mb-0"><?= esc($contador['codigo_fisico']) ?></h2>
+        <h2 class="h4 mb-0"><?= esc_nativo($contador['codigo_fisico']) ?></h2>
         <a href="<?= base_url('contadores') ?>" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-1"></i>Volver
         </a>
@@ -17,12 +17,12 @@
                 </div>
                 <div class="card-body">
                     <ul class="list-unstyled mb-0">
-                        <li class="mb-2"><strong>Codigo:</strong> <?= esc($contador['codigo_fisico']) ?></li>
-                        <li class="mb-2"><strong>Direccion de servicio:</strong><br><?= esc($contador['direccion_servicio']) ?></li>
-                        <li class="mb-2"><strong>Tipo de servicio:</strong> <?= esc($tipo['nombre'] ?? '') ?></li>
-                        <li class="mb-2"><strong>Sector:</strong> <?= esc($sector['nombre'] ?? '') ?></li>
-                        <li class="mb-2"><strong>Fecha de asignacion:</strong> <?= esc($contador['fecha_asignacion'] ?? '') ?></li>
-                        <li class="mb-2"><strong>Fecha de desactivacion:</strong> <?= esc($contador['fecha_desactivacion'] ?? '') ?></li>
+                        <li class="mb-2"><strong>Codigo:</strong> <?= esc_nativo($contador['codigo_fisico']) ?></li>
+                        <li class="mb-2"><strong>Direccion de servicio:</strong><br><?= esc_nativo($contador['direccion_servicio']) ?></li>
+                        <li class="mb-2"><strong>Tipo de servicio:</strong> <?= esc_nativo($tipo['nombre'] ?? '') ?></li>
+                        <li class="mb-2"><strong>Sector:</strong> <?= esc_nativo($sector['nombre'] ?? '') ?></li>
+                        <li class="mb-2"><strong>Fecha de asignacion:</strong> <?= esc_nativo($contador['fecha_asignacion'] ?? '') ?></li>
+                        <li class="mb-2"><strong>Fecha de desactivacion:</strong> <?= esc_nativo($contador['fecha_desactivacion'] ?? '') ?></li>
                         <li class="mb-0">
                             <strong>Estado:</strong>
                             <?php if ($contador['activo']): ?>
@@ -44,10 +44,10 @@
                 <div class="card-body">
                     <?php if ($cliente): ?>
                         <ul class="list-unstyled mb-3">
-                            <li class="mb-2"><strong>Nombre:</strong> <?= esc($cliente['nombre']) ?></li>
-                            <li class="mb-2"><strong>DPI:</strong> <?= esc($cliente['dpi'] ?? '') ?></li>
-                            <li class="mb-2"><strong>Telefono:</strong> <?= esc($cliente['telefono'] ?? '') ?></li>
-                            <li class="mb-0"><strong>Direccion principal:</strong><br><?= esc($cliente['direccion_principal']) ?></li>
+                            <li class="mb-2"><strong>Nombre:</strong> <?= esc_nativo($cliente['nombre']) ?></li>
+                            <li class="mb-2"><strong>DPI:</strong> <?= esc_nativo($cliente['dpi'] ?? '') ?></li>
+                            <li class="mb-2"><strong>Telefono:</strong> <?= esc_nativo($cliente['telefono'] ?? '') ?></li>
+                            <li class="mb-0"><strong>Direccion principal:</strong><br><?= esc_nativo($cliente['direccion_principal']) ?></li>
                         </ul>
                         <?php if (count($otros) > 1): ?>
                             <h6 class="small text-muted">Otros contadores de este cliente</h6>
@@ -56,7 +56,7 @@
                                     <?php if ((int) $o['id'] !== (int) $contador['id']): ?>
                                         <li class="mb-1">
                                             <a href="<?= base_url('contadores/ver/' . $o['id']) ?>">
-                                                <?= esc($o['codigo_fisico']) ?> — <?= esc($o['direccion_servicio']) ?>
+                                                <?= esc_nativo($o['codigo_fisico']) ?> — <?= esc_nativo($o['direccion_servicio']) ?>
                                             </a>
                                             <?php if ($o['activo']): ?>
                                                 <span class="badge bg-success">Activo</span>
@@ -118,11 +118,11 @@
                         <?php else: ?>
                             <?php foreach ($historial as $h): ?>
                                 <tr>
-                                    <td><?= esc($h['fecha']) ?></td>
-                                    <td><?= esc($h['lectura_anterior']) ?></td>
-                                    <td><?= esc($h['lectura_actual']) ?></td>
-                                    <td><?= esc($h['consumo_litros']) ?></td>
-                                    <td><?= esc($h['numero_recibo']) ?></td>
+                                    <td><?= esc_nativo($h['fecha']) ?></td>
+                                    <td><?= esc_nativo($h['lectura_anterior']) ?></td>
+                                    <td><?= esc_nativo($h['lectura_actual']) ?></td>
+                                    <td><?= esc_nativo($h['consumo_litros']) ?></td>
+                                    <td><?= esc_nativo($h['numero_recibo']) ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>

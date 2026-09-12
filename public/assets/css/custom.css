@@ -102,3 +102,56 @@
     font-size: 0.72rem;
     text-transform: capitalize;
 }
+
+
+/* ============================================
+   Tablas responsive: en pantallas chicas, cada
+   fila se convierte en su propia tarjeta apilada
+   en vez de generar scroll horizontal. Cada <td>
+   necesita un atributo data-label="Nombre columna"
+   para mostrar la etiqueta junto al dato.
+   ============================================ */
+@media (max-width: 767.98px) {
+  .table-responsive-cards thead {
+    display: none;
+  }
+
+  .table-responsive-cards,
+  .table-responsive-cards tbody,
+  .table-responsive-cards tr,
+  .table-responsive-cards td {
+    display: block;
+    width: 100%;
+  }
+
+  .table-responsive-cards tr {
+    margin-bottom: 0.85rem;
+    border: 1px solid var(--mdb-border-color, #dee2e6);
+    border-radius: 12px;
+    padding: 0.65rem 0.9rem;
+  }
+
+  .table-responsive-cards tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .table-responsive-cards td {
+    border: none;
+    padding: 0.35rem 0;
+    display: block;
+    text-align: left;
+  }
+
+  .table-responsive-cards td::before {
+    content: attr(data-label);
+    display: block;
+    font-weight: 600;
+    font-size: 0.72rem;
+    color: var(--mdb-secondary-color, #6c757d);
+    text-align: left;
+    margin-bottom: 2px;
+  }
+
+  .table-responsive-cards td.celda-acciones::before {
+    content: none;
+  }

@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <title>Ingresar - Oficina del Agua</title>
+  <link rel="icon" type="image/svg+xml" href="<?= base_url('assets/img/favicon-agua.svg') ?>">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" />
   <link rel="stylesheet" href="<?= base_url('assets/css/mdb.min.css') ?>" />
@@ -25,7 +26,7 @@
       <div class="container-fluid">
         <a class="navbar-brand nav-link d-flex align-items-center" href="<?= base_url('login') ?>">
           <i class="fas fa-droplet me-2"></i>
-          <strong>Oficina de Agua</strong>
+          <strong>Oficina del Agua</strong>
         </a>
       </div>
     </nav>
@@ -36,13 +37,20 @@
           <div class="row justify-content-center">
             <div class="col-xl-5 col-md-8">
               <form class="bg-white rounded shadow-5-strong p-5" action="<?= base_url('login') ?>" method="post">
-                <?= csrf_field() ?>
+                <div class="text-center mb-4">
+                  <i class="fas fa-droplet fa-2x" style="color: #123a52;"></i>
+                  <h4 class="mt-2 mb-0" style="color: #123a52;">Oficina del Agua</h4>
+                  <p class="text-muted small mb-0">Ingresa con tu cuenta para continuar</p>
+                </div>
+                <?= csrf_field_nativo() ?>
 
-                <?php if (session()->getFlashdata('error')) : ?>
-                  <div class="alert alert-danger"><?= esc(session()->getFlashdata('error')) ?></div>
+                <?php $errorFlash = flash_get('error'); ?>
+                <?php if ($errorFlash) : ?>
+                  <div class="alert alert-danger"><?= esc_nativo($errorFlash) ?></div>
                 <?php endif; ?>
-                <?php if (session()->getFlashdata('message')) : ?>
-                  <div class="alert alert-success"><?= esc(session()->getFlashdata('message')) ?></div>
+                <?php $messageFlash = flash_get('message'); ?>
+                <?php if ($messageFlash) : ?>
+                  <div class="alert alert-success"><?= esc_nativo($messageFlash) ?></div>
                 <?php endif; ?>
 
                 <div class="form-outline mb-4" data-mdb-input-init>
@@ -55,12 +63,6 @@
                   <label class="form-label" for="form1Example2">Contrasena</label>
                 </div>
 
-                <div class="row mb-4">
-                  <div class="col text-center">
-                    <a href="#!">Olvide mi contrasena</a>
-                  </div>
-                </div>
-
                 <button type="submit" class="btn btn-primary btn-block w-100" data-mdb-ripple-init>Ingresar</button>
               </form>
             </div>
@@ -69,12 +71,6 @@
       </div>
     </div>
   </header>
-
-  <footer class="bg-light text-lg-start">
-    <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-      Sistema de Gestion — Oficina del Agua
-    </div>
-  </footer>
 
   <script type="text/javascript" src="<?= base_url('assets/js/mdb.umd.min.js') ?>"></script>
 </body>

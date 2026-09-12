@@ -10,8 +10,8 @@ class TiposServiciosSeeder extends Seeder
     {
         $tipos = [
             ['codigo' => 'CUARTO_PAJA', 'nombre' => '1/4 de paja', 'volumen_incluido_litros' => 15000, 'es_servicio' => 1],
-            ['codigo' => 'MEDIA_PAJA', 'nombre' => '1/2 paja', 'volumen_incluido_litros' => 60000, 'es_servicio' => 1],
-            ['codigo' => 'EXCESO', 'nombre' => 'Exceso de consumo', 'volumen_incluido_litros' => 1000, 'es_servicio' => 0],
+            ['codigo' => 'MEDIA_PAJA',  'nombre' => '1/2 paja',    'volumen_incluido_litros' => 60000, 'es_servicio' => 1],
+            ['codigo' => 'EXCESO',      'nombre' => 'Exceso de consumo', 'volumen_incluido_litros' => 1000, 'es_servicio' => 0],
         ];
 
         foreach ($tipos as $tipo) {
