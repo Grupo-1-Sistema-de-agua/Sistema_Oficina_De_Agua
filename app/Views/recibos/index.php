@@ -15,7 +15,7 @@
         </span>
       </div>
       <div class="px-3 pb-3">
-        <form method="get" action="<?= base_url('recibos') ?>" class="d-flex gap-2">
+        <form method="get" action="<?= base_url('recibos') ?>" class="d-flex gap-2 flex-wrap">
           <input type="text" name="q_pendientes" class="form-control form-control-sm" style="max-width: 300px;"
                  placeholder="Buscar por cliente o recibo..." value="<?= esc_nativo($qPendientes ?? '') ?>">
           <?php if (! empty($qPagadas)) : ?>
@@ -28,7 +28,7 @@
         </form>
       </div>
       <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover align-middle mb-0 table-responsive-cards">
           <thead class="table-light">
             <tr>
               <th>Cliente</th>
@@ -49,18 +49,18 @@
                   $restantes = count($numeros) - count($visibles);
                 ?>
                 <tr>
-                  <td class="fw-semibold"><?= esc_nativo($c['cliente_nombre']) ?></td>
-                  <td><code><?= esc_nativo($c['codigo_fisico']) ?></code></td>
-                  <td>
+                  <td class="fw-semibold" data-label="Cliente"><?= esc_nativo($c['cliente_nombre']) ?></td>
+                  <td data-label="Contador"><code><?= esc_nativo($c['codigo_fisico']) ?></code></td>
+                  <td data-label="Recibos pendientes">
                     <?php foreach ($visibles as $numero) : ?>
-                      <span class="badge bg-light text-dark border me-1"><?= esc_nativo($numero) ?></span>
+                      <span class="badge bg-light text-dark border me-1 mb-1"><?= esc_nativo($numero) ?></span>
                     <?php endforeach; ?>
                     <?php if ($restantes > 0) : ?>
                       <span class="badge bg-secondary">+<?= $restantes ?></span>
                     <?php endif; ?>
                   </td>
-                  <td>Q<?= number_format((float) $c['monto_pendiente'], 2) ?></td>
-                  <td class="text-end">
+                  <td data-label="Monto total">Q<?= number_format((float) $c['monto_pendiente'], 2) ?></td>
+                  <td class="text-end celda-acciones" data-label="Acciones">
                     <a href="<?= base_url('recibos/imprimir/' . $c['contador_id']) ?>" class="btn btn-sm btn-primary" target="_blank">
                       <i class="fas fa-print me-1"></i>Imprimir
                     </a>
@@ -83,7 +83,7 @@
         </span>
       </div>
       <div class="px-3 pb-3">
-        <form method="get" action="<?= base_url('recibos') ?>" class="d-flex gap-2">
+        <form method="get" action="<?= base_url('recibos') ?>" class="d-flex gap-2 flex-wrap">
           <input type="text" name="q_pagadas" class="form-control form-control-sm" style="max-width: 300px;"
                  placeholder="Buscar por cliente o recibo..." value="<?= esc_nativo($qPagadas ?? '') ?>">
           <?php if (! empty($qPendientes)) : ?>
@@ -96,7 +96,7 @@
         </form>
       </div>
       <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover align-middle mb-0 table-responsive-cards">
           <thead class="table-light">
             <tr>
               <th>Recibo</th>
@@ -114,13 +114,13 @@
             <?php else : ?>
               <?php foreach ($lecturasPagadas as $l) : ?>
                 <tr>
-                  <td><code><?= esc_nativo($l['numero_recibo']) ?></code></td>
-                  <td><?= esc_nativo($l['cliente_nombre']) ?></td>
-                  <td><code><?= esc_nativo($l['codigo_fisico']) ?></code></td>
-                  <td>Q<?= number_format((float) $l['monto_base'] + (float) $l['monto_exceso'], 2) ?></td>
-                  <td><?= esc_nativo(date('d/m/Y', strtotime($l['fecha_pago']))) ?></td>
-                  <td><?= esc_nativo($l['metodo_nombre']) ?></td>
-                  <td class="text-end">
+                  <td data-label="Recibo"><code><?= esc_nativo($l['numero_recibo']) ?></code></td>
+                  <td data-label="Cliente"><?= esc_nativo($l['cliente_nombre']) ?></td>
+                  <td data-label="Contador"><code><?= esc_nativo($l['codigo_fisico']) ?></code></td>
+                  <td data-label="Monto">Q<?= number_format((float) $l['monto_base'] + (float) $l['monto_exceso'], 2) ?></td>
+                  <td data-label="Pagado el"><?= esc_nativo(date('d/m/Y', strtotime($l['fecha_pago']))) ?></td>
+                  <td data-label="Metodo"><?= esc_nativo($l['metodo_nombre']) ?></td>
+                  <td class="text-end celda-acciones" data-label="Acciones">
                     <a href="<?= base_url('recibos/pagada/' . $l['id']) ?>" class="btn btn-sm btn-outline-secondary" target="_blank">
                       <i class="fas fa-receipt me-1"></i>Ver recibo
                     </a>
