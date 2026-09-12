@@ -51,17 +51,15 @@
   <div class="card shadow-sm mb-4">
     <div class="card-body">
       <div class="fw-semibold mb-3">Ultimos pagos registrados</div>
-      <?php if (empty($ultimosPagos)) : ?>
-        <p class="text-muted small mb-0">Todavia no hay pagos registrados.</p>
-      <?php else : ?>
         <?php foreach ($ultimosPagos as $i => $p) : ?>
-          <div class="row align-items-center py-2 <?= $i > 0 ? 'border-top' : '' ?> g-2">
-            <div class="col-6"><?= esc_nativo($p['cliente_nombre']) ?></div>
-            <div class="col-3 small text-muted"><?= esc_nativo(date('d/m', strtotime($p['fecha_pago']))) ?></div>
-            <div class="col-3 text-end fw-semibold text-success">Q<?= number_format((float) $p['monto'], 2) ?></div>
+          <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center py-2 <?= $i > 0 ? 'border-top' : '' ?> gap-1">
+            <span><?= esc_nativo($p['cliente_nombre']) ?></span>
+            <div class="d-flex justify-content-between gap-3">
+              <span class="small text-muted"><?= esc_nativo(date('d/m', strtotime($p['fecha_pago']))) ?></span>
+              <span class="fw-semibold text-success text-nowrap">Q<?= number_format((float) $p['monto'], 2) ?></span>
+            </div>
           </div>
         <?php endforeach; ?>
-      <?php endif; ?>
     </div>
   </div>
 
