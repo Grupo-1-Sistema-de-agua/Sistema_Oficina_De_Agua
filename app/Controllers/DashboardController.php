@@ -22,7 +22,7 @@ class DashboardController extends BaseController
             'administrador' => $this->dashboardAdministrador(),
             'secretaria'    => $this->dashboardSecretaria(),
             'lector'        => $this->dashboardLector(),
-            default         => view('dashboard/index', ['nombre' => $_SESSION['nombre'] ?? null, 'rol' => $rol]),
+            default         => $this->cerrarSesionInvalida(),
         };
     }
 
