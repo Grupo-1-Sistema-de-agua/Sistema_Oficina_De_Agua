@@ -12,7 +12,7 @@
   <div class="card shadow-sm">
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover align-middle mb-0 table-responsive-cards">
           <thead class="table-light">
             <tr>
               <th>Nombre</th>
@@ -27,9 +27,9 @@
             <?php else : ?>
               <?php foreach ($sectores as $sector) : ?>
                 <tr>
-                  <td class="fw-semibold"><?= esc_nativo($sector['nombre']) ?></td>
-                  <td class="text-end">
-                    <div class="d-inline-flex gap-2">
+                  <td class="fw-semibold" data-label="Nombre"><?= esc_nativo($sector['nombre']) ?></td>
+                  <td class="text-end celda-acciones" data-label="Acciones">
+                    <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
                       <a href="<?= base_url('sectores/' . $sector['id'] . '/editar') ?>" class="btn btn-sm btn-outline-secondary">
                         <i class="fas fa-edit me-1"></i>Editar
                       </a>
