@@ -3,6 +3,9 @@
 Proyecto grupal del curso de Desarrollo Web. Construido con CodeIgniter 4,
 MariaDB y Material Design for Bootstrap (MDB), corriendo todo en Docker.
 
+**🌍 Entorno de Producción (Demo Day):**
+El sistema se encuentra desplegado y accesible públicamente en: `[COLOCAR_AQUI_LA_URL_DE_SU_EC2]`
+
 ## Requisitos
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado y corriendo
@@ -43,6 +46,24 @@ docker-compose exec app php spark db:seed DatabaseSeeder
 ```
 
 Con eso ya pueden entrar a http://localhost:8000/login con:
+
+## Credenciales de Acceso (Entorno de Prueba)
+
+El sistema cuenta con usuarios funcionales preconfigurados para validar los distintos roles durante el Demo Day. Pueden acceder en http://localhost:8000/login:
+
+*   **Administrador** (Acceso total)
+    *   Correo: `admin@oficinadelagua.local`
+    *   Contraseña: `admin123`
+
+*   **Secretaria** (Facturación y recibos)
+    *   Correo: `secretaria@oficinadelagua.local`
+    *   Contraseña: `admin123`
+
+*   **Lector** (Captura de lecturas)
+    *   Correo: `lector@oficinadelagua.local`
+    *   Contraseña: `admin123`
+
+*(Nota: Cambien estas contraseñas en entornos productivos).*
 
 - Correo: `admin@oficinadelagua.local`
 - Contrasena: `admin123`
