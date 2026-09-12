@@ -11,12 +11,13 @@ class ClienteModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
-    protected $allowedFields    = ['nombre', 'telefono', 'direccion_principal'];
+    protected $allowedFields    = ['nombre','dpi', 'telefono', 'direccion_principal'];
 
     protected $useTimestamps = false;
 
-    protected $validationRules = [
-        'nombre'              => 'required|max_length[150]',
-        'direccion_principal' => 'required|max_length[255]',
-    ];
+   protected $validationRules = [
+    'nombre'              => 'required|max_length[150]',
+    'dpi'                 => 'required|exact_length[13]|is_unique[Tb_Clientes.dpi,id,{id}]',
+    'direccion_principal' => 'required|max_length[255]',
+            ];
 }

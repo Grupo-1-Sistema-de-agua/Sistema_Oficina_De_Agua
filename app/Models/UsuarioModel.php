@@ -18,7 +18,7 @@ class UsuarioModel extends Model
     protected $validationRules = [
         'nombre' => 'required|max_length[100]',
         'email'  => 'required|valid_email|max_length[150]|is_unique[Tb_Usuarios.email,id,{id}]',
-        'rol_id' => 'required|integer',
+        'rol_id' => 'required|integer|is_not_unique[Tb_Roles.id]',
     ];
 
     /**

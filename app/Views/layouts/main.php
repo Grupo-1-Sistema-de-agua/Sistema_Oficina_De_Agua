@@ -3,7 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <title><?= esc($titulo ?? 'Oficina del Agua') ?></title>
+  <title><?= esc_nativo($titulo ?? 'Oficina del Agua') ?></title>
+  <link rel="icon" type="image/svg+xml" href="<?= base_url('assets/img/favicon-agua.svg') ?>">
+  <script>
+    // Se ejecuta durante la carga del <head>, ANTES de que el <body> se
+    // pinte en pantalla -- a diferencia de pageshow (que solo se entera
+    // DESPUES de que el navegador ya mostro la foto guardada). Si esta
+    // pagina se esta restaurando desde el boton atras/adelante, la
+    // escondemos antes de que llegue a pintarse.
+    (function () {
+      var nav = performance.getEntriesByType('navigation')[0];
+      if (nav && nav.type === 'back_forward') {
+        document.documentElement.style.visibility = 'hidden';
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" />
   <link rel="stylesheet" href="<?= base_url('assets/css/mdb.min.css') ?>" />
@@ -16,24 +30,58 @@
     <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-body">
       <div class="position-sticky">
         <div class="list-group list-group-flush mx-3 mt-4">
-          <a href="<?= url_to('DashboardController::index') ?>" class="list-group-item list-group-item-action py-2">
+          <?php
+            $rolActual = $_SESSION['rol'] ?? null;
+            $segmentoActual = strtok(trim(uri_string(), '/'), '/') ?: 'dashboard';
+          ?>
+
+          <a href="<?= url_to('DashboardController::index') ?>" class="list-group-item list-group-item-action py-2 <?= $segmentoActual === 'dashboard' ? 'active' : '' ?>">
             <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Dashboard</span>
           </a>
-          <a href="<?= base_url('clientes') ?>" class="list-group-item list-group-item-action py-2">
-            <i class="fas fa-users fa-fw me-3"></i><span>Clientes</span>
-          </a>
-          <a href="<?= base_url('contadores') ?>" class="list-group-item list-group-item-action py-2">
-            <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Contadores</span>
-          </a>
-          <a href="<?= base_url('tarifas') ?>" class="list-group-item list-group-item-action py-2">
-            <i class="fas fa-tags fa-fw me-3"></i><span>Tarifas</span>
-          </a>
-          <a href="<?= base_url('lecturas') ?>" class="list-group-item list-group-item-action py-2">
-            <i class="fas fa-tint fa-fw me-3"></i><span>Lecturas</span>
-          </a>
-          <a href="<?= base_url('pagos') ?>" class="list-group-item list-group-item-action py-2">
-            <i class="fas fa-money-bill fa-fw me-3"></i><span>Pagos</span>
-          </a>
+
+          <?php if ($rolActual === 'administrador'): ?>
+            <div class="px-2 pt-3 pb-1 small text-muted">Catalogos</div>
+            <a href="<?= base_url('tarifas') ?>" class="list-group-item list-group-item-action py-2 <?= $segmentoActual === 'tarifas' ? 'active' : '' ?>">
+              <i class="fas fa-tags fa-fw me-3"></i><span>Tarifas</span>
+            </a>
+            <a href="<?= base_url('sectores') ?>" class="list-group-item list-group-item-action py-2 <?= $segmentoActual === 'sectores' ? 'active' : '' ?>">
+              <i class="fas fa-map-marker-alt fa-fw me-3"></i><span>Sectores</span>
+            </a>
+          <?php endif; ?>
+
+          <?php if (in_array($rolActual, ['secretaria', 'administrador'], true)): ?>
+            <div class="px-2 pt-3 pb-1 small text-muted">Clientes y servicio</div>
+            <a href="<?= base_url('clientes') ?>" class="list-group-item list-group-item-action py-2 <?= $segmentoActual === 'clientes' ? 'active' : '' ?>">
+              <i class="fas fa-users fa-fw me-3"></i><span>Clientes</span>
+            </a>
+            <a href="<?= base_url('contadores') ?>" class="list-group-item list-group-item-action py-2 <?= $segmentoActual === 'contadores' ? 'active' : '' ?>">
+              <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Contadores</span>
+            </a>
+          <?php endif; ?>
+
+          <?php if (in_array($rolActual, ['lector', 'secretaria', 'administrador'], true)): ?>
+            <div class="px-2 pt-3 pb-1 small text-muted">Operacion</div>
+          <?php endif; ?>
+          <?php if (in_array($rolActual, ['lector', 'administrador'], true)): ?>
+            <a href="<?= base_url('lecturas') ?>" class="list-group-item list-group-item-action py-2 <?= $segmentoActual === 'lecturas' ? 'active' : '' ?>">
+              <i class="fas fa-tint fa-fw me-3"></i><span>Lecturas</span>
+            </a>
+          <?php endif; ?>
+          <?php if (in_array($rolActual, ['secretaria', 'administrador'], true)): ?>
+            <a href="<?= base_url('pagos') ?>" class="list-group-item list-group-item-action py-2 <?= $segmentoActual === 'pagos' ? 'active' : '' ?>">
+              <i class="fas fa-money-bill fa-fw me-3"></i><span>Pagos</span>
+            </a>
+            <a href="<?= base_url('recibos') ?>" class="list-group-item list-group-item-action py-2 <?= $segmentoActual === 'recibos' ? 'active' : '' ?>">
+              <i class="fas fa-file-invoice-dollar fa-fw me-3"></i><span>Recibos</span>
+            </a>
+          <?php endif; ?>
+
+          <?php if ($rolActual === 'administrador'): ?>
+            <div class="px-2 pt-3 pb-1 small text-muted">Administracion</div>
+            <a href="<?= base_url('admin/usuarios') ?>" class="list-group-item list-group-item-action py-2 <?= $segmentoActual === 'admin' ? 'active' : '' ?>">
+              <i class="fas fa-user-shield fa-fw me-3"></i><span>Usuarios</span>
+            </a>
+          <?php endif; ?>
         </div>
       </div>
     </nav>
@@ -63,11 +111,11 @@
 
           <li class="nav-item d-flex align-items-center">
             <div class="user-avatar me-2">
-              <?= esc(strtoupper(substr(session()->get('usuario_nombre') ?? '?', 0, 1))) ?>
+              <?= esc_nativo(strtoupper(substr($_SESSION['nombre'] ?? '?', 0, 1))) ?>
             </div>
             <div class="d-none d-md-flex flex-column lh-1">
-              <span class="user-name"><?= esc(session()->get('usuario_nombre')) ?></span>
-              <small class="user-role"><?= esc(session()->get('usuario_rol')) ?></small>
+              <span class="user-name"><?= esc_nativo($_SESSION['nombre'] ?? '') ?></span>
+              <small class="user-role"><?= esc_nativo($_SESSION['rol'] ?? '') ?></small>
             </div>
           </li>
 
@@ -81,18 +129,38 @@
     </nav>
   </header>
 
-  <main style="margin-top: 58px;">
-    <?php if (session()->getFlashdata('error')) : ?>
-      <div class="alert alert-danger m-3"><?= esc(session()->getFlashdata('error')) ?></div>
-    <?php endif; ?>
-    <?php if (session()->getFlashdata('message')) : ?>
-      <div class="alert alert-success m-3"><?= esc(session()->getFlashdata('message')) ?></div>
+  <main id="main-content">
+    <?php $errorFlash = flash_get('error'); $messageFlash = flash_get('message'); ?>
+    <?php if ($errorFlash || $messageFlash) : ?>
+      <div class="pt-4 px-3">
+        <?php if ($errorFlash) : ?>
+          <div class="alert alert-danger"><?= esc_nativo($errorFlash) ?></div>
+        <?php endif; ?>
+        <?php if ($messageFlash) : ?>
+          <div class="alert alert-success"><?= esc_nativo($messageFlash) ?></div>
+        <?php endif; ?>
+      </div>
     <?php endif; ?>
 
     <?= $this->renderSection('contenido') ?>
   </main>
 
   <script type="text/javascript" src="<?= base_url('assets/js/mdb.umd.min.js') ?>"></script>
+  <script>
+    (function () {
+      var nav = document.getElementById('main-navbar');
+      var main = document.getElementById('main-content');
+
+      function ajustarMargenSuperior() {
+        var altura = nav.offsetHeight;
+        main.style.marginTop = altura + 'px';
+        document.documentElement.style.setProperty('--navbar-height', altura + 'px');
+      }
+
+      ajustarMargenSuperior();
+      window.addEventListener('resize', ajustarMargenSuperior);
+    })();
+  </script>
   <script>
     (function () {
       var boton = document.getElementById('themeToggle');
@@ -116,6 +184,15 @@
         aplicar(oscuro);
       });
     })();
+  </script>
+  <script>
+    // El escondido ya lo hizo el script del <head> antes del primer
+    // pintado. Aqui solo forzamos la recarga real hacia el servidor.
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted) {
+        window.location.reload();
+      }
+    });
   </script>
 </body>
 </html>

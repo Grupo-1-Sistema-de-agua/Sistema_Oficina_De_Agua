@@ -8,16 +8,12 @@ class MetodosPagoSeeder extends Seeder
 {
     public function run()
     {
-        $metodos = [
-            ['nombre' => 'Efectivo'],
-            ['nombre' => 'Transferencia'],
-            ['nombre' => 'Deposito'],
-        ];
+        $metodos = ['Efectivo', 'Transferencia', 'Deposito'];
 
-        foreach ($metodos as $metodo) {
-            $existe = $this->db->table('Tb_Metodos_Pago')->where('nombre', $metodo['nombre'])->get()->getRow();
+        foreach ($metodos as $nombre) {
+            $existe = $this->db->table('Tb_Metodos_Pago')->where('nombre', $nombre)->get()->getRow();
             if (! $existe) {
-                $this->db->table('Tb_Metodos_Pago')->insert($metodo);
+                $this->db->table('Tb_Metodos_Pago')->insert(['nombre' => $nombre]);
             }
         }
     }

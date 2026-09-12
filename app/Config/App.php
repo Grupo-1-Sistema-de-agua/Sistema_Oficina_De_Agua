@@ -6,6 +6,13 @@ use CodeIgniter\Config\BaseConfig;
 
 class App extends BaseConfig
 {
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->appTimezone = getenv('app.timezone') ?: 'UTC';
+    }
     /**
      * --------------------------------------------------------------------------
      * Base Site URL
@@ -133,7 +140,7 @@ class App extends BaseConfig
      * @see https://www.php.net/manual/en/timezones.php for list of timezones
      *      supported by PHP.
      */
-    public string $appTimezone = 'UTC';
+    public string $appTimezone = 'America/Guatemala';
 
     /**
      * --------------------------------------------------------------------------
