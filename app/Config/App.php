@@ -12,6 +12,16 @@ class App extends BaseConfig
         parent::__construct();
 
         $this->appTimezone = getenv('app.timezone') ?: 'UTC';
+
+        // baseURL dinamica: en peticiones web usa el Host actual (funciona
+        // aunque la IP publica cambie); en CLI (spark migrate/seed) usa el
+        // valor del .env.
+        if (isset($_SERVER['HTTP_HOST'])) {
+            $this->baseURL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http')
+                . '://' . $_SERVER['HTTP_HOST'] . '/';
+        } elseif ($envBaseUrl = getenv('app.baseURL')) {
+            $this->baseURL = $envBaseUrl;
+        }
     }
     /**
      * --------------------------------------------------------------------------

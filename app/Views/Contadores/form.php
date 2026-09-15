@@ -18,7 +18,7 @@
                                 <option value="">-- Seleccionar cliente --</option>
                                 <?php foreach ($clientes as $c): ?>
                                     <option value="<?= esc_nativo($c['id']) ?>"
-                                        <?= (string) old('cliente_id', $contador['cliente_id'] ?? '') === (string) $c['id'] ? 'selected' : '' ?>>
+                                        <?= (string) (isset($errors['cliente_id']) ? old('cliente_id', '') : ($contador['cliente_id'] ?? '')) === (string) $c['id'] ? 'selected' : '' ?>>
                                         <?= esc_nativo($c['nombre']) ?><?= ! empty($c['dpi']) ? ' (' . esc_nativo($c['dpi']) . ')' : '' ?> | <?= esc_nativo($c['direccion_principal']) ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -34,7 +34,7 @@
                                 <option value="">-- Seleccionar tipo --</option>
                                 <?php foreach ($tipos as $t): ?>
                                     <option value="<?= esc_nativo($t['id']) ?>"
-                                        <?= (string) old('tipo_servicio_id', $contador['tipo_servicio_id'] ?? '') === (string) $t['id'] ? 'selected' : '' ?>>
+                                        <?= (string) (isset($errors['tipo_servicio_id']) ? old('tipo_servicio_id', '') : ($contador['tipo_servicio_id'] ?? '')) === (string) $t['id'] ? 'selected' : '' ?>>
                                         <?= esc_nativo($t['nombre']) ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -50,7 +50,7 @@
                                 <option value="">-- Seleccionar sector --</option>
                                 <?php foreach ($sectores as $s): ?>
                                     <option value="<?= esc_nativo($s['id']) ?>"
-                                        <?= (string) old('sector_id', $contador['sector_id'] ?? '') === (string) $s['id'] ? 'selected' : '' ?>>
+                                        <?= (string) (isset($errors['sector_id']) ? old('sector_id', '') : ($contador['sector_id'] ?? '')) === (string) $s['id'] ? 'selected' : '' ?>>
                                         <?= esc_nativo($s['nombre']) ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -63,7 +63,7 @@
                         <div class="mb-3">
                             <label for="codigo_fisico" class="form-label">Codigo fisico</label>
                             <input type="text" name="codigo_fisico" id="codigo_fisico"
-                                   value="<?= esc_nativo(old('codigo_fisico', $contador['codigo_fisico'] ?? '')) ?>"
+                                   value="<?= esc_nativo(isset($errors['codigo_fisico']) ? old('codigo_fisico', '') : ($contador['codigo_fisico'] ?? '')) ?>"
                                    class="form-control" maxlength="30">
                             <?php if (isset($errors['codigo_fisico'])): ?>
                                 <small class="text-danger"><?= esc_nativo($errors['codigo_fisico']) ?></small>
@@ -71,9 +71,18 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="direccion_servicio" class="form-label">Direccion del servicio</label>
+                            <textarea name="direccion_servicio" id="direccion_servicio"
+                                      class="form-control" rows="3"><?= esc_nativo(isset($errors['direccion_servicio']) ? old('direccion_servicio', '') : ($contador['direccion_servicio'] ?? '')) ?></textarea>
+                            <?php if (isset($errors['direccion_servicio'])): ?>
+                                <small class="text-danger"><?= esc_nativo($errors['direccion_servicio']) ?></small>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="mb-3">
                             <label for="fecha_asignacion" class="form-label">Fecha de asignacion</label>
                             <input type="date" name="fecha_asignacion" id="fecha_asignacion"
-                                   value="<?= esc_nativo(old('fecha_asignacion', $contador['fecha_asignacion'] ?? date('Y-m-d'))) ?>"
+                                   value="<?= esc_nativo(isset($errors['fecha_asignacion']) ? old('fecha_asignacion', '') : ($contador['fecha_asignacion'] ?? date('Y-m-d'))) ?>"
                                    class="form-control">
                             <?php if (isset($errors['fecha_asignacion'])): ?>
                                 <small class="text-danger"><?= esc_nativo($errors['fecha_asignacion']) ?></small>
@@ -81,17 +90,24 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="direccion_servicio" class="form-label">Direccion del servicio</label>
-                            <textarea name="direccion_servicio" id="direccion_servicio"
-                                      class="form-control" rows="3"><?= esc_nativo(old('direccion_servicio', $contador['direccion_servicio'] ?? '')) ?></textarea>
-                            <?php if (isset($errors['direccion_servicio'])): ?>
-                                <small class="text-danger"><?= esc_nativo($errors['direccion_servicio']) ?></small>
+                            <label for="lectura_inicial" class="form-label">Lectura actual del medidor</label>
+                            <input type="number" name="lectura_inicial" id="lectura_inicial" min="0"
+                                   value="<?= esc_nativo(isset($errors['lectura_inicial']) ? old('lectura_inicial', '') : ($contador['lectura_inicial'] ?? 0)) ?>"
+                                   class="form-control">
+                            <div class="form-text">
+                                Para un medidor nuevo deja 0. Para una paja existente, escribe 
+                                el numero que marca el medidor hoy: desde ahi se empezara a contar.
+                            </div>
+                            <?php if (isset($errors['lectura_inicial'])): ?>
+                                <small class="text-danger"><?= esc_nativo($errors['lectura_inicial']) ?></small>
                             <?php endif; ?>
                         </div>
 
+
+
                         <div class="form-check form-switch mb-4">
                             <input class="form-check-input" type="checkbox" name="activo" id="activo" value="1"
-                                <?= (int) old('activo', $contador['activo'] ?? 1) === 1 ? 'checked' : '' ?>>
+                                <?= (int) (isset($errors['activo']) ? old('activo', 0) : ($contador['activo'] ?? 1)) === 1 ? 'checked' : '' ?>>
                             <label class="form-check-label" for="activo">Contador activo</label>
                         </div>
 
