@@ -1,2 +1,7 @@
 /.gitattributes export-ignore
 /.github export-ignore
+
+# Los scripts que entran a los contenedores Docker deben usar LF,
+# de lo contrario Docker copia CRLF y falla con "no such file or directory".
+*.sh text eol=lf
+docker/app/000-default.conf text eol=lf

@@ -12,20 +12,23 @@ class ContadorModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $allowedFields = [
-    'codigo_fisico', 'direccion_servicio', 'activo',
-    'cliente_id', 'tipo_servicio_id', 'sector_id',
-    'fecha_asignacion', 'fecha_desactivacion',
+        'codigo_fisico', 'direccion_servicio', 'activo',
+        'cliente_id', 'tipo_servicio_id', 'sector_id',
+        'fecha_asignacion', 'fecha_desactivacion',
+        'lectura_inicial',
 ];
+
 
     protected $useTimestamps = false;
 
-    protected $validationRules = [
-        'codigo_fisico'      => 'required|max_length[30]|is_unique[Tb_Contadores.codigo_fisico,id,{id}]',
-        'direccion_servicio' => 'required|max_length[255]',
-        'cliente_id'         => 'required|integer|is_not_unique[Tb_Clientes.id]',
-        'tipo_servicio_id'   => 'required|integer|is_not_unique[Tb_Tipos_Servicios.id]',
-        'sector_id'          => 'required|integer|is_not_unique[Tb_Sectores.id]',
-    ];
+   protected $validationRules = [
+    'codigo_fisico'      => 'required|max_length[30]|is_unique[Tb_Contadores.codigo_fisico,id,{id}]',
+    'direccion_servicio' => 'required|max_length[255]',
+    'cliente_id'         => 'required|integer|is_not_unique[Tb_Clientes.id]',
+    'tipo_servicio_id'   => 'required|integer|is_not_unique[Tb_Tipos_Servicios.id]',
+    'sector_id'          => 'required|integer|is_not_unique[Tb_Sectores.id]',
+    'lectura_inicial'    => 'permit_empty|integer|greater_than_equal_to[0]',
+];
 
     /**
      * Lista de contadores ACTIVOS pendientes de lectura, con el nombre del
