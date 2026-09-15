@@ -18,7 +18,7 @@
                                 <option value="">-- Seleccionar cliente --</option>
                                 <?php foreach ($clientes as $c): ?>
                                     <option value="<?= esc_nativo($c['id']) ?>"
-                                        <?= (string) old('cliente_id', $contador['cliente_id'] ?? '') === (string) $c['id'] ? 'selected' : '' ?>>
+                                        <?= (string) (isset($errors['cliente_id']) ? old('cliente_id', '') : ($contador['cliente_id'] ?? '')) === (string) $c['id'] ? 'selected' : '' ?>>
                                         <?= esc_nativo($c['nombre']) ?><?= ! empty($c['dpi']) ? ' (' . esc_nativo($c['dpi']) . ')' : '' ?> | <?= esc_nativo($c['direccion_principal']) ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -34,7 +34,7 @@
                                 <option value="">-- Seleccionar tipo --</option>
                                 <?php foreach ($tipos as $t): ?>
                                     <option value="<?= esc_nativo($t['id']) ?>"
-                                        <?= (string) old('tipo_servicio_id', $contador['tipo_servicio_id'] ?? '') === (string) $t['id'] ? 'selected' : '' ?>>
+                                        <?= (string) (isset($errors['tipo_servicio_id']) ? old('tipo_servicio_id', '') : ($contador['tipo_servicio_id'] ?? '')) === (string) $t['id'] ? 'selected' : '' ?>>
                                         <?= esc_nativo($t['nombre']) ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -50,7 +50,7 @@
                                 <option value="">-- Seleccionar sector --</option>
                                 <?php foreach ($sectores as $s): ?>
                                     <option value="<?= esc_nativo($s['id']) ?>"
-                                        <?= (string) old('sector_id', $contador['sector_id'] ?? '') === (string) $s['id'] ? 'selected' : '' ?>>
+                                        <?= (string) (isset($errors['sector_id']) ? old('sector_id', '') : ($contador['sector_id'] ?? '')) === (string) $s['id'] ? 'selected' : '' ?>>
                                         <?= esc_nativo($s['nombre']) ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -63,7 +63,7 @@
                         <div class="mb-3">
                             <label for="codigo_fisico" class="form-label">Codigo fisico</label>
                             <input type="text" name="codigo_fisico" id="codigo_fisico"
-                                   value="<?= esc_nativo(old('codigo_fisico', $contador['codigo_fisico'] ?? '')) ?>"
+                                   value="<?= esc_nativo(isset($errors['codigo_fisico']) ? old('codigo_fisico', '') : ($contador['codigo_fisico'] ?? '')) ?>"
                                    class="form-control" maxlength="30">
                             <?php if (isset($errors['codigo_fisico'])): ?>
                                 <small class="text-danger"><?= esc_nativo($errors['codigo_fisico']) ?></small>

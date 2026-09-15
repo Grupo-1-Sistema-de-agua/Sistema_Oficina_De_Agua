@@ -22,6 +22,7 @@ class ContadorModel extends Model
     protected $useTimestamps = false;
 
    protected $validationRules = [
+    'id'                 => 'permit_empty|is_natural_no_zero',
     'codigo_fisico'      => 'required|max_length[30]|is_unique[Tb_Contadores.codigo_fisico,id,{id}]',
     'direccion_servicio' => 'required|max_length[255]',
     'cliente_id'         => 'required|integer|is_not_unique[Tb_Clientes.id]',

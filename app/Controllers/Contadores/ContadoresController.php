@@ -117,12 +117,16 @@ class ContadoresController extends BaseController
             return redirect()->to('/contadores');
         }
 
-        if (! $this->contadores->validate($this->request->getPost())) {
+        $post = $this->request->getPost();
+        $post['id'] = (int) $id;
+
+        if (! $this->contadores->validate($post)) {
             flash_set('errors', $this->contadores->errors());
             return redirect()->back()->withInput();
         }
 
             $datos = [
+            'id'                 => (int) $id,
             'cliente_id'         => $this->request->getPost('cliente_id'),
             'tipo_servicio_id'   => $this->request->getPost('tipo_servicio_id'),
             'sector_id'          => $this->request->getPost('sector_id'),
