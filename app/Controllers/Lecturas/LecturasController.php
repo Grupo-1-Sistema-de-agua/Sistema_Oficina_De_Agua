@@ -129,7 +129,7 @@ class LecturasController extends BaseController
         $data['contador']      = $contador;
         $data['cliente']       = model('ClienteModel')->find($contador['cliente_id']);
         $data['tarifaBase']    = $this->tarifas->vigentePara((int) $contador['tipo_servicio_id']);
-        $data['lectura_anterior'] = $ultima['lectura_actual'] ?? 0;
+              $data['lectura_anterior'] = $ultima['lectura_actual'] ?? ($contador['lectura_inicial'] ?? 0);
         $data['ultima_fecha']  = $ultima['fecha'] ?? null;
         // CAMBIO: fecha automatica del sistema (ya no se pide al usuario)
         $data['fecha']         = date('Y-m-d H:i:s');
@@ -167,7 +167,7 @@ class LecturasController extends BaseController
         }
 
         $ultima = $this->lecturas->ultimaDeContador($contadorId);
-        $anterior = $ultima['lectura_actual'] ?? 0;
+                $anterior = $ultima['lectura_actual'] ?? ($contador['lectura_inicial'] ?? 0);
 
         // Regla: no se permite actual < anterior
         if ($lecturaActual < $anterior) {
