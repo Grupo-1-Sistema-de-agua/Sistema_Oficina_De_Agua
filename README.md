@@ -58,3 +58,6 @@ Generadas automáticamente al correr el seeder (`DatabaseSeeder`):
 | Administrador | admin@oficinadelagua.local | admin123. |
 | Secretaria | secretaria@oficinadelagua.local | secretaria123. |
 | Lector | lector@oficinadelagua.local | lector123. |
+
+Alan Steven Marroquin Villasenor 0905-23-15264
+yo trabaje  las mejoras 1 y 3 que son clima actual para el lector de campo haci como tambien le agrege el clima a todos lo demas porque se me hico como que estamos excluyendo alos demas con esa funcion que es bueno siempre tener el clima  ala vista porque cuando uno sale aveces no mira el clima en su telefono por estar trabjando pero ya teniendolo presente uno se puede preparar mejor ,en cuanto a exportar listado csv agrege dos uno de pagos y otro de clientes ya que es importante como tener un listado el cual podamos exportar cuando nosotros queramos haci como los pagos para tener como una estadistica de los meses o si se pide un listado porderlo tener listo en cual quier momento .
