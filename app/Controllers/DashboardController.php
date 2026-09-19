@@ -112,6 +112,7 @@ class DashboardController extends BaseController
         return view('dashboard/administrador', array_merge(
             ['nombre' => $_SESSION['nombre'] ?? null],
             $this->totalesGenerales(),
+            ['clima' => $this->climaActual()],
             $this->estadoDeCuenta(),
             $this->seguimientoCobranza()
         ));
@@ -122,6 +123,7 @@ class DashboardController extends BaseController
         return view('dashboard/secretaria', array_merge(
             ['nombre' => $_SESSION['nombre'] ?? null],
             $this->totalesGenerales(),
+            ['clima' => $this->climaActual()],
             $this->estadoDeCuenta()
         ));
     }
