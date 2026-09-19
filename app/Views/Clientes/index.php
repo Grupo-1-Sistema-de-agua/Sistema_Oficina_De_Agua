@@ -4,9 +4,14 @@
 <div class="container-fluid px-4 py-4">
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
     <h2 class="h4 mb-0">Clientes</h2>
-    <a href="<?= base_url('clientes/nuevo') ?>" class="btn btn-primary">
-      <i class="fas fa-plus me-1"></i> Nuevo Cliente
-    </a>
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="<?= base_url('clientes/exportar') ?>" class="btn btn-success">
+        <i class="fas fa-file-csv me-1"></i> Exportar CSV
+      </a>
+      <a href="<?= base_url('clientes/nuevo') ?>" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> Nuevo Cliente
+      </a>
+    </div>
   </div>
 
   <div class="card shadow-sm">
