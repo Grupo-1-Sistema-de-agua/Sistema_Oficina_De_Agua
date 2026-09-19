@@ -10,7 +10,7 @@
   </div>
 
   <div class="row g-3 mb-4">
-    <div class="col-md-5">
+    <div class="col-md-3">
       <div class="rounded-4 p-3 h-100 text-white position-relative overflow-hidden" style="background: linear-gradient(135deg, #0f2942 0%, #123a52 100%);">
         <svg style="position: absolute; bottom: -14px; right: -10px; width: 70px; height: 70px; opacity: 0.14;" viewBox="0 0 100 100"><path d="M50 8 C50 8 22 42 22 62 C22 79 34 92 50 92 C66 92 78 79 78 62 C78 42 50 8 50 8 Z" fill="#ffffff"></path></svg>
         <div class="small fw-semibold" style="color: #a9c9d6;">Monto pendiente de cobro</div>
@@ -18,7 +18,7 @@
         <div class="small mt-1" style="color: #7fd8e3;"><?= esc_nativo($lecturasPendientes) ?> lecturas sin pagar</div>
       </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="card shadow-sm h-100">
         <div class="card-body">
           <i class="fas fa-users text-primary" style="font-size: 18px;"></i>
@@ -33,6 +33,15 @@
           <i class="fas fa-tachometer-alt text-primary" style="font-size: 18px;"></i>
           <div class="small text-muted fw-semibold mt-2">Contadores activos</div>
           <div class="fs-3 fw-semibold"><?= esc_nativo($contadoresActivos) ?></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body d-flex flex-column">
+          <i class="fas fa-file-csv text-success" style="font-size: 18px;"></i>
+          <div class="small text-muted fw-semibold mt-2">Listado de clientes</div>
+          <a href="<?= base_url('clientes/exportar') ?>" class="btn btn-sm btn-outline-success mt-auto">Exportar CSV</a>
         </div>
       </div>
     </div>
