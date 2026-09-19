@@ -126,6 +126,71 @@ class DashboardController extends BaseController
         ));
     }
 
+    private function climaActual(): array
+    {
+        $latitud = (float) (getenv('weather.latitude') ?: 14.6349);
+        $longitud = (float) (getenv('weather.longitude') ?: -90.5069);
+        $zonaHoraria = getenv('weather.timezone') ?: 'America/Guatemala';
+        $url = 'https://api.open-meteo.com/v1/forecast?' . http_build_query([
+            'latitude'  => $latitud,
+            'longitude' => $longitud,
+            'current'   => 'temperature_2m,weather_code',
+            'timezone'  => $zonaHoraria,
+        ]);
+
+        try {
+            $respuesta = service('curlrequest', [
+                'timeout'         => 5,
+                'connect_timeout' => 3,
+                'http_errors'     => false,
+            ])->get($url);
+
+            $datos = json_decode($respuesta->getBody(), true);
+            $actual = $datos['current'] ?? null;
+
+            if ($respuesta->getStatusCode() !== 200 || ! is_array($actual)) {
+                throw new \RuntimeException('Respuesta climatica no disponible.');
+            }
+
+            $descripciones = [
+                0 => 'Despejado',
+                1 => 'Principalmente despejado',
+                2 => 'Parcialmente nublado',
+                3 => 'Nublado',
+                45 => 'Niebla',
+                48 => 'Niebla con escarcha',
+                51 => 'Llovizna ligera',
+                53 => 'Llovizna moderada',
+                55 => 'Llovizna intensa',
+                61 => 'Lluvia ligera',
+                63 => 'Lluvia moderada',
+                65 => 'Lluvia intensa',
+                80 => 'Chubascos ligeros',
+                81 => 'Chubascos moderados',
+                82 => 'Chubascos intensos',
+                95 => 'Tormenta electrica',
+                96 => 'Tormenta con granizo ligero',
+                99 => 'Tormenta con granizo intenso',
+            ];
+
+            $codigo = (int) ($actual['weather_code'] ?? -1);
+
+            return [
+                'disponible'   => true,
+                'temperatura'  => $actual['temperature_2m'] ?? null,
+                'unidad'       => $datos['current_units']['temperature_2m'] ?? '°C',
+                'descripcion'  => $descripciones[$codigo] ?? 'Condicion no identificada',
+                'actualizado'  => $actual['time'] ?? null,
+                'ubicacion'    => 'Ciudad de Guatemala',
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'disponible' => false,
+                'mensaje'    => 'No se pudo consultar el clima actual. Verifica la conexion e intenta de nuevo.',
+            ];
+        }
+    }
+
     private function pendientesLector(): array
     {
         $pendientes = db_connect()->table('Tb_Contadores')
@@ -148,6 +213,7 @@ class DashboardController extends BaseController
         return view('dashboard/lector', array_merge(
             ['nombre' => $_SESSION['nombre'] ?? null],
             $this->totalesGenerales(),
+            ['clima' => $this->climaActual()],
             $this->pendientesLector()
         ));
     }
