@@ -18,6 +18,32 @@
     <i class="fas fa-tint" style="font-size: 40px; color: #7fd8e3;"></i>
   </div>
 
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <div class="fw-semibold">Clima actual</div>
+        <?php if (($clima['disponible'] ?? false) === true) : ?>
+          <span class="small text-muted"><?= esc_nativo($clima['ubicacion']) ?></span>
+        <?php endif; ?>
+      </div>
+      <?php if (($clima['disponible'] ?? false) === true) : ?>
+        <div class="d-flex align-items-center gap-3">
+          <i class="fas fa-cloud-sun text-info" style="font-size: 32px;"></i>
+          <div>
+            <div class="fs-3 fw-semibold">
+              <?= esc_nativo(number_format((float) $clima['temperatura'], 1)) ?><?= esc_nativo($clima['unidad']) ?>
+            </div>
+            <div class="text-muted"><?= esc_nativo($clima['descripcion']) ?></div>
+          </div>
+        </div>
+      <?php else : ?>
+        <div class="alert alert-warning mb-0">
+          <?= esc_nativo($clima['mensaje'] ?? 'El clima no esta disponible en este momento.') ?>
+        </div>
+      <?php endif; ?>
+    </div>
+  </div>
+
   <div class="card shadow-sm">
     <div class="card-body">
       <div class="fw-semibold mb-3">Proximos a leer</div>
