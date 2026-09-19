@@ -2,8 +2,11 @@
 
 <?= $this->section('contenido') ?>
 <div class="container-fluid px-4 py-4">
-  <div class="mb-3">
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
     <h2 class="h4 mb-0">Pagos</h2>
+    <a href="<?= base_url('pagos/exportar') ?>" class="btn btn-success">
+      <i class="fas fa-file-csv me-1"></i> Exportar CSV
+    </a>
   </div>
 
   <div class="card shadow-sm mb-4">
