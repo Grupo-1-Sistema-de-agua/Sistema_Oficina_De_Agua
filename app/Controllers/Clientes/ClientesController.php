@@ -29,6 +29,28 @@ class ClientesController extends BaseController
 
         return view('Clientes/index', ['clientes' => $clientes]);
     }
+    public function exportar()
+    {
+        $clientes = $this->clienteModel->findAll();
+        $archivo = fopen('php://temp', 'r+');
+
+        fputcsv($archivo, ['Nombre', 'DPI', 'Telefono', 'Direccion'], ';');
+
+        foreach ($clientes as $cliente) {
+            fputcsv($archivo, [
+                $cliente['nombre'],
+                $cliente['dpi'] ?? '',
+                $cliente['telefono'] ?? '',
+                $cliente['direccion_principal'],
+            ], ';');
+        }
+
+        rewind($archivo);
+        $contenido = "\xEF\xBB\xBF" . stream_get_contents($archivo);
+        fclose($archivo);
+
+        return $this->response->download('clientes.csv', $contenido);
+    }
 
     public function nuevo()
     {
