@@ -102,4 +102,7 @@ $routes->group('recibos', ['namespace' => 'App\Controllers\Recibos'], function (
     $routes->get('/', 'RecibosController::index');
     $routes->get('imprimir/(:num)', 'RecibosController::imprimir/$1');
     $routes->get('pagada/(:num)', 'RecibosController::pagada/$1');
+
+// Clima
+$routes->get('/dashboard', 'ClimaController::index');
 });
