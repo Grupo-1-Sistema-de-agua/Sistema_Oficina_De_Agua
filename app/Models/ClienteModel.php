@@ -15,9 +15,16 @@ class ClienteModel extends Model
 
     protected $useTimestamps = false;
 
-   protected $validationRules = [
-    'nombre'              => 'required|max_length[150]',
-    'dpi'                 => 'required|exact_length[13]|is_unique[Tb_Clientes.dpi,id,{id}]',
-    'direccion_principal' => 'required|max_length[255]',
-            ];
+    protected $validationRules = [
+        'nombre'              => 'required|max_length[150]',
+        'dpi'                 => 'required|exact_length[13]|is_unique[Tb_Clientes.dpi,id,{id}]',
+        'direccion_principal' => 'required|max_length[255]',
+    ];
+
+    // ESTO ES LO ÚNICO NUEVO PARA TRADUCIR EL ERROR
+    protected $validationMessages = [
+        'dpi' => [
+            'is_unique' => 'Este DPI ya se encuentra registrado en el sistema.'
+        ]
+    ];
 }
