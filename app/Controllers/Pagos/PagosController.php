@@ -70,6 +70,40 @@ class PagosController extends BaseController
         ]);
     }
 
+    public function exportar()
+    {
+        $pagos = (new PagoModel())
+            ->select('Tb_Pagos.*, Tb_Lecturas.numero_recibo, Tb_Clientes.nombre AS cliente_nombre, Tb_Metodos_Pago.nombre AS metodo_nombre, Tb_Usuarios.nombre AS usuario_nombre')
+            ->join('Tb_Lecturas', 'Tb_Lecturas.id = Tb_Pagos.lectura_id')
+            ->join('Tb_Contadores', 'Tb_Contadores.id = Tb_Lecturas.contador_id')
+            ->join('Tb_Clientes', 'Tb_Clientes.id = Tb_Contadores.cliente_id')
+            ->join('Tb_Metodos_Pago', 'Tb_Metodos_Pago.id = Tb_Pagos.metodo_id')
+            ->join('Tb_Usuarios', 'Tb_Usuarios.id = Tb_Pagos.usuario_registro_id')
+            ->orderBy('Tb_Pagos.fecha_pago', 'DESC')
+            ->findAll();
+
+        $archivo = fopen('php://temp', 'r+');
+        fputcsv($archivo, ['Cliente', 'Recibo', 'Monto', 'Fecha', 'Metodo', 'Registrado por', 'Estado'], ';');
+
+        foreach ($pagos as $pago) {
+            fputcsv($archivo, [
+                $pago['cliente_nombre'],
+                $pago['numero_recibo'],
+                number_format((float) $pago['monto'], 2, '.', ''),
+                $pago['fecha_pago'],
+                $pago['metodo_nombre'],
+                $pago['usuario_nombre'],
+                (int) $pago['anulado'] === 1 ? 'Anulado' : 'Activo',
+            ], ';');
+        }
+
+        rewind($archivo);
+        $contenido = "\xEF\xBB\xBF" . stream_get_contents($archivo);
+        fclose($archivo);
+
+        return $this->response->download('pagos.csv', $contenido);
+    }
+
     /**
      * Formulario para pagar UNA lectura especifica. El monto viene fijo,
      * calculado desde la lectura (no es editable). Genera un token de
