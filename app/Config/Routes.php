@@ -34,6 +34,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function ($rou
 // Modulo: Clientes
 $routes->group('clientes', ['namespace' => 'App\Controllers\Clientes'], function ($routes) {
     $routes->get('/', 'ClientesController::index');
+    $routes->get('exportar', 'ClientesController::exportar');
     $routes->get('nuevo', 'ClientesController::nuevo');
     $routes->post('store', 'ClientesController::store');
     $routes->get('editar/(:num)', 'ClientesController::editar/$1');
