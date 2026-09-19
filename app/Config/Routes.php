@@ -93,6 +93,7 @@ $routes->group('lecturas', ['namespace' => 'App\Controllers\Lecturas'], function
 // Modulo: Pagos
 $routes->group('pagos', ['namespace' => 'App\Controllers\Pagos'], function ($routes) {
     $routes->get('/', 'PagosController::index');
+    $routes->get('exportar', 'PagosController::exportar');
     $routes->get('nuevo/(:num)', 'PagosController::nuevo/$1');
     $routes->post('store', 'PagosController::store');
     $routes->post('(:num)/anular', 'PagosController::anular/$1');
