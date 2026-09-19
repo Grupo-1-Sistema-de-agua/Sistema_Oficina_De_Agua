@@ -46,6 +46,15 @@
         </div>
       </div>
     </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body d-flex flex-column">
+          <i class="fas fa-money-bill-wave text-success" style="font-size: 18px;"></i>
+          <div class="small text-muted fw-semibold mt-2">Pagos registrados</div>
+          <a href="<?= base_url('pagos/exportar') ?>" class="btn btn-sm btn-outline-success mt-auto">Exportar CSV</a>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="card shadow-sm">
