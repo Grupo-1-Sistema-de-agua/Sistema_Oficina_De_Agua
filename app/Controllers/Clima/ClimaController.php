@@ -4,23 +4,20 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 
-class ClimaController extends BaseController
+class DashboardController extends BaseController 
 {
     public function index()
     {
-        // 1. Configurar la API (¡Reemplaza TU_API_KEY por la tuya!)
-        $apiKey = 'TU_API_KEY_AQUI'; 
+        // 1. Lógica del Clima
+        $apiKey = '59a1d726c080747797be2f13080aab72'; 
         $ciudad = 'Guatemala';
-        // URL configurada para sistema métrico (Celsius) y en español
         $url = "https://api.openweathermap.org/data/2.5/weather?q={$ciudad}&appid={$apiKey}&units=metric&lang=es";
 
-        // 2. Consumir la API desde PHP de forma segura
         try {
             $cliente = \Config\Services::curlrequest();
             $respuesta = $cliente->request('GET', $url);
             $climaData = json_decode($respuesta->getBody());
 
-            // Extraemos solo lo que necesitamos
             $datosClima = [
                 'temperatura' => round($climaData->main->temp),
                 'descripcion' => $climaData->weather[0]->description,
@@ -28,7 +25,6 @@ class ClimaController extends BaseController
                 'humedad'     => $climaData->main->humidity
             ];
         } catch (\Exception $e) {
-            // Si la API falla, no rompemos el sistema, mostramos datos vacíos
             $datosClima = [
                 'temperatura' => '--',
                 'descripcion' => 'Servicio no disponible',
@@ -37,12 +33,12 @@ class ClimaController extends BaseController
             ];
         }
 
-        // 3. Pasamos la variable a la vista
+        // 2. Pasamos los datos a la vista del dashboard
         $data = [
             'clima' => $datosClima
         ];
 
-        // Asegúrate de poner la ruta correcta hacia tu archivo de vista
-        return view('app/views/layouts/main', $data); 
+        // 3. Cargamos la vista de tu dashboard (Asegúrate de que este nombre sea el correcto)
+        return view('clima/index', $data); 
     }
 }

@@ -58,3 +58,8 @@ Generadas automáticamente al correr el seeder (`DatabaseSeeder`):
 | Administrador | admin@oficinadelagua.local | admin123. |
 | Secretaria | secretaria@oficinadelagua.local | secretaria123. |
 | Lector | lector@oficinadelagua.local | lector123. |
+
+
+Imanol Jose Miguel Gutierrez Cardona 0905-19-4862
+Implementacion de mejora - Clima
+

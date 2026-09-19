@@ -99,23 +99,7 @@
         </a>
 
         <ul class="navbar-nav ms-auto d-flex flex-row align-items-center">
-          <!-- Tarjeta de Clima MDBootstrap -->
-          <div class="card shadow-2-strong text-center" style="max-width: 18rem;">
-              <div class="card-body">
-                  <h5 class="card-title text-primary"><i class="fas fa-cloud-sun"></i> Clima Actual</h5>
-                  <h6 class="card-subtitle mb-2 text-muted">Ciudad de Guatemala</h6>
-
-                  <!-- Imprimir el ícono oficial de OpenWeather solo si hay datos -->
-                  <?php if($clima['temperatura'] !== '--'): ?>
-                      <img src="https://openweathermap.org/img/wn/<?= $clima['icono'] ?>@2x.png" alt="Icono del clima">
-                  <?php endif; ?>
-
-                  <!-- Imprimir Temperatura y Descripción -->
-                  <h2 class="display-4 my-1 text-dark"><?= $clima['temperatura'] ?>°C</h2>
-                  <p class="card-text text-capitalize text-muted mb-0"><?= $clima['descripcion'] ?></p>
-                  <small class="text-muted">Humedad: <?= $clima['humedad'] ?>%</small>
-              </div>
-          </div>
+         
           <li class="nav-item">
             <button id="themeToggle" type="button" class="nav-link nav-icon-btn border-0 bg-transparent p-0" title="Cambiar tema">
               <i class="fas fa-moon"></i>
