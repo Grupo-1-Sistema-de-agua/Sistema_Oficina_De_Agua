@@ -31,10 +31,23 @@ class ClientesController extends BaseController
     }
     public function exportar()
     {
-        $clientes = $this->clienteModel->findAll();
+        $clientes = db_connect()->table('Tb_Clientes')
+            ->select('Tb_Clientes.nombre, Tb_Clientes.dpi, Tb_Clientes.telefono, Tb_Clientes.direccion_principal, Tb_Contadores.codigo_fisico, Tb_Contadores.direccion_servicio, Tb_Contadores.activo')
+            ->join('Tb_Contadores', 'Tb_Contadores.cliente_id = Tb_Clientes.id', 'left')
+            ->orderBy('Tb_Clientes.nombre', 'ASC')
+            ->orderBy('Tb_Contadores.codigo_fisico', 'ASC')
+            ->get()->getResultArray();
         $archivo = fopen('php://temp', 'r+');
 
-        fputcsv($archivo, ['Nombre', 'DPI', 'Telefono', 'Direccion'], ';');
+        fputcsv($archivo, [
+            'Nombre',
+            'DPI',
+            'Telefono',
+            'Direccion',
+            'Contador',
+            'Direccion del servicio',
+            'Estado del contador',
+        ], ';');
 
         foreach ($clientes as $cliente) {
             fputcsv($archivo, [
@@ -42,6 +55,11 @@ class ClientesController extends BaseController
                 $cliente['dpi'] ?? '',
                 $cliente['telefono'] ?? '',
                 $cliente['direccion_principal'],
+                $cliente['codigo_fisico'] ?? '',
+                $cliente['direccion_servicio'] ?? '',
+                isset($cliente['activo'])
+                    ? ((int) $cliente['activo'] === 1 ? 'Activo' : 'Inactivo')
+                    : '',
             ], ';');
         }
 
