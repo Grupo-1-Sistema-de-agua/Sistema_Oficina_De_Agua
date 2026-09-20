@@ -39,13 +39,16 @@
                       <a href="<?= base_url('clientes/editar/' . $cliente['id']) ?>" class="btn btn-sm btn-outline-secondary">
                         <i class="fas fa-edit me-1"></i>Editar
                       </a>
+                      
+                      <!-- AQUÍ SE APLICÓ LA FUNCIÓN GLOBAL DE SWEETALERT -->
                       <form action="<?= base_url('clientes/delete/' . $cliente['id']) ?>" method="post" class="d-inline"
-                            onsubmit="return confirm('¿Eliminar este cliente? Esta accion no se puede deshacer.');">
+                            onsubmit="confirmarFormulario(event, this, 'Eliminar');">
                         <?= csrf_field_nativo() ?>
                         <button type="submit" class="btn btn-sm btn-outline-danger">
                           <i class="fas fa-trash me-1"></i>Eliminar
                         </button>
                       </form>
+                      
                     </div>
                   </td>
                 </tr>

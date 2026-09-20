@@ -124,11 +124,16 @@
                 </td>
                 <td class="text-end celda-acciones" data-label="Acciones">
                   <?php if ((int) $pago['anulado'] !== 1) : ?>
+                  
+                    <!-- AQUÍ SE APLICÓ LA FUNCIÓN GLOBAL DE SWEETALERT -->
                     <form action="<?= base_url('pagos/' . $pago['id'] . '/anular') ?>" method="post" class="d-inline"
-                          onsubmit="return confirm('¿Anular este pago? La lectura volvera a quedar pendiente.');">
+                          onsubmit="confirmarFormulario(event, this, 'Anular');">
                       <?= csrf_field_nativo() ?>
-                      <button type="submit" class="btn btn-sm btn-outline-danger">Anular</button>
+                      <button type="submit" class="btn btn-sm btn-outline-danger">
+                        <i class="fas fa-ban me-1"></i>Anular
+                      </button>
                     </form>
+                    
                   <?php endif; ?>
                 </td>
               </tr>

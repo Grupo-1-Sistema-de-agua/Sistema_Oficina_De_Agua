@@ -23,6 +23,9 @@
   <link rel="stylesheet" href="<?= base_url('assets/css/mdb.min.css') ?>" />
   <link rel="stylesheet" href="<?= base_url('assets/css/admin.css') ?>" />
   <link rel="stylesheet" href="<?= base_url('assets/css/custom.css') ?>" />
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 <body>
   <header>
@@ -99,7 +102,15 @@
         </a>
 
         <ul class="navbar-nav ms-auto d-flex flex-row align-items-center">
-         
+          
+          <!-- WIDGET DE CLIMA (Visible solo cuando existe la variable) -->
+          <?php if(isset($clima) && $clima['temperatura'] !== '--'): ?>
+          <li class="nav-item d-flex align-items-center me-3" title="<?= esc_nativo($clima['descripcion']) ?>">
+            <img src="https://openweathermap.org/img/wn/<?= esc_nativo($clima['icono']) ?>.png" alt="Clima" width="30">
+            <span class="ms-1 fw-bold" style="color: inherit;"><?= esc_nativo($clima['temperatura']) ?>°C</span>
+          </li>
+          <?php endif; ?>
+
           <li class="nav-item">
             <button id="themeToggle" type="button" class="nav-link nav-icon-btn border-0 bg-transparent p-0" title="Cambiar tema">
               <i class="fas fa-moon"></i>
@@ -130,23 +141,57 @@
     </nav>
   </header>
 
-  <main id="main-content">
+  </header>
+
+  <!-- CONTENEDOR DE TOASTS GLOBALES (Flotante arriba a la derecha) -->
+  <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
     <?php $errorFlash = flash_get('error'); $messageFlash = flash_get('message'); ?>
-    <?php if ($errorFlash || $messageFlash) : ?>
-      <div class="pt-4 px-3">
-        <?php if ($errorFlash) : ?>
-          <div class="alert alert-danger"><?= esc_nativo($errorFlash) ?></div>
-        <?php endif; ?>
-        <?php if ($messageFlash) : ?>
-          <div class="alert alert-success"><?= esc_nativo($messageFlash) ?></div>
-        <?php endif; ?>
+    
+    <?php if ($messageFlash) : ?>
+      <div id="toastSuccess" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="fas fa-check-circle me-2"></i> <?= esc_nativo($messageFlash) ?>
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-mdb-dismiss="toast" aria-label="Close"></button>
+        </div>
       </div>
     <?php endif; ?>
 
+    <?php if ($errorFlash) : ?>
+      <div id="toastError" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="fas fa-exclamation-circle me-2"></i> <?= esc_nativo($errorFlash) ?>
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-mdb-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    <?php endif; ?>
+  </div>
+
+  <main id="main-content">
     <?= $this->renderSection('contenido') ?>
   </main>
 
   <script type="text/javascript" src="<?= base_url('assets/js/mdb.umd.min.js') ?>"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var successEl = document.getElementById('toastSuccess');
+      if (successEl) {
+        var toastSuccess = new mdb.Toast(successEl, { delay: 3000 });
+        toastSuccess.show();
+      }
+
+      var errorEl = document.getElementById('toastError');
+      if (errorEl) {
+        var toastError = new mdb.Toast(errorEl, { delay: 4000 });
+        toastError.show();
+      }
+    });
+  </script>
+
   <script>
     (function () {
       var nav = document.getElementById('main-navbar');
@@ -187,13 +232,30 @@
     })();
   </script>
   <script>
-    // El escondido ya lo hizo el script del <head> antes del primer
-    // pintado. Aqui solo forzamos la recarga real hacia el servidor.
     window.addEventListener('pageshow', function (event) {
       if (event.persisted) {
         window.location.reload();
       }
     });
+  </script>
+  <script>
+    function confirmarFormulario(e, form, accion) {
+        e.preventDefault(); // Detiene el envío automático del formulario
+        Swal.fire({
+            title: 'Oficina del Agua',
+            text: "¿Estás seguro de " + accion.toLowerCase() + " este registro?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#0d6efd',
+            cancelButtonColor: '#dc3545',
+            confirmButtonText: 'Sí, ' + accion.toLowerCase(),
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit(); // Si dice que sí, envía el formulario
+            }
+        });
+    }
   </script>
 </body>
 </html>

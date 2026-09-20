@@ -3,12 +3,38 @@
 <?= $this->section('contenido') ?>
 <div class="container-fluid px-4 py-4">
 
-  <div class="rounded-4 p-4 mb-4 position-relative overflow-hidden" style="background: linear-gradient(135deg, #0f2942 0%, #123a52 100%);">
-    <svg style="position: absolute; top: -30px; right: -10px; width: 130px; height: 130px; opacity: 0.10;" viewBox="0 0 100 100"><path d="M50 8 C50 8 22 42 22 62 C22 79 34 92 50 92 C66 92 78 79 78 62 C78 42 50 8 50 8 Z" fill="#ffffff"></path></svg>
-    <div class="small fw-semibold" style="color: #cfe9ef;">Panel del sistema</div>
-    <div class="h5 text-white mb-0">Bienvenido, <?= esc_nativo($nombre) ?></div>
-  </div>
+<div class="row g-3 mb-4">
+    
+    <!-- COLUMNA IZQUIERDA: Banner (Ocupa 8 de 12 espacios) -->
+    <div class="col-md-8">
+      <div class="rounded-4 p-4 h-100 position-relative overflow-hidden d-flex flex-column justify-content-center" style="background: linear-gradient(135deg, #0f2942 0%, #123a52 100%);">
+        <svg style="position: absolute; top: -30px; right: -10px; width: 130px; height: 130px; opacity: 0.10;" viewBox="0 0 100 100"><path d="M50 8 C50 8 22 42 22 62 C22 79 34 92 50 92 C66 92 78 79 78 62 C78 42 50 8 50 8 Z" fill="#ffffff"></path></svg>
+        <div class="small fw-semibold" style="color: #cfe9ef;">Panel del sistema</div>
+        <div class="h5 text-white mb-0 mt-2">Bienvenido, <?= esc_nativo($nombre) ?></div>
+      </div>
+    </div>
 
+    <!-- COLUMNA DERECHA: Clima (Ocupa 4 de 12 espacios) -->
+    <div class="col-md-4">
+      <?php if(isset($clima)): ?>
+      <div class="card shadow-sm h-100 rounded-4 border-0" style="background-color: #f8f9fa;">
+        <div class="card-body p-3 d-flex align-items-center justify-content-between">
+          <div>
+            <h6 class="text-primary fw-bold mb-1"><i class="fas fa-map-marker-alt me-1"></i>Ciudad de Guatemala</h6>
+            <h2 class="display-6 fw-bold text-dark mb-0"><?= esc($clima['temperatura']) ?>°C</h2>
+            <p class="text-capitalize text-muted mb-0 mt-1 small fw-semibold">
+              <?= esc($clima['descripcion']) ?> | <i class="fas fa-tint text-info"></i> <?= esc($clima['humedad']) ?>%
+            </p>
+          </div>
+          <?php if($clima['temperatura'] !== '--'): ?>
+            <img src="https://openweathermap.org/img/wn/<?= esc($clima['icono']) ?>@2x.png" alt="Clima" width="80" class="drop-shadow">
+          <?php endif; ?>
+        </div>
+      </div>
+      <?php endif; ?>
+    </div>
+
+  </div>
   <div class="row g-3 mb-4">
     <div class="col-md-5">
       <div class="rounded-4 p-3 h-100 text-white position-relative overflow-hidden" style="background: linear-gradient(135deg, #0f2942 0%, #123a52 100%);">
