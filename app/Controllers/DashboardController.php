@@ -113,7 +113,8 @@ class DashboardController extends BaseController
             ['nombre' => $_SESSION['nombre'] ?? null],
             $this->totalesGenerales(),
             $this->estadoDeCuenta(),
-            $this->seguimientoCobranza()
+            $this->seguimientoCobranza(),
+            $this->obtenerClima()
         ));
     }
 
@@ -122,7 +123,8 @@ class DashboardController extends BaseController
         return view('dashboard/secretaria', array_merge(
             ['nombre' => $_SESSION['nombre'] ?? null],
             $this->totalesGenerales(),
-            $this->estadoDeCuenta()
+            $this->estadoDeCuenta(),
+            $this->obtenerClima()
         ));
     }
 
@@ -148,7 +150,32 @@ class DashboardController extends BaseController
         return view('dashboard/lector', array_merge(
             ['nombre' => $_SESSION['nombre'] ?? null],
             $this->totalesGenerales(),
-            $this->pendientesLector()
+            $this->pendientesLector(),
+            $this->obtenerClima()
         ));
+    }
+
+    private function obtenerClima(): array
+    {
+        $apiKey = '59a1d726c080747797be2f13080aab72'; 
+        $ciudad = 'Guatemala';
+        $url = "https://api.openweathermap.org/data/2.5/weather?q={$ciudad}&appid={$apiKey}&units=metric&lang=es";
+
+        try {
+            $cliente = \Config\Services::curlrequest(['verify' => false]);
+            $respuesta = $cliente->request('GET', $url);
+            $climaData = json_decode($respuesta->getBody());
+
+            $datosClima = [
+                'temperatura' => round($climaData->main->temp),
+                'descripcion' => $climaData->weather[0]->description,
+                'icono'       => $climaData->weather[0]->icon,
+                'humedad'     => $climaData->main->humidity
+            ];
+        } catch (\Exception $e) {
+            dd("Error de la API en Docker: " . $e->getMessage());
+        }
+
+        return ['clima' => $datosClima];
     }
 }
